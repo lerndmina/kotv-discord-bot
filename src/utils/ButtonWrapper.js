@@ -1,5 +1,9 @@
 const { ActionRowBuilder, ButtonComponent } = require("discord.js");
 
+/**
+ * @param {ButtonComponent[]} buttons
+ * @returns {ActionRowBuilder[]}
+ */
 module.exports = (buttons) => {
   const components = [];
   var actionRow = new ActionRowBuilder();

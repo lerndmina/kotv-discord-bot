@@ -11,6 +11,8 @@ const {
   KOTV_LOG_CHANNEL,
   setCommandCooldown,
   getCommandCooldown,
+  getApiUrl,
+  fetchAPlanetman,
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
 const COMMAND_NAME = "lookup";
@@ -29,18 +31,16 @@ module.exports = {
   run: async ({ interaction, client, handler }) => {
     const ps2Name = interaction.options.getString("name");
 
-    const url = `https://census.daybreakgames.com/s:example/json/get/ps2:v2/character/?name.first_lower=${ps2Name.toLowerCase()}&c:join=outfit_member`;
-
     const message = await interaction.reply({
       embeds: [BasicEmbed(client, "fetching data", "Feching data for user " + ps2Name)],
       ephemeral: true,
     });
 
-    const response = await fetch(url);
+    const data = await fetchAPlanetman(ps2Name);
 
     setCommandCooldown(getCommandCooldown().set(COMMAND_NAME, Date.now() + 10000));
 
-    handleApiResponse(interaction, client, response, ps2Name, message);
+    handleApiResponse(interaction, client, data, ps2Name, message);
   },
 };
 
@@ -50,9 +50,7 @@ module.exports = {
  * @param {any} response
  * @param {string} ps2Name
  */
-async function handleApiResponse(interaction, client, response, ps2Name, message) {
-  const data = await response.json();
-
+async function handleApiResponse(interaction, client, data, ps2Name, message) {
   const characterExists = data.returned > 0;
 
   if (!characterExists) {
@@ -70,21 +68,5 @@ async function handleApiResponse(interaction, client, response, ps2Name, message
 
   interaction.editReply({
     embeds: [BasicEmbed(client, name, `Last login: <t:${lastLogin}:R>\nIs in KOTV: ${isInKOTV}`)],
-  });
-
-  if (!isInKOTV) return;
-
-  await client.channels.fetch(KOTV_LOG_CHANNEL).then((channel) => {
-    const characterJson = JSON.stringify(character, null, 2);
-
-    channel.send({
-      embeds: [
-        BasicEmbed(
-          client,
-          "We've got a live one!",
-          `Planetside character ${name} \`${id}\` is in KOTV! And will be linked with discord user <@${interaction.user.id}> \`${interaction.user.id}\` \n Last login: <t:${lastLogin}:R>\n\`\`\`json\n${characterJson}\`\`\``
-        ),
-      ],
-    });
   });
 }

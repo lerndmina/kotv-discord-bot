@@ -5,15 +5,8 @@ const linkUserSchema = new Schema({
     type: String,
     required: true,
   },
-  planetmen: {
-    type: [
-      {
-        name: String,
-        characterId: String,
-        outfitId: String,
-        inOutfit: Boolean,
-      },
-    ],
+  ps2Characters: {
+    type: Map,
     required: true,
   },
 });

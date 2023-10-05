@@ -30,6 +30,8 @@ module.exports = {
   options: {
     devOnly: true,
     deleted: false,
+    guildOnly: true,
+    botPermissions: ["ManageRoles"],
   },
   /**
    *

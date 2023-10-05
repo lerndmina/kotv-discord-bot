@@ -27,6 +27,7 @@ module.exports = {
   options: {
     devOnly: true,
     deleted: false,
+    guildOnly: true,
   },
   run: async ({ interaction, client, handler }) => {
     const ps2Name = interaction.options.getString("name");
@@ -38,7 +39,7 @@ module.exports = {
 
     const data = await fetchAPlanetman(ps2Name);
 
-    setCommandCooldown(getCommandCooldown().set(COMMAND_NAME, Date.now() + 10000));
+    setCommandCooldown(getCommandCooldown().set(COMMAND_NAME, Date.now() + 30000));
 
     handleApiResponse(interaction, client, data, ps2Name, message);
   },

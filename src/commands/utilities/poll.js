@@ -29,6 +29,7 @@ module.exports = {
   options: {
     devOnly: true,
     deleted: false,
+    guildOnly: true,
   },
   run: async ({ interaction, client, handler }) => {
     const content = interaction.options.getString("content").replace(/;+$/, "").split(";");

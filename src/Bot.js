@@ -63,10 +63,11 @@ module.exports.BOT_MESSAGES = [
  * @type {string[]}
  * @description Home url for the bot
  */
-module.exports.BOT_URL = "https://kotv.org/discord/";
+module.exports.BOT_URL = "https://kotv.org/";
 module.exports.OUTFIT_ID = "37512545478660293";
 module.exports.KOTV_LOG_CHANNEL = "1158482626059960501";
 module.exports.KOTV_VOID_SERVANT_ROLE = "1131268637932658688";
+module.exports.KOTV_PREACHER_ROLE = "1159484605959770222";
 module.exports.fetchAPlanetman = async function (name) {
   const url = `https://census.daybreakgames.com/s:example/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member`;
 

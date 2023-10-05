@@ -32,7 +32,7 @@ module.exports = {
       const pingAgainTime = now + 30000;
       const discordTime = Math.floor(pingAgainTime / 1000);
 
-      var preEmbed = BasicEmbed(client, "🏓 Pong?", `websocket ping == -1`, [
+      var preEmbed = BasicEmbed(client, "🏓 Pong?", `Websocket ping not collected yet.`, [
         { name: `Websocket`, value: `Bot just started, pinging again <t:${discordTime}:R>` },
         { name: `Message Latency`, value: `${latency}ms` },
       ]);

@@ -55,13 +55,13 @@ async function handleLinkInteraction(interaction, client) {
   const MODAL_ID = "kotv-link-modal";
   const MODAL_INPUT = MODAL_ID + "-input";
 
-  if (user) {
-    interaction.reply({
-      content: `You are already linked to a planetman! \nEventually you'll be able to link multiple characters but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
-      ephemeral: true,
-    });
-    return;
-  }
+  // if (user) {
+  //   interaction.reply({
+  //     content: `You are already linked to a planetman! \nEventually you'll be able to link multiple characters but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
+  //     ephemeral: true,
+  //   });
+  //   return;
+  // }
 
   // modal to get user input
 
@@ -87,12 +87,31 @@ async function handleLinkInteraction(interaction, client) {
    * @param {ModalSubmitInteraction} i
    */
   interaction.awaitModalSubmit({ filter: filter, time: 300000 }).then(async (i) => {
-    const name = i.fields.getTextInputValue(MODAL_INPUT);
+    const name = i.fields.getTextInputValue(MODAL_INPUT).toLowerCase();
 
-    await i.reply({
-      content: `Fetching data for ${name}`,
-      ephemeral: true,
+    var isCharacterLinkedToSomeone = false;
+    (await linkUser.find()).forEach((user) => {
+      if (user.ps2Characters.has(name)) {
+        if (user.discordId == i.user.id) {
+          i.reply({
+            embeds: [BasicEmbed(client, "Error!", `You are already linked to ${name}!`, "Red")],
+            ephemeral: true,
+          });
+          isCharacterLinkedToSomeone = true;
+        } else {
+          i.reply({
+            embeds: [BasicEmbed(client, "Error!", `${name} is already linked to someone!`, "Red")],
+            ephemeral: true,
+          });
+          isCharacterLinkedToSomeone = true;
+        }
+      } else {
+      }
     });
+
+    if (isCharacterLinkedToSomeone) return;
+
+    await i.deferReply({ ephemeral: true });
 
     setCommandCooldown(getCommandCooldown().set("link", Date.now() + 10000));
 
@@ -131,7 +150,7 @@ async function handleLinkInteraction(interaction, client) {
     const now = new Date();
     const hoursSinceLastLogin = Math.abs(now - lastLoginDate) / 36e5;
 
-    if (hoursSinceLastLogin > 24) {
+    if (hoursSinceLastLogin > 120) {
       i.editReply({
         content: "",
         embeds: [
@@ -147,10 +166,30 @@ async function handleLinkInteraction(interaction, client) {
       return;
     }
 
-    const link = new linkUser({
-      discordId: i.user.id,
-      planetmen: [{ name: fetchedName, characterId: id, outfitId: OUTFIT_ID, inOutfit: isInKOTV }],
+    const planetman = new Map().set(name, {
+      name: name,
+      id: id,
+      lastLogin: lastLogin,
+      isInKOTV: isInKOTV,
     });
+
+    var link;
+    if (user) {
+      link = new linkUser({
+        discordId: i.user.id,
+        ps2Characters: user.ps2Characters.set(name, {
+          name: name,
+          id: id,
+          lastLogin: lastLogin,
+          isInKOTV: isInKOTV,
+        }),
+      });
+    } else {
+      link = new linkUser({
+        discordId: i.user.id,
+        ps2Characters: planetman,
+      });
+    }
 
     await link.save();
 
@@ -185,7 +224,7 @@ async function handleLinkInteraction(interaction, client) {
         BasicEmbed(
           client,
           "Success!",
-          `Linked account ${fetchedName} to discord user <@${i.user.id}> \`${i.user.id}\`\nWelcome to the void!`
+          `Linked account ${fetchedName} to discord user <@${i.user.id}>. Your role has been applied\nWelcome to the void!`
         ),
       ],
     });

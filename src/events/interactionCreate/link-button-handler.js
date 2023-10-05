@@ -89,6 +89,7 @@ async function handleLinkInteraction(interaction, client) {
   interaction.awaitModalSubmit({ filter: filter, time: 300000 }).then(async (i) => {
     const name = i.fields.getTextInputValue(MODAL_INPUT).toLowerCase();
 
+    // This shit is so fucking cursed, I'm pretty sure I fetch the entire db in this request...
     var isCharacterLinkedToSomeone = false;
     (await linkUser.find()).forEach((user) => {
       if (user.ps2Characters.has(name)) {

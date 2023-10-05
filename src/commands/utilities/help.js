@@ -10,6 +10,7 @@ module.exports = {
   options: {
     devOnly: false,
     deleted: false,
+    guildOnly: true,
   },
   run: async ({ interaction, client, handler }) => {
     await interaction.deferReply();

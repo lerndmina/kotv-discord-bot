@@ -25,7 +25,7 @@ module.exports = {
       option.setName("name").setDescription("The name of the character to lookup").setRequired(true)
     ),
   options: {
-    devOnly: true,
+    devOnly: false,
     deleted: false,
     guildOnly: true,
   },

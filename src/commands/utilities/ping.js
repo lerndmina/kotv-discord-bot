@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const log = require("fancy-log");
+const BasicEmbed = require("../../utils/BasicEmbed");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -27,11 +28,11 @@ module.exports = {
     var deferred = false;
 
     if (wsPing == -1) {
-      var preEmbed = new EmbedBuilder()
-        .setTitle("🏓 Pong!")
-        .addFields({ name: `Websocket`, value: `Bot just started, pinging again...` })
-        .addFields({ name: `Message Latency`, value: `${latency}ms` })
-        .setColor("#0099ff");
+      var preEmbed = BasicEmbed(client, "🏓 Pong!", `I'm ALIVE!`, [
+        { name: `Websocket`, value: `Bot just started, pinging again...` },
+        { name: `Message Latency`, value: `${latency}ms` },
+      ]);
+
       await interaction.reply({ embeds: [preEmbed], ephemeral: private });
 
       await new Promise((r) => setTimeout(r, 30000));
@@ -39,11 +40,10 @@ module.exports = {
       deferred = true;
     }
 
-    const postEmbed = new EmbedBuilder()
-      .setTitle("🏓 Pong!")
-      .addFields({ name: `Websocket`, value: `${wsPing}ms` })
-      .addFields({ name: `Message Latency`, value: `${latency}ms` })
-      .setColor("#0099ff");
+    const postEmbed = BasicEmbed(client, "🏓 Pong!", `I'm ALIVE!`, [
+      { name: `Websocket`, value: `${wsPing}ms` },
+      { name: `Message Latency`, value: `${latency}ms` },
+    ]);
 
     if (deferred) {
       await interaction.editReply({ embeds: [postEmbed], ephemeral: private });

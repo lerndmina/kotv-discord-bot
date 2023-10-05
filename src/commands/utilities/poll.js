@@ -27,7 +27,7 @@ module.exports = {
         .setRequired(false)
     ),
   options: {
-    devOnly: true,
+    devOnly: false,
     deleted: false,
     guildOnly: true,
   },

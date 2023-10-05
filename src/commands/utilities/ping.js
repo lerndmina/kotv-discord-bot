@@ -5,7 +5,7 @@ const BasicEmbed = require("../../utils/BasicEmbed");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Replies with Pong!")
+    .setDescription("Get the bot's ping")
     .addBooleanOption((option) =>
       option.setName("private").setDescription("Whether to reply privately or not")
     ),

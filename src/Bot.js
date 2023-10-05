@@ -68,6 +68,7 @@ module.exports.OUTFIT_ID = "37512545478660293";
 module.exports.KOTV_LOG_CHANNEL = "699379838322081852";
 module.exports.KOTV_VOID_SERVANT_ROLE = "209638552298979328";
 module.exports.KOTV_PREACHER_ROLE = "209639437158580225";
+module.exports.KOTV_GUEST_ROLE = "218771481054674944";
 module.exports.fetchAPlanetman = async function (name) {
   const url = `https://census.daybreakgames.com/s:example/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member`;
 

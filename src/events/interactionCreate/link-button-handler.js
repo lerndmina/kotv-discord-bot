@@ -18,6 +18,7 @@ const {
   KOTV_LOG_CHANNEL,
   getCommandCooldown,
   KOTV_VOID_SERVANT_ROLE,
+  KOTV_GUEST_ROLE,
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
 const FetchEnvs = require("../../utils/FetchEnvs")();
@@ -42,7 +43,7 @@ module.exports = async (interaction, client) => {
             interaction.user.id
         );
         log.error(err);
-        return false;
+        return true;
       });
 };
 
@@ -55,13 +56,13 @@ async function handleLinkInteraction(interaction, client) {
   const MODAL_ID = "kotv-link-modal";
   const MODAL_INPUT = MODAL_ID + "-input";
 
-  // if (user) {
-  //   interaction.reply({
-  //     content: `You are already linked to a planetman! \nEventually you'll be able to link multiple characters but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
-  //     ephemeral: true,
-  //   });
-  //   return;
-  // }
+  if (user) {
+    interaction.reply({
+      content: `You are already linked to a planetman! \nEventually you'll be able to link multiple characters but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
+      ephemeral: true,
+    });
+    return;
+  }
 
   // modal to get user input
 
@@ -87,6 +88,7 @@ async function handleLinkInteraction(interaction, client) {
    * @param {ModalSubmitInteraction} i
    */
   interaction.awaitModalSubmit({ filter: filter, time: 300000 }).then(async (i) => {
+    await i.deferReply({ ephemeral: true });
     const name = i.fields.getTextInputValue(MODAL_INPUT).toLowerCase();
 
     // This shit is so fucking cursed, I'm pretty sure I fetch the entire db in this request...
@@ -112,8 +114,6 @@ async function handleLinkInteraction(interaction, client) {
 
     if (isCharacterLinkedToSomeone) return;
 
-    await i.deferReply({ ephemeral: true });
-
     setCommandCooldown(getCommandCooldown().set("link", Date.now() + 10000));
 
     const data = await fetchAPlanetman(name);
@@ -123,6 +123,8 @@ async function handleLinkInteraction(interaction, client) {
     const fetchedName = character.name.first;
     const lastLogin = character.times.last_login;
     const isInKOTV = character.character_id_join_outfit_member.outfit_id === OUTFIT_ID;
+    const guestRole = await i.guild.roles.cache.fetch(KOTV_GUEST_ROLE);
+    const voidServantRole = await i.guild.roles.cache.fetch(KOTV_VOID_SERVANT_ROLE);
 
     if (data.returned == 0) {
       i.editReply({
@@ -139,11 +141,28 @@ async function handleLinkInteraction(interaction, client) {
           BasicEmbed(
             client,
             "Success!",
-            `Character ${name} is not in KOTV!\nYou will be assigned a guest role.\n\n**NOT IMPLEMENTED YET, NO CHANGES HAVE BEEN MADE**`
+            `Character ${name} is not in KOTV!\nYou will be assigned a guest role.\nWe do not store any data on non-KOTV characters.\nWelcome Guest!`
           ),
         ],
         ephemeral: true,
       });
+
+      await i.guild.members.cache.fetch(i.user.id).then((member) => {
+        member.roles.add(guestRole);
+      });
+
+      await client.channels.fetch(KOTV_LOG_CHANNEL).then((channel) => {
+        channel.send({
+          embeds: [
+            BasicEmbed(
+              client,
+              "Guest role assigned!",
+              `Planetside character ${fetchedName} \`${id}\` is not in KOTV!`
+            ),
+          ],
+        });
+      });
+
       return;
     }
 
@@ -194,30 +213,9 @@ async function handleLinkInteraction(interaction, client) {
 
     await link.save();
 
-    i.guild.roles
-      .fetch(KOTV_VOID_SERVANT_ROLE)
-      .then((role) => {
-        i.member.roles.add(role);
-      })
-      .catch((err) => {
-        log.error(
-          `Error adding role ${KOTV_VOID_SERVANT_ROLE} to user ${i.user.username} (${i.user.id})`
-        );
-        log.error(err);
-
-        i.editReply({
-          content: "",
-          embeds: [
-            BasicEmbed(
-              client,
-              "Error!",
-              `Character ${name} was linked, but there was an error adding you to the void servant role. Please contact <@${FetchEnvs.OWNER_IDS[0]}>`,
-              "Red"
-            ),
-          ],
-          ephemeral: true,
-        });
-      });
+    await i.guild.members.cache.fetch(i.user.id).then((member) => {
+      member.roles.add(guestRole);
+    });
 
     i.editReply({
       content: "",

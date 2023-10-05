@@ -28,8 +28,12 @@ module.exports = {
     var deferred = false;
 
     if (wsPing == -1) {
-      var preEmbed = BasicEmbed(client, "🏓 Pong!", `I'm ALIVE!`, [
-        { name: `Websocket`, value: `Bot just started, pinging again...` },
+      const now = Date.now();
+      const pingAgainTime = now + 30000;
+      const discordTime = Math.floor(pingAgainTime / 1000);
+
+      var preEmbed = BasicEmbed(client, "🏓 Pong?", `websocket ping == -1`, [
+        { name: `Websocket`, value: `Bot just started, pinging again <t:${discordTime}:R>` },
         { name: `Message Latency`, value: `${latency}ms` },
       ]);
 

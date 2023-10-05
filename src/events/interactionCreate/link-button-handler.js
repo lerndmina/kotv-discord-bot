@@ -17,8 +17,10 @@ const {
   OUTFIT_ID,
   KOTV_LOG_CHANNEL,
   getCommandCooldown,
+  KOTV_VOID_SERVANT_ROLE,
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
+const FetchEnvs = require("../../utils/FetchEnvs")();
 
 const INTERACTION_LINK_USER = "kotv-link";
 
@@ -55,7 +57,7 @@ async function handleLinkInteraction(interaction, client) {
 
   if (user) {
     interaction.reply({
-      content: "You are already linked to a planetman!",
+      content: `You are already linked to a planetman! \nEventually you'll be able to link multiple characters but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
       ephemeral: true,
     });
     return;
@@ -87,7 +89,7 @@ async function handleLinkInteraction(interaction, client) {
   interaction.awaitModalSubmit({ filter: filter, time: 300000 }).then(async (i) => {
     const name = i.fields.getTextInputValue(MODAL_INPUT);
 
-    i.reply({
+    await i.reply({
       content: `Fetching data for ${name}`,
       ephemeral: true,
     });
@@ -112,7 +114,34 @@ async function handleLinkInteraction(interaction, client) {
 
     if (!isInKOTV) {
       i.editReply({
-        content: `Character ${name} is not in KOTV!\nYou will be assigned a guest role until you join KOTV.n\n\n**NOT IMPLEMENTED YET**`,
+        content: "",
+        embeds: [
+          BasicEmbed(
+            client,
+            "Success!",
+            `Character ${name} is not in KOTV!\nYou will be assigned a guest role.\n\n**NOT IMPLEMENTED YET, NO CHANGES HAVE BEEN MADE**`
+          ),
+        ],
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const lastLoginDate = new Date(lastLogin * 1000);
+    const now = new Date();
+    const hoursSinceLastLogin = Math.abs(now - lastLoginDate) / 36e5;
+
+    if (hoursSinceLastLogin > 24) {
+      i.editReply({
+        content: "",
+        embeds: [
+          BasicEmbed(
+            client,
+            "Failed!",
+            `Character ${name} last logged in <t:${lastLogin}:R>\nPlease log into your Planetside2 character, wait a few minutes, and try again. You must have been online within the last 24 hours to link your account.`,
+            "Red"
+          ),
+        ],
         ephemeral: true,
       });
       return;
@@ -125,7 +154,33 @@ async function handleLinkInteraction(interaction, client) {
 
     await link.save();
 
+    i.guild.roles
+      .fetch(KOTV_VOID_SERVANT_ROLE)
+      .then((role) => {
+        i.member.roles.add(role);
+      })
+      .catch((err) => {
+        log.error(
+          `Error adding role ${KOTV_VOID_SERVANT_ROLE} to user ${i.user.username} (${i.user.id})`
+        );
+        log.error(err);
+
+        i.editReply({
+          content: "",
+          embeds: [
+            BasicEmbed(
+              client,
+              "Error!",
+              `Character ${name} was linked, but there was an error adding you to the void servant role. Please contact <@${FetchEnvs.OWNER_IDS[0]}>`,
+              "Red"
+            ),
+          ],
+          ephemeral: true,
+        });
+      });
+
     i.editReply({
+      content: "",
       embeds: [
         BasicEmbed(
           client,

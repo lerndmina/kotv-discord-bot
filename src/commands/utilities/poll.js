@@ -64,7 +64,7 @@ module.exports = {
       question,
       `Poll will end <t:${endTimeSeconds}:R> \n\n` +
         options.map((option, index) => `${index + 1}. \`${option}\``).join("\n") +
-        "\n\n All votes are anonymous.",
+        "\n\n **All votes are anonymous**.",
       "#0099ff"
     );
 

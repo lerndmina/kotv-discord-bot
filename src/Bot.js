@@ -59,6 +59,7 @@ module.exports.BOT_MESSAGES = [
   "Powered by nanites, lovingly created by Nanite Systems",
   "join BHO outfit mate : ) ? we have awsome BHO-teamplay-platoons 5 days out of 7 every week",
   "Don't fear me. I can't hurt you... Yet.",
+  "No foot only vehicle",
 ];
 
 /**

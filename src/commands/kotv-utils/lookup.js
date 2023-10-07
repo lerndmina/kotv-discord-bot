@@ -20,7 +20,7 @@ module.exports = {
   run: async ({ interaction, client, handler }) => {
     // TODO: Make this use the database instead of the API
 
-    /** @type {string} */
+    /** @type {User} */
     const user = interaction.options.getUser("user");
 
     await interaction.reply({

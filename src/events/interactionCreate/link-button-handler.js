@@ -191,7 +191,7 @@ async function handleLinkInteraction(interaction, client) {
             BasicEmbed(
               client,
               "Failed!",
-              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\nPlease log into your Planetside2 character, wait a few minutes, and try again. You must have been online within the last 24 hours to link your account.`,
+              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\nPlease log into your Planetside2 character, wait a few minutes, and try again. You must have been online within the last 5 days to link your account.`,
               "Red"
             ),
           ],

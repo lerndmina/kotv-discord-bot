@@ -1,28 +1,16 @@
-const {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  BaseInteraction,
-  Client,
-  AttachmentBuilder,
-} = require("discord.js");
+const { SlashCommandBuilder, CommandInteraction, User } = require("discord.js");
 const log = require("fancy-log");
-const {
-  OUTFIT_ID,
-  KOTV_LOG_CHANNEL,
-  setCommandCooldown,
-  getCommandCooldown,
-  getApiUrl,
-  fetchAPlanetman,
-} = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
+const linkUserSchema = require("../../models/linkUserSchema");
+const { client } = require("tenorjs");
 const COMMAND_NAME = "lookup";
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName(COMMAND_NAME)
     .setDescription("lookup a character with the daybreak census api")
-    .addStringOption((option) =>
-      option.setName("name").setDescription("The name of the character to lookup").setRequired(true)
+    .addUserOption((option) =>
+      option.setName("user").setDescription("The user to lookup").setRequired(true)
     ),
   options: {
     devOnly: false,
@@ -31,44 +19,58 @@ module.exports = {
   },
   run: async ({ interaction, client, handler }) => {
     // TODO: Make this use the database instead of the API
-    const ps2Name = interaction.options.getString("name");
 
-    const message = await interaction.reply({
-      embeds: [BasicEmbed(client, "fetching data", "Feching data for user " + ps2Name)],
+    /** @type {string} */
+    const user = interaction.options.getUser("user");
+
+    await interaction.reply({
+      embeds: [
+        BasicEmbed(
+          client,
+          "<a:waiting:1160317632420003900> Fetching data",
+          `Feching data for user <@${user.id}>`
+        ),
+      ],
       ephemeral: true,
     });
-
-    const data = await fetchAPlanetman(ps2Name);
-
-    setCommandCooldown(getCommandCooldown().set(COMMAND_NAME, Date.now() + 30000));
-
-    handleApiResponse(interaction, client, data, ps2Name, message);
+    await handleUserLookup(interaction, user);
   },
 };
 
 /**
- * @param {BaseInteraction} interaction
- * @param {Client} client
- * @param {any} response
- * @param {string} ps2Name
+ *
+ * @param {CommandInteraction} interaction
+ * @param {User} user
  */
-async function handleApiResponse(interaction, client, data, ps2Name, message) {
-  const characterExists = data.returned > 0;
+async function handleUserLookup(interaction, user) {
+  const fetchedUser = await linkUserSchema.findOne({ discordId: user.id });
 
-  if (!characterExists) {
-    interaction.editReply({ content: `Character ${ps2Name} does not exist!`, ephemeral: true });
-    return;
+  if (!fetchedUser) {
+    return interaction.editReply({
+      embeds: [
+        BasicEmbed(
+          interaction.client,
+          "User not found",
+          `User <@${user.id}> \`${user.id}\` is not linked to a Planetside 2 character.`
+        ),
+      ],
+      ephemeral: true,
+    });
   }
 
-  const character = data.character_list[0];
-  const id = character.character_id;
-  const name = character.name.first;
-  const lastLogin = character.times.last_login;
-  const isInKOTV = character.character_id_join_outfit_member.outfit_id === OUTFIT_ID;
-
-  log(`Details about ${name} (${id}): lastLogin = ${lastLogin}, isInKOTV = ${isInKOTV}`);
-
-  interaction.editReply({
-    embeds: [BasicEmbed(client, name, `Last login: <t:${lastLogin}:R>\nIs in KOTV: ${isInKOTV}`)],
+  return interaction.editReply({
+    embeds: [
+      BasicEmbed(
+        interaction.client,
+        "User found",
+        `User <@${user.id}> \`${user.id}\` is linked to a Planetside 2 character.`,
+        [
+          { name: "Character", value: `\`${fetchedUser.ps2Name}\``, inline: false },
+          { name: "Character ID", value: `\`${fetchedUser.ps2Id}\``, inline: false },
+          { name: "Is in KOTV", value: `\`${fetchedUser.isInKOTV}\``, inline: false },
+          { name: "KOTV Rank", value: `\`${fetchedUser.kotvRank}\``, inline: false },
+        ]
+      ),
+    ],
   });
 }

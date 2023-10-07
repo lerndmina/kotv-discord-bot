@@ -30,8 +30,8 @@ const INTERACTION_LINK_USER = "kotv-link";
  * @param {Client} client
  */
 module.exports = async (interaction, client) => {
-  if (interaction.customId == INTERACTION_LINK_USER)
-    handleLinkInteraction(interaction, client)
+  if (interaction.customId == INTERACTION_LINK_USER) {
+    await handleLinkInteraction(interaction, client)
       .then(() => {
         return true;
       })
@@ -45,6 +45,7 @@ module.exports = async (interaction, client) => {
         log.error(err);
         return true;
       });
+  }
 };
 
 /**
@@ -57,8 +58,8 @@ async function handleLinkInteraction(interaction, client) {
   const MODAL_INPUT = MODAL_ID + "-input";
 
   if (user) {
-    interaction.reply({
-      content: `You are already linked to a planetman! \nEventually you'll be able to link multiple characters but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
+    await interaction.reply({
+      content: `You are already linked to a planetman! \nEventually you'll be able to unlink but this is not implemented yet. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you need to change your linked character.`,
       ephemeral: true,
     });
     return;
@@ -91,87 +92,47 @@ async function handleLinkInteraction(interaction, client) {
     await i.deferReply({ ephemeral: true });
     const name = i.fields.getTextInputValue(MODAL_INPUT).toLowerCase();
 
-    // This shit is so fucking cursed, I'm pretty sure I fetch the entire db in this request...
-    var isCharacterLinkedToSomeone = false;
-    (await linkUser.find()).forEach((user) => {
-      if (user.ps2Characters.has(name)) {
-        if (user.discordId == i.user.id) {
-          i.reply({
-            embeds: [BasicEmbed(client, "Error!", `You are already linked to ${name}!`, "Red")],
-            ephemeral: true,
-          });
-          isCharacterLinkedToSomeone = true;
-        } else {
-          i.reply({
-            embeds: [BasicEmbed(client, "Error!", `${name} is already linked to someone!`, "Red")],
-            ephemeral: true,
-          });
-          isCharacterLinkedToSomeone = true;
-        }
-      } else {
-      }
-    });
+    const isCharacterLinkedToSomeone = await linkUser.findOne({ ps2Name: name });
 
-    if (isCharacterLinkedToSomeone) return;
+    if (isCharacterLinkedToSomeone) {
+      await i.editReply({
+        content: `Character ${name} is already linked to someone else! You can't link a character that is already linked. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you own this character and someone else has linked it.`,
+        ephemeral: true,
+      });
+      return;
+    }
 
-    setCommandCooldown(getCommandCooldown().set("link", Date.now() + 10000));
+    setCommandCooldown(getCommandCooldown().set("link", Date.now() + 15000));
 
+    // Collect all data for use later
     const data = await fetchAPlanetman(name);
 
     const character = data.character_list[0];
     const id = character.character_id;
-    const fetchedName = character.name.first;
+    const fetchedName = character.name.first_lower;
     const lastLogin = character.times.last_login;
     const isInKOTV = character.character_id_join_outfit_member.outfit_id === OUTFIT_ID;
-    const guestRole = await i.guild.roles.cache.fetch(KOTV_GUEST_ROLE);
-    const voidServantRole = await i.guild.roles.cache.fetch(KOTV_VOID_SERVANT_ROLE);
+    var rank;
+    const guestRole = i.guild.roles.cache.get(KOTV_GUEST_ROLE);
+    const voidServantRole = i.guild.roles.cache.get(KOTV_VOID_SERVANT_ROLE);
+    const guildMember = i.guild.members.cache.get(i.user.id);
 
+    // The api nicely tells us how many objects were returned
     if (data.returned == 0) {
-      i.editReply({
+      await i.editReply({
         content: `Character ${name} does not exist!`,
         ephemeral: true,
       });
       return;
     }
 
-    if (!isInKOTV) {
-      i.editReply({
-        content: "",
-        embeds: [
-          BasicEmbed(
-            client,
-            "Success!",
-            `Character ${name} is not in KOTV!\nYou will be assigned a guest role.\nWe do not store any data on non-KOTV characters.\nWelcome Guest!`
-          ),
-        ],
-        ephemeral: true,
-      });
-
-      await i.guild.members.cache.fetch(i.user.id).then((member) => {
-        member.roles.add(guestRole);
-      });
-
-      await client.channels.fetch(KOTV_LOG_CHANNEL).then((channel) => {
-        channel.send({
-          embeds: [
-            BasicEmbed(
-              client,
-              "Guest role assigned!",
-              `Planetside character ${fetchedName} \`${id}\` is not in KOTV!`
-            ),
-          ],
-        });
-      });
-
-      return;
-    }
-
+    // User has not logged in within the last 24 hours
     const lastLoginDate = new Date(lastLogin * 1000);
     const now = new Date();
     const hoursSinceLastLogin = Math.abs(now - lastLoginDate) / 36e5;
 
     if (hoursSinceLastLogin > 120) {
-      i.editReply({
+      await i.editReply({
         content: "",
         embeds: [
           BasicEmbed(
@@ -186,44 +147,50 @@ async function handleLinkInteraction(interaction, client) {
       return;
     }
 
-    const planetman = new Map().set(name, {
-      name: name,
-      id: id,
-      lastLogin: lastLogin,
-      isInKOTV: isInKOTV,
-    });
+    // User is not in KOTV
+    if (!isInKOTV) {
+      await i.editReply({
+        content: "",
+        embeds: [
+          BasicEmbed(
+            client,
+            "Success!",
+            `Character \`${name}\` is not in KOTV!\nYou will be assigned a guest role.\nWelcome Guest!`
+          ),
+        ],
+        ephemeral: true,
+      });
 
-    var link;
-    if (user) {
-      link = new linkUser({
-        discordId: i.user.id,
-        ps2Characters: user.ps2Characters.set(name, {
-          name: name,
-          id: id,
-          lastLogin: lastLogin,
-          isInKOTV: isInKOTV,
-        }),
+      await guildMember.roles.add(guestRole);
+
+      await client.channels.fetch(KOTV_LOG_CHANNEL).then((channel) => {
+        channel.send({
+          embeds: [
+            BasicEmbed(
+              client,
+              "Guest role assigned!",
+              `Planetside character ${fetchedName} \`${id}\` is not in KOTV!\n\nThey have been added to the database.`
+            ),
+          ],
+        });
       });
-    } else {
-      link = new linkUser({
-        discordId: i.user.id,
-        ps2Characters: planetman,
-      });
+      await saveData(name, id, isInKOTV, rank, user, i);
+
+      return;
     }
 
-    await link.save();
+    // User is in KOTV
+    rank = character.character_id_join_outfit_member.rank;
+    await guildMember.roles.add(voidServantRole);
+    await saveData(name, id, isInKOTV, rank, user, i);
 
-    await i.guild.members.cache.fetch(i.user.id).then((member) => {
-      member.roles.add(guestRole);
-    });
-
-    i.editReply({
+    await i.editReply({
       content: "",
       embeds: [
         BasicEmbed(
           client,
           "Success!",
-          `Linked account ${fetchedName} to discord user <@${i.user.id}>. Your role has been applied\nWelcome to the void!`
+          `Linked account \`${fetchedName}\` to discord user <@${i.user.id}>. Your role has been applied\nWelcome to the void!`
         ),
       ],
     });
@@ -242,4 +209,41 @@ async function handleLinkInteraction(interaction, client) {
       });
     });
   });
+}
+
+/**
+ * @param {string} name
+ * @param {string} id
+ * @param {boolean} isInKOTV
+ * @param {string} rank
+ * @param {linkUser} user
+ * @param {ModalSubmitInteraction} i
+ */
+async function saveData(name, id, isInKOTV, rank, user, i) {
+  if (!rank) {
+    rank = "Guest";
+  }
+
+  try {
+    data = {
+      discordId: i.user.id,
+      ps2Id: id,
+      ps2Name: name,
+      isInKOTV: isInKOTV,
+      kotvRank: rank,
+    };
+
+    if (user) {
+      await linkUser.findOneAndUpdate({ discordId: i.user.id }, data);
+      return true;
+    }
+
+    const link = new linkUser(data);
+
+    await link.save();
+    return true;
+  } catch (error) {
+    log.error(error);
+    return false;
+  }
 }

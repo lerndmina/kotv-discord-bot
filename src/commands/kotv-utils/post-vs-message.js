@@ -11,6 +11,8 @@ const {
   KOTV_LOG_CHANNEL,
   setCommandCooldown,
   getCommandCooldown,
+  KOTV_VOID_SERVANT_ROLE,
+  KOTV_GUEST_ROLE,
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
 const { channel } = require("diagnostics_channel");
@@ -53,8 +55,8 @@ module.exports = {
 
     const embed = BasicEmbed(
       client,
-      "Become a Void Servant!",
-      "Hello recruit! Click the button below and link your planetside 2 account to become a Void Servant! Welcome to the void."
+      "Get your role!",
+      `Hello recruit! Click the button below and link your planetside 2 account if you are in KOTV you will be given the role of <@&${KOTV_VOID_SERVANT_ROLE}> role.\n\nGuests are welcome too! If you are a guest, link your account and you will be given the <@&${KOTV_GUEST_ROLE}> role.`
     );
 
     channel.send({ embeds: [embed], components: ButtonWrapper(buttons) });

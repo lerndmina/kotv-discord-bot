@@ -30,6 +30,7 @@ module.exports = {
     guildOnly: true,
   },
   run: async ({ interaction, client, handler }) => {
+    // TODO: Make this use the database instead of the API
     const ps2Name = interaction.options.getString("name");
 
     const message = await interaction.reply({

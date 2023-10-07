@@ -37,10 +37,9 @@ module.exports = async (interaction, client) => {
   ) {
     try {
       if (getCommandCooldown().get("link") > Date.now()) {
+        // <t:${Math.floor(getCommandCooldown().get("link") / 1000)}:R>.
         await interaction.reply({
-          content: `This command has a rate limit, you will be able to use this command <t:${Math.floor(
-            getCommandCooldown().get("link") / 1000
-          )}:R>.`,
+          content: `This command has a rate limit, you will be able to use this command again in 5 seconds.`,
           ephemeral: true,
         });
         return;
@@ -154,7 +153,7 @@ async function handleLinkInteraction(interaction, client) {
         return;
       }
 
-      setCommandCooldown(getCommandCooldown().set("link", Date.now() + 15000));
+      setCommandCooldown(getCommandCooldown().set("link", Date.now() + 5_000));
 
       // Collect all data for use later
       const data = await fetchAPlanetman(name);
@@ -198,14 +197,14 @@ async function handleLinkInteraction(interaction, client) {
       const now = new Date();
       const hoursSinceLastLogin = Math.abs(now - lastLoginDate) / 36e5;
 
-      if (hoursSinceLastLogin > 120) {
+      if (hoursSinceLastLogin > 24) {
         await i.editReply({
           content: "",
           embeds: [
             BasicEmbed(
               client,
               "Failed!",
-              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\nPlease log into your Planetside2 character, wait a few minutes, and try again. You must have been online within the last 5 days to link your account.`,
+              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\n You must have been online within the last 24 hours to link your account.\n\nIf you have just logged out, please wait 30 minutes and try again as the API is very slow to update this data.`,
               "Red"
             ),
           ],

@@ -78,7 +78,7 @@ module.exports.KOTV_GUEST_ROLE = "218771481054674944";
  * @returns {Promise<JSON>}
  */
 module.exports.fetchAPlanetman = async function (name) {
-  const url = `https://census.daybreakgames.com/s:example/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member`;
+  const url = `https://census.daybreakgames.com/s:kotvbot/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member&c:join=outfit_member&c:resolve=member_online_status,member_character`;
 
   const response = await fetch(url);
 

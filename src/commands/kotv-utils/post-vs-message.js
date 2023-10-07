@@ -49,14 +49,20 @@ module.exports = {
     const buttons = [
       new ButtonBuilder()
         .setCustomId("kotv-link")
-        .setLabel("Link Accounts")
-        .setStyle(ButtonStyle.Primary),
+        .setLabel("I'm in KOTV!")
+        .setStyle(ButtonStyle.Primary)
+        .setEmoji("<:KOTV:1152263254656159816>"),
+      new ButtonBuilder()
+        .setCustomId("kotv-link-guest")
+        .setLabel("I'm a guest!")
+        .setStyle(ButtonStyle.Primary)
+        .setEmoji("<:pinkheart:1160313955848290304>"),
     ];
 
     const embed = BasicEmbed(
       client,
       "Get your role!",
-      `Hello recruit! Click the button below and link your planetside 2 account if you are in KOTV you will be given the role of <@&${KOTV_VOID_SERVANT_ROLE}> role.\n\nGuests are welcome too! If you are a guest, link your account and you will be given the <@&${KOTV_GUEST_ROLE}> role.`
+      `Hello recruit! Click the button below and link your PlanetSide 2 account.\n\nIf you are in KOTV, you will be given the <@&${KOTV_VOID_SERVANT_ROLE}> role.\n\nGuests are welcome too! If you are a guest, link your account and you will be given the <@&${KOTV_GUEST_ROLE}> role.`
     );
 
     channel.send({ embeds: [embed], components: ButtonWrapper(buttons) });

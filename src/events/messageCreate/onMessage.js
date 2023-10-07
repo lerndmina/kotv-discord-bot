@@ -38,7 +38,7 @@ module.exports = async (message, client) => {
 
   // Unync commmand
   if (message.content.startsWith(`${env.PREFIX}unsync`)) {
-    if (!env.OWNER_IDS.includes(message.author.id)) return;
+    if (!env.OWNER_IDS.includes(message.author.id)) return message.reply("No.");
     if (message.content.includes("global")) {
       syncCommands(client, message, message.guildId, true);
       return true;
@@ -49,7 +49,7 @@ module.exports = async (message, client) => {
 
   // Reboot command
   if (message.content.startsWith(`${env.PREFIX}reboot`)) {
-    if (!env.OWNER_IDS.includes(message.author.id)) return;
+    if (!env.OWNER_IDS.includes(message.author.id)) return message.reply("No.");
     if (message.content == `${env.PREFIX}reboot hard`) {
       await message.reply({ embeds: [BasicEmbed(client, "Reboot", "Killing the process...")] });
 

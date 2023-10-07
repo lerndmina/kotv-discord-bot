@@ -56,11 +56,13 @@ module.exports.BOT_MESSAGES = [
   "You couldn't hit a Prowler if it was parked.",
   "Keep trying, soldier... It's adorable!",
   "You're the reason medics earn certs!",
-  "⚡ Powered by logic, love and a dash of lunacy.",
+  "Powered by nanites, lovingly created by Nanite Systems",
+  "join BHO outfit mate : ) ? we have awsome BHO-teamplay-platoons 5 days out of 7 every week",
+  "Don't fear me. I can't hurt you... Yet.",
 ];
 
 /**
- * @type {string[]}
+ * @type {string}
  * @description Home url for the bot
  */
 module.exports.BOT_URL = "https://kotv.org/";
@@ -69,6 +71,11 @@ module.exports.KOTV_LOG_CHANNEL = "699379838322081852";
 module.exports.KOTV_VOID_SERVANT_ROLE = "209638552298979328";
 module.exports.KOTV_PREACHER_ROLE = "209639437158580225";
 module.exports.KOTV_GUEST_ROLE = "218771481054674944";
+
+/**
+ * @param {string} name
+ * @returns {Promise<JSON>}
+ */
 module.exports.fetchAPlanetman = async function (name) {
   const url = `https://census.daybreakgames.com/s:example/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member`;
 

@@ -132,9 +132,15 @@ async function handleLinkInteraction(interaction, client) {
 
       const isCharacterLinkedToSomeone = await linkUser.findOne({ ps2Name: name });
 
-      if (isCharacterLinkedToSomeone) {
+      if (isCharacterLinkedToSomeone && isCharacterLinkedToSomeone.discordId != i.user.id) {
         await i.editReply({
           content: `Character ${name} is already linked to someone else! You can't link a character that is already linked. Please contact <@${FetchEnvs.OWNER_IDS[0]}> if you own this character and someone else has linked it.`,
+          ephemeral: true,
+        });
+        return;
+      } else if (isCharacterLinkedToSomeone && isCharacterLinkedToSomeone.discordId == i.user.id) {
+        await i.editReply({
+          content: `Character ${name} is already linked to you! You can't link a character that is already linked to you.`,
           ephemeral: true,
         });
         return;

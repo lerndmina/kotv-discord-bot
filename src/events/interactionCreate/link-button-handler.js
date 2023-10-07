@@ -90,13 +90,21 @@ async function handleLinkInteraction(interaction, client) {
 
   const modal = new ModalBuilder().setCustomId(MODAL_ID).setTitle("Link your account");
 
+  const guildMember = interaction.guild.members.cache.get(interaction.user.id);
+
+  var placeholderName;
+  if (guildMember.nickname) {
+    placeholderName = guildMember.nickname;
+  } else {
+    placeholderName = interaction.user.username.toLowerCase().replace(/\./g, "");
+  }
   const languageInput = new TextInputBuilder()
     .setCustomId(MODAL_INPUT)
     .setLabel("Enter your character name")
     .setMinLength(1)
     .setMaxLength(50)
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder("CrazyVoidServant");
+    .setPlaceholder(placeholderName);
 
   const actionRow = new ActionRowBuilder().addComponents(languageInput);
 

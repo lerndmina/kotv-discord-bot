@@ -45,6 +45,8 @@ module.exports = {
 async function handleUserLookup(interaction, user) {
   const fetchedUser = await linkUserSchema.findOne({ discordId: user.id });
 
+  log.info(`User: ${user.username}. Fetched user: ${fetchedUser}`);
+
   if (!fetchedUser) {
     return interaction.editReply({
       embeds: [

@@ -19,6 +19,7 @@ const {
   getCommandCooldown,
   KOTV_VOID_SERVANT_ROLE,
   KOTV_GUEST_ROLE,
+  fetchRealtime,
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
 const FetchEnvs = require("../../utils/FetchEnvs")();
@@ -179,7 +180,22 @@ async function handleLinkInteraction(interaction, client) {
       }
       const id = character.character_id;
       const fetchedNamePretty = character.name.first;
-      const lastLogin = character.times.last_login;
+      var lastLogin;
+      try {
+        fetchRealtime(id).then((realtimeData) => {
+          if (realtimeData) {
+            lastLogin = realtimeData.last_login;
+            log(`Request for realtime data succeeded. ${name} ${id}`);
+          } else {
+            lastLogin = character.times.last_login_date;
+            log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
+          }
+        });
+      } catch (error) {
+        lastLogin = character.times.last_login_date;
+        log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
+      }
+
       var isInKOTV;
       if (character.character_id_join_outfit_member) {
         isInKOTV = character.character_id_join_outfit_member.outfit_id === OUTFIT_ID;

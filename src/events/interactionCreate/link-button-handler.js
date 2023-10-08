@@ -23,6 +23,7 @@ const {
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
 const { env } = require("process");
+const { debugMsg } = require("../../utils/debugMsg");
 const FetchEnvs = require("../../utils/FetchEnvs")();
 
 const INTERACTION_LINK_USER = "kotv-link";
@@ -135,7 +136,11 @@ async function handleLinkInteraction(interaction, client) {
   await interaction
     .awaitModalSubmit({ filter: filter, time: 300_000 })
     .then(async (i) => {
-      await i.reply({ content: "Processing...", ephemeral: true });
+      await i.reply({
+        content:
+          "Processing... If this is taking longer than 30 seconds, dismiss the message and try again later.",
+        ephemeral: true,
+      });
       const name = i.fields.getTextInputValue(MODAL_INPUT).toLowerCase();
 
       const matcher = /^\w+$/;
@@ -169,7 +174,11 @@ async function handleLinkInteraction(interaction, client) {
       setCommandCooldown(getCommandCooldown().set("link", Date.now() + 5_000));
 
       // Collect all data for use later
+      debugMsg(`Fetching data from census API`);
+      const startTime = Date.now();
       const data = await fetchAPlanetman(name);
+      const endTime = Date.now();
+      debugMsg(`Census API took ${endTime - startTime}ms to respond`);
 
       // The api nicely tells us how many objects were returned
       if (data.returned == 0) {
@@ -184,7 +193,7 @@ async function handleLinkInteraction(interaction, client) {
       if (data.character_list[0]) {
         character = data.character_list[0];
       } else {
-        log(`Census API returned malformed data. Operation aborted.`);
+        debugMsg(`Census API returned malformed data. Operation aborted.`);
         return i.editReply({
           content: `Census API returned malformed data. Please try again later.`,
           ephemeral: true,
@@ -194,22 +203,17 @@ async function handleLinkInteraction(interaction, client) {
       const fetchedNamePretty = character.name.first;
       var lastLogin;
       var realtimeData;
-      try {
-        realtimeData = await fetchRealtime(id);
-        if (realtimeData) {
-          lastLogin = Math.floor(Date.parse(realtimeData.dateLastLogin) / 1000);
+      realtimeData = await fetchRealtime(id);
+      if (realtimeData) {
+        lastLogin = Math.floor(Date.parse(realtimeData.lastLogin) / 1000);
 
-          log(`Request for realtime data succeeded. ${name} ${id}`);
-        } else {
-          lastLogin = character.times.last_login_date;
-          log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
-        }
-      } catch (error) {
-        lastLogin = character.times.last_login_date;
-        log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
+        debugMsg(`Request for realtime data succeeded. ${name} ${id}`);
+      } else {
+        lastLogin = Math.floor(Date.parse(character.times.last_login_date) / 1000);
+        debugMsg(`Request for realtime data failed, using census data instead. ${name} ${id}`);
       }
 
-      log(`Last login: ${lastLogin}`);
+      debugMsg(`Last login: ${lastLogin}`);
 
       var isInKOTV;
       if (character.character_id_join_outfit_member) {
@@ -227,11 +231,11 @@ async function handleLinkInteraction(interaction, client) {
       const lastLoginDate = lastLogin * 1000;
       const now = new Date().getTime();
 
-      const hoursSinceLastLogin = Math.floor((now - lastLoginDate) / 1000 / 60 / 60);
+      const minsSinceLastLogin = Math.floor((now - lastLoginDate) / 1000 / 60);
 
-      log(`Hours since last login: ${hoursSinceLastLogin}`);
+      debugMsg(`Mins since last login: ${minsSinceLastLogin}`);
 
-      if (hoursSinceLastLogin > 24) {
+      if (minsSinceLastLogin > 60) {
         // 10 mins from now in seconds
         const time = Math.floor((now + 600_000) / 1000);
 
@@ -241,7 +245,7 @@ async function handleLinkInteraction(interaction, client) {
             BasicEmbed(
               client,
               "Failed!",
-              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\n You must have been online within the last 24 hours to link your account.\n\nIf you have just logged out, please wait a few minutes and try again. You should try again <t:${time}:R>.`,
+              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\n You must have been online within the last hour to link your account. Please log in and try again.`,
               "Red"
             ),
           ],

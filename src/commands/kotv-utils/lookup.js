@@ -292,8 +292,16 @@ async function handleYeet(interaction, user) {
 
       await linkUserSchema.findOneAndDelete({ discordId: user.id });
 
+      log.info(`Yeeted user ${user.username} (${user.id}) from the database.`);
+
       return await i.reply({
-        embeds: [BasicEmbed(i.client, "Yeeted", `Yeeted <@${user.id}> from the database.`)],
+        embeds: [
+          BasicEmbed(
+            i.client,
+            "Yeeted",
+            `${i.user.username} yeeted <@${user.id}> from the database.`
+          ),
+        ],
         ephemeral: true,
       });
     })

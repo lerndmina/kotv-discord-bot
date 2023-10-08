@@ -78,11 +78,31 @@ module.exports.KOTV_GUEST_ROLE = "218771481054674944";
  * @returns {Promise<JSON>}
  */
 module.exports.fetchAPlanetman = async function (name) {
-  const url = `https://census.daybreakgames.com/s:kotvbot/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member&c:join=outfit_member&c:resolve=member_online_status,member_character`;
+  const url = `https://census.daybreakgames.com/s:${
+    env.CENSUS_KEY
+  }/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member&c:join=outfit_member&c:resolve=member_online_status,member_character`;
 
   const response = await fetch(url);
 
   return response.json();
+};
+
+/**
+ * @param {string} planetmanId
+ * @returns {Promise<JSON>}
+ */
+module.exports.fetchRealtime = async function (planetmanId) {
+  const url = `${env.REALTIME_API}/character/${planetmanId}/honu-data`;
+  var response;
+  try {
+    response = (await fetch(url)).json();
+  } catch (error) {
+    log.error("Error when fetching from realtime API");
+
+    response = null;
+  }
+
+  return response;
 };
 
 var _commandCooldown = new Map();

@@ -10,6 +10,8 @@ module.exports = () => {
     TEST_SERVERS: process.env.TEST_SERVERS,
     PREFIX: process.env.PREFIX,
     MONGODB_URI: process.env.MONGODB_URI,
+    CENSUS_KEY: process.env.CENSUS_KEY,
+    REALTIME_API: process.env.REALTIME_API,
   };
 
   for (const key in env) {

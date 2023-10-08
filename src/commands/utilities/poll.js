@@ -82,10 +82,10 @@ module.exports = {
       });
     });
 
-    //! selectMenu.addOptions({
-    //!   label: "End Poll",
-    //!   value: "end",
-    //! });
+    selectMenu.addOptions({
+      label: "End Poll",
+      value: "end",
+    });
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 

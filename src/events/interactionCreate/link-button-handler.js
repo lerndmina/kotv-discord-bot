@@ -22,6 +22,7 @@ const {
   fetchRealtime,
 } = require("../../Bot");
 const BasicEmbed = require("../../utils/BasicEmbed");
+const { env } = require("process");
 const FetchEnvs = require("../../utils/FetchEnvs")();
 
 const INTERACTION_LINK_USER = "kotv-link";
@@ -48,9 +49,20 @@ module.exports = async (interaction, client) => {
       await handleLinkInteraction(interaction, client);
     } catch (error) {
       log.error(error);
-      await interaction.channel.send({
-        content: `Something went wrong with this request! I will now ping a developer; <@${FetchEnvs.OWNER_IDS[0]}>.\n\n**Help me wild you're my only hope!**`,
-        ephemeral: true,
+      await interaction.user.send({
+        content: `An error occured while processing your request. I have notified a developer. You do not need to do anything else. You can try again later if you wish.`,
+      });
+      await client.channels.fetch(KOTV_LOG_CHANNEL).then((channel) => {
+        channel.send({
+          content: `ALERT <@${FetchEnvs.OWNER_IDS[0]}> !!!`,
+          embeds: [
+            BasicEmbed(
+              client,
+              "Error!",
+              `An error occured while processing a link request for user ${interaction.user.username} \`${interaction.user.id}\`\n\`\`\`${error}\`\`\``
+            ),
+          ],
+        });
       });
     }
   }
@@ -62,8 +74,8 @@ module.exports = async (interaction, client) => {
  */
 async function handleLinkInteraction(interaction, client) {
   const user = await linkUser.findOne({ discordId: interaction.user.id });
-  const MODAL_ID = "kotv-link-modal" + "-" + interaction.user.id;
-  const MODAL_INPUT = MODAL_ID + "-input" + "-" + interaction.user.id;
+  const MODAL_ID = "kotv-link-modal" + "-" + interaction.user.id + "-" + Date.now();
+  const MODAL_INPUT = MODAL_ID + "-input";
 
   var alreadyLinkedMsg;
 
@@ -119,9 +131,9 @@ async function handleLinkInteraction(interaction, client) {
    * @param {ModalSubmitInteraction} i
    */
 
-  // Collect interaction
+  //! Collect interaction
   await interaction
-    .awaitModalSubmit({ filter: filter, time: 300_0000 })
+    .awaitModalSubmit({ filter: filter, time: 300_000 })
     .then(async (i) => {
       await i.reply({ content: "Processing...", ephemeral: true });
       const name = i.fields.getTextInputValue(MODAL_INPUT).toLowerCase();
@@ -172,29 +184,32 @@ async function handleLinkInteraction(interaction, client) {
       if (data.character_list[0]) {
         character = data.character_list[0];
       } else {
-        i.editReply({
-          content: `API returned malformed data. Please try again later.`,
+        log(`Census API returned malformed data. Operation aborted.`);
+        return i.editReply({
+          content: `Census API returned malformed data. Please try again later.`,
           ephemeral: true,
         });
-        return;
       }
       const id = character.character_id;
       const fetchedNamePretty = character.name.first;
       var lastLogin;
+      var realtimeData;
       try {
-        fetchRealtime(id).then((realtimeData) => {
-          if (realtimeData) {
-            lastLogin = realtimeData.last_login;
-            log(`Request for realtime data succeeded. ${name} ${id}`);
-          } else {
-            lastLogin = character.times.last_login_date;
-            log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
-          }
-        });
+        realtimeData = await fetchRealtime(id);
+        if (realtimeData) {
+          lastLogin = Math.floor(Date.parse(realtimeData.dateLastLogin) / 1000);
+
+          log(`Request for realtime data succeeded. ${name} ${id}`);
+        } else {
+          lastLogin = character.times.last_login_date;
+          log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
+        }
       } catch (error) {
         lastLogin = character.times.last_login_date;
         log(`Request for realtime data failed, using census data instead. ${name} ${id}`);
       }
+
+      log(`Last login: ${lastLogin}`);
 
       var isInKOTV;
       if (character.character_id_join_outfit_member) {
@@ -209,18 +224,24 @@ async function handleLinkInteraction(interaction, client) {
       const guildMember = i.guild.members.cache.get(i.user.id);
 
       // User has not logged in within the last 24 hours
-      const lastLoginDate = new Date(lastLogin * 1000);
-      const now = new Date();
-      const hoursSinceLastLogin = Math.abs(now - lastLoginDate) / 36e5;
+      const lastLoginDate = lastLogin * 1000;
+      const now = new Date().getTime();
+
+      const hoursSinceLastLogin = Math.floor((now - lastLoginDate) / 1000 / 60 / 60);
+
+      log(`Hours since last login: ${hoursSinceLastLogin}`);
 
       if (hoursSinceLastLogin > 24) {
+        // 10 mins from now in seconds
+        const time = Math.floor((now + 600_000) / 1000);
+
         await i.editReply({
           content: "",
           embeds: [
             BasicEmbed(
               client,
               "Failed!",
-              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\n You must have been online within the last 24 hours to link your account.\n\nIf you have just logged out, please wait 30 minutes and try again as the API is very slow to update this data.`,
+              `Character \`${fetchedNamePretty}\` last logged in <t:${lastLogin}:R>\n You must have been online within the last 24 hours to link your account.\n\nIf you have just logged out, please wait a few minutes and try again. You should try again <t:${time}:R>.`,
               "Red"
             ),
           ],
@@ -292,11 +313,9 @@ async function handleLinkInteraction(interaction, client) {
       });
     })
     .catch(async (error) => {
-      log.error(error);
-      await interaction.editReply({
-        content: `You took too long to respond!`,
-        ephemeral: true,
-      });
+      log.error(
+        `Modal interaction timed out for user ${interaction.user.username}, Census probably timed out.`
+      );
     });
 }
 

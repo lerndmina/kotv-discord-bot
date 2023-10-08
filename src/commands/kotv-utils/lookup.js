@@ -151,6 +151,9 @@ async function handleUserLookup(interaction, user, usingRealtime) {
 
   if (usingRealtime) {
     const realtimeData = await fetchRealtime(fetchedUser.ps2Id);
+    log.info(
+      `Got api response for ${fetchedUser.ps2Name} (${fetchedUser.ps2Id}) they last logged in at ${realtimeData.dateLastLogin} this data was updated ${realtimeData.lastUpdated}`
+    );
 
     if (!realtimeData) {
       return interaction.editReply({
@@ -165,7 +168,7 @@ async function handleUserLookup(interaction, user, usingRealtime) {
       });
     }
 
-    lastLogin = new Date(realtimeData.lastLogin);
+    lastLogin = new Date(realtimeData.dateLastLogin);
 
     const timestamp = Math.floor(lastLogin.getTime() / 1000);
     fields.push({

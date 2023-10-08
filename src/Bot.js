@@ -92,7 +92,7 @@ module.exports.fetchAPlanetman = async function (name) {
  * @returns {Promise<JSON>}
  */
 module.exports.fetchRealtime = async function (planetmanId) {
-  const url = `${env.REALTIME_API}/character/${planetmanId}/honu-data`;
+  const url = `${env.REALTIME_API}/character/${planetmanId}`;
   var response;
   try {
     response = (await fetch(url)).json();

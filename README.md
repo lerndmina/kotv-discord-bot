@@ -1,9 +1,7 @@
 # A bot in Discord.js
 ## Installation
-Clone the repository:
-```
-git clone https://github.com/droolio/kotv-discord-bot.git
-```
+
+Clone the repo
 
 Install dependencies:
 ```

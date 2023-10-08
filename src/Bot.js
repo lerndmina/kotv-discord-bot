@@ -45,6 +45,11 @@ module.exports.Start = async () => {
   });
 };
 
+function sendDebugMessage(msg) {
+  if (!this.BOT_DEBUG) return;
+  log.info(msg);
+}
+
 /**
  * @type {string[]}
  * @description Random funny bot messages for a footer.
@@ -72,6 +77,8 @@ module.exports.KOTV_LOG_CHANNEL = "699379838322081852";
 module.exports.KOTV_VOID_SERVANT_ROLE = "209638552298979328";
 module.exports.KOTV_PREACHER_ROLE = "209639437158580225";
 module.exports.KOTV_GUEST_ROLE = "218771481054674944";
+module.exports.BOT_DEBUG = true;
+module.exports.botStartTime = new Date();
 
 /**
  * @param {string} name
@@ -92,17 +99,17 @@ module.exports.fetchAPlanetman = async function (name) {
  * @returns {Promise<JSON>}
  */
 module.exports.fetchRealtime = async function (planetmanId) {
-  const url = `${env.REALTIME_API}/character/${planetmanId}`;
-  var response;
-  try {
-    response = (await fetch(url)).json();
-  } catch (error) {
-    log.error("Error when fetching from realtime API");
-
-    response = null;
+  sendDebugMessage("Fetching from realtime API");
+  const url = `${env.REALTIME_API}/character/${planetmanId}/honu-data/`;
+  sendDebugMessage(`Fetching from ${url}`);
+  const response = await fetch(url);
+  sendDebugMessage("Fetched from realtime API");
+  if (response.status !== 200) {
+    sendDebugMessage("Realtime API returned non-200 status code");
+    return null;
   }
 
-  return response;
+  return response.json();
 };
 
 var _commandCooldown = new Map();

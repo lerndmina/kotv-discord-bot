@@ -161,14 +161,14 @@ async function handleUserLookup(interaction, user, usingRealtime) {
           BasicEmbed(
             interaction.client,
             "Error",
-            `There was an error fetching realtime data for user <@${user.id}> \`${user.id}\``
+            `There was an error fetching realtime data for user <@${user.id}> \`${user.id}\`. They may have not logged in recently.`
           ),
         ],
         ephemeral: true,
       });
     }
 
-    lastLogin = new Date(realtimeData.dateLastLogin);
+    lastLogin = new Date(realtimeData.lastLogin);
 
     const timestamp = Math.floor(lastLogin.getTime() / 1000);
     fields.push({

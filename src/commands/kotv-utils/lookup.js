@@ -43,7 +43,7 @@ module.exports = {
       option.setName("fetch-realtime").setDescription("Fetch realtime data.").setRequired(false)
     ),
   options: {
-    devOnly: true,
+    devOnly: false,
     deleted: false,
     guildOnly: true,
   },

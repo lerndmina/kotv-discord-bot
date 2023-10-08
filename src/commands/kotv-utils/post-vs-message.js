@@ -30,7 +30,7 @@ module.exports = {
         .setRequired(true)
     ),
   options: {
-    devOnly: true,
+    devOnly: false,
     deleted: false,
     guildOnly: true,
     botPermissions: ["ManageRoles"],

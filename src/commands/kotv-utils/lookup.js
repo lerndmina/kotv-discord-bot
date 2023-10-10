@@ -330,11 +330,11 @@ async function handleYeet(interaction, user) {
  * @param {string} add
  */
 async function handleAdd(interaction, user, add) {
-  const userExists = await linkUserSchema.findOne({ discordId: user.id });
+  const dbUser = await linkUserSchema.findOne({ discordId: user.id });
 
   add = add.toLowerCase();
 
-  if (userExists) {
+  if (dbUser) {
     return await interaction.reply({
       embeds: [
         BasicEmbed(

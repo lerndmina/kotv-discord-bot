@@ -1,5 +1,9 @@
 const { Schema, model } = require("mongoose");
 
+/**
+ * LinkUser Schema
+ * @constructor LinkUser
+ */
 const linkUserSchema = new Schema({
   discordId: {
     type: String,

@@ -19,6 +19,7 @@ module.exports.Start = async () => {
       GatewayIntentBits.DirectMessages,
       GatewayIntentBits.GuildMessageReactions,
       GatewayIntentBits.GuildVoiceStates,
+      GatewayIntentBits.GuildMembers,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   });
@@ -47,7 +48,7 @@ module.exports.Start = async () => {
 
 function sendDebugMessage(msg) {
   if (!this.BOT_DEBUG) return;
-  log.info(msg);
+  log.info(`DEBUG: ${msg}`);
 }
 
 /**

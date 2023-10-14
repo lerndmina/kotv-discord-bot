@@ -178,7 +178,7 @@ function endVote(voteInteraction, response, options, votes) {
         const voteCount = voteCounts[index] || 0;
         const percentage = Math.floor((voteCount / totalVotes) * 100);
 
-        return `${index + 1}. \`${option}\` - ${percentage}%`;
+        return `${index + 1}. \`${option}\` - ${percentage}% (${voteCount} votes)})`;
       })
       .join("\n"),
     "#0099ff"

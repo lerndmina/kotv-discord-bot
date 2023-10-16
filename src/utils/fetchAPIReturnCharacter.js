@@ -2,7 +2,7 @@ const { fetchAPlanetman } = require("../Bot");
 const { debugMsg } = require("./debugMsg");
 
 module.exports = async function (name) {
-  debugMsg(`Fetching data from census API`);
+  debugMsg(`Fetching ${name} from census API`);
   const startTime = Date.now();
   const data = await fetchAPlanetman(name);
   const endTime = Date.now();

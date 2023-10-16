@@ -14,8 +14,8 @@ module.exports = ({ interaction, commandObj, handler }) => {
       const timeLeft = Math.floor(time / 1000);
       return hasCooldownMessage(interaction, timeLeft);
     }
-  } else if (cooldown.has(`${name}-${interaction.user.id}`)) {
-    const time = cooldown.get(`${name}-${interaction.user.id}`);
+  } else if (cooldown.has(`${name}${interaction.user.id}`)) {
+    const time = cooldown.get(`${name}${interaction.user.id}`);
 
     if (Date.now() < time) {
       const timeLeft = Math.floor(time / 1000);

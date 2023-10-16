@@ -131,4 +131,12 @@ module.exports.setCommandCooldown = function (value) {
   _commandCooldown = value;
 };
 
+/**
+ * @param {string} key
+ * @param {number} value
+ */
+module.exports.addCommandCooldown = function (key, value) {
+  _commandCooldown.set(key, value);
+};
+
 this.Start();

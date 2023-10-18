@@ -1,3 +1,4 @@
+const logger = require("fancy-log");
 const { fetchAPlanetman } = require("../Bot");
 const { debugMsg } = require("./debugMsg");
 
@@ -10,5 +11,10 @@ module.exports = async function (name) {
   if (data.returned < 1) {
     return null;
   }
-  return data.character_list[0];
+  try {
+    return data.character_list[0];
+  } catch (error) {
+    logger.info("The api broke. Returning null.");
+    return null;
+  }
 };

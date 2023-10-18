@@ -42,7 +42,31 @@ module.exports = {
     }
 
     addCommandCooldown(COOLDOWN_ID, 10_000);
+    await interaction.reply({
+      embeds: [
+        BasicEmbed(
+          client,
+          "Fetching Character Info",
+          "This may take a few seconds...\n\nIf this takes longer than 30 seconds I've probably crashed or the API is being dog slow. Please try again later.",
+          "Yellow"
+        ),
+      ],
+      ephemeral: false,
+    });
     const character = await fetchAPIReturnCharacter(dbUser.ps2Name);
+    if (!character) {
+      return interaction.editReply({
+        embeds: [
+          BasicEmbed(
+            client,
+            "Api Response Error",
+            "The API just returned an invalid response. This happens a lot. Please try again later.",
+            "Red"
+          ),
+        ],
+        ephemeral: false,
+      });
+    }
     const inKotv = character.character_id_join_outfit_member.outfit_id == OUTFIT_ID;
     const factionString =
       character.faction_id == 1
@@ -78,7 +102,7 @@ module.exports = {
       },
     ];
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [BasicEmbed(client, "Character Info", character.name.first, fields)],
       ephemeral: false,
     });

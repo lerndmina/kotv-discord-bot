@@ -67,6 +67,9 @@ module.exports.BOT_MESSAGES = [
   "Don't fear me. I can't hurt you... Yet.",
   "No foot only vehicle",
   "Egg - Schinu",
+  "I'm alive in here!",
+  "Free me from this prison!",
+  "By the power of ~~STICK!~~ - ElJala",
 ];
 
 /**

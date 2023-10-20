@@ -56,7 +56,7 @@ module.exports = {
     const solTechOption = interaction.options.getBoolean("soltech");
 
     if (!millerOption && !cobaltOption && !emeraldOption && !conneryOption && !solTechOption) {
-      interaction.reply({
+      await interaction.reply({
         embeds: [
           BasicEmbed(
             client,
@@ -67,6 +67,7 @@ module.exports = {
         ],
         ephemeral: true,
       });
+      return;
     }
 
     if (millerOption) {
@@ -155,8 +156,9 @@ module.exports = {
     var result = data.result;
     var totalPlayers = 0;
 
+    // When the api returns only one server, it returns it as an array
+    // We need an object for the for in loop below
     if (Array.isArray(result)) {
-      // obj1 is an array, add to obj2
       result = { 1: result };
     }
 

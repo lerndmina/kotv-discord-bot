@@ -177,20 +177,18 @@ module.exports = {
 
         fields.push({
           name: `${world} has \`${total}\` players online.`,
-          value: `<:vanu:813469839485960222> VS: \`${i.vs}\` ${percentVS}% | <:nc:813469147010170900> NC: \`${i.nc}\` ${percentNC}%\n<:tr:813469583515189259> TR: \`${i.tr}\` ${percentTR}% | <:NSO:1165020512292978709> NSO: \`${i.ns}\` ${percentNS}%\n`,
+          value: `<:vanu:813469839485960222> VS: \`${i.vs}\` ${percentVS}%\n<:nc:813469147010170900> NC: \`${i.nc}\` ${percentNC}%\n<:tr:813469583515189259> TR: \`${i.tr}\` ${percentTR}%\n<:NSO:1165020512292978709> NSO: \`${i.ns}\` ${percentNS}%\n`,
           inline: true,
         });
       });
     }
-
-    finalMsg += `\nYour request returned \`${totalPlayers}\` players.\nThis data is from [Fisu](https://ps2.fisu.pw/population/?world=${serverNumList})`;
 
     await interaction.editReply({
       embeds: [
         BasicEmbed(
           client,
           "Population Info",
-          `Your request returned \`${totalPlayers}\` players`,
+          `Your request returned \`${totalPlayers}\` players\nThe below data was taken from [Fisu](https://ps2.fisu.pw/population/?world=${serverNumList})`,
           fields
         ),
       ],

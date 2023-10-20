@@ -188,7 +188,7 @@ module.exports = {
         BasicEmbed(
           client,
           "Population Info",
-          `Your request returned \`${totalPlayers}\` players\nThe below data was taken from [Fisu](https://ps2.fisu.pw/api/population/)`,
+          `Your request returned \`${totalPlayers}\` players\nThe below data was taken from [Fisu](https://ps2.fisu.pw/)`,
           fields
         ),
       ],

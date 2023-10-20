@@ -15,28 +15,125 @@ const COMMAND_NAME = "population";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName(COMMAND_NAME)
-    .setDescription("Get the current miller world pop from fisu"),
+    .setDescription("Get the current miller world pop from fisu")
+    .addBooleanOption((option) =>
+      option.setName("miller").setDescription("Get population for Miller")
+    )
+    .addBooleanOption((option) =>
+      option.setName("cobalt").setDescription("Get population for Cobalt")
+    )
+    .addBooleanOption((option) =>
+      option.setName("emerald").setDescription("Get population for Emerald")
+    )
+    .addBooleanOption((option) =>
+      option.setName("connery").setDescription("Get population for Connery")
+    )
+    .addBooleanOption((option) =>
+      option.setName("soltech").setDescription("Get population for SolTech")
+    ),
   options: {
     devOnly: false,
     deleted: false,
     guildOnly: true,
   },
   run: async ({ interaction, client, handler }) => {
-    const COOLDOWN_ID = `${COMMAND_NAME}${interaction.user.id}`;
+    const COOLDOWN_ID = `${COMMAND_NAME}`;
+    const serverNumObj = {
+      Miller: 10,
+      Cobalt: 13,
+      Emerald: 17,
+      Connery: 1,
+      SolTech: 40,
+    };
+
+    var serverNumList;
+    var requestingForString;
+
+    const millerOption = interaction.options.getBoolean("miller");
+    const cobaltOption = interaction.options.getBoolean("cobalt");
+    const emeraldOption = interaction.options.getBoolean("emerald");
+    const conneryOption = interaction.options.getBoolean("connery");
+    const solTechOption = interaction.options.getBoolean("soltech");
+
+    if (!millerOption && !cobaltOption && !emeraldOption && !conneryOption && !solTechOption) {
+      interaction.reply({
+        embeds: [
+          BasicEmbed(
+            client,
+            "Population Info",
+            "You must select at least one server to get the population for.",
+            "Red"
+          ),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    if (millerOption) {
+      serverNumList = `${serverNumObj.Miller}`;
+      requestingForString = "Miller";
+    }
+    if (cobaltOption) {
+      if (serverNumList) {
+        requestingForString += ", Cobalt";
+        serverNumList = `${serverNumList},${serverNumObj.Cobalt}`;
+      } else {
+        requestingForString += "Cobalt";
+        serverNumList = `${serverNumObj.Cobalt}`;
+      }
+    }
+    if (emeraldOption) {
+      if (serverNumList) {
+        requestingForString += ", Emerald";
+        serverNumList = `${serverNumList},${serverNumObj.Emerald}`;
+      } else {
+        requestingForString += "Emerald";
+        serverNumList = `${serverNumObj.Emerald}`;
+      }
+    }
+    if (conneryOption) {
+      if (serverNumList) {
+        requestingForString += ", Connery";
+        serverNumList = `${serverNumList},${serverNumObj.Connery}`;
+      } else {
+        requestingForString += "Connery";
+        serverNumList = `${serverNumObj.Connery}`;
+      }
+    }
+    if (solTechOption) {
+      if (serverNumList) {
+        requestingForString += ", SolTech";
+        serverNumList = `${serverNumList},${serverNumObj.SolTech}`;
+      } else {
+        requestingForString += "SolTech";
+        serverNumList = `${serverNumObj.SolTech}`;
+      }
+    }
 
     addCommandCooldown(COOLDOWN_ID, 10_000);
     await interaction.reply({
       embeds: [
         BasicEmbed(
           client,
-          "Population Info",
-          "This shouldn't take longer than 5 seconds. If it does, the API is probably down.",
+          "Fetching Data",
+          `Fetching population data for ${requestingForString}...`,
           "Yellow"
         ),
       ],
       ephemeral: false,
     });
-    const response = await fetch("https://ps2.fisu.pw/api/population/?world=10");
+
+    const url = "https://ps2.fisu.pw/api/population/?world=" + serverNumList;
+
+    log(
+      `${interaction.user.username} is fetching ${requestingForString} population data from fisu...}`
+    );
+
+    const startTime = Date.now();
+    const response = await fetch(url);
+    const endTime = Date.now();
+    const timeTaken = endTime - startTime;
+    log(`Api took: ${timeTaken}ms to respond`);
 
     // If non 200 status code
     if (response.status !== 200) {
@@ -55,22 +152,43 @@ module.exports = {
     }
 
     const data = await response.json();
-    const pop = data.result[0];
-    const totalpop = pop.vs + pop.nc + pop.tr + pop.ns;
-    const percentNC = ((pop.nc / totalpop) * 100).toFixed(0);
-    const percentVS = ((pop.vs / totalpop) * 100).toFixed(0);
-    const percentTR = ((pop.tr / totalpop) * 100).toFixed(0);
-    const percentNS = ((pop.ns / totalpop) * 100).toFixed(0);
+    var result = data.result;
+    var totalPlayers = 0;
 
-    const msg = `Miller has \`${totalpop}\` players online.
-    \n<:vanu:813469839485960222> VS: \`${pop.vs}\` ${percentVS}%
-    \n<:nc:813469147010170900> NC: \`${pop.nc}\` ${percentNC}%
-    \n<:tr:813469583515189259> TR: \`${pop.tr}\` ${percentTR}%
-    \nNS: \`${pop.ns}\` ${percentNS}%
-    \n\nThis data is from [Fisu](https://ps2.fisu.pw/population/?world=10)`;
+    if (Array.isArray(result)) {
+      // obj1 is an array, add to obj2
+      result = { 1: result };
+    }
+
+    var finalMsg = "";
+
+    for (const key in result) {
+      result[key].forEach((i) => {
+        const total = i.vs + i.nc + i.tr + i.ns;
+        totalPlayers += total;
+        const world = getKeyByValue(serverNumObj, i.worldId);
+
+        const percentNC = ((i.nc / total) * 100).toFixed(0);
+        const percentVS = ((i.vs / total) * 100).toFixed(0);
+        const percentTR = ((i.tr / total) * 100).toFixed(0);
+        const percentNS = ((i.ns / total) * 100).toFixed(0);
+
+        finalMsg += `${world} has \`${total}\` players online.
+        <:vanu:813469839485960222> VS: \`${i.vs}\` ${percentVS}%
+        <:nc:813469147010170900> NC: \`${i.nc}\` ${percentNC}%
+        <:tr:813469583515189259> TR: \`${i.tr}\` ${percentTR}%
+        <:NSO:1165020512292978709> NSO: \`${i.ns}\` ${percentNS}%\n\n`;
+      });
+    }
+
+    finalMsg += `\nYour request returned \`${totalPlayers}\` players.\nThis data is from [Fisu](https://ps2.fisu.pw/population/?world=${serverNumList})`;
 
     await interaction.editReply({
-      embeds: [BasicEmbed(client, "Population Info", ``)],
+      embeds: [BasicEmbed(client, "Population Info", finalMsg)],
     });
   },
 };
+
+function getKeyByValue(object, value) {
+  return Object.keys(object).find((key) => object[key] === value);
+}

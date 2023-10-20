@@ -127,7 +127,7 @@ module.exports = {
     const url = "https://ps2.fisu.pw/api/population/?world=" + serverNumList;
 
     log(
-      `${interaction.user.username} is fetching ${requestingForString} population data from fisu...}`
+      `${interaction.user.username} is fetching ${requestingForString} population data from fisu...`
     );
 
     const startTime = Date.now();

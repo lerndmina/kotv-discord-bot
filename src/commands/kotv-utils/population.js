@@ -162,7 +162,7 @@ module.exports = {
       result = { 1: result };
     }
 
-    var finalMsg = "";
+    var fields = [];
 
     for (const key in result) {
       result[key].forEach((i) => {
@@ -175,18 +175,25 @@ module.exports = {
         const percentTR = ((i.tr / total) * 100).toFixed(0);
         const percentNS = ((i.ns / total) * 100).toFixed(0);
 
-        finalMsg += `${world} has \`${total}\` players online.
-        <:vanu:813469839485960222> VS: \`${i.vs}\` ${percentVS}%
-        <:nc:813469147010170900> NC: \`${i.nc}\` ${percentNC}%
-        <:tr:813469583515189259> TR: \`${i.tr}\` ${percentTR}%
-        <:NSO:1165020512292978709> NSO: \`${i.ns}\` ${percentNS}%\n\n`;
+        fields.push({
+          name: `${world} has \`${total}\` players online.`,
+          value: `<:vanu:813469839485960222> VS: \`${i.vs}\` ${percentVS}% | <:nc:813469147010170900> NC: \`${i.nc}\` ${percentNC}%\n<:tr:813469583515189259> TR: \`${i.tr}\` ${percentTR}% | <:NSO:1165020512292978709> NSO: \`${i.ns}\` ${percentNS}%\n`,
+          inline: true,
+        });
       });
     }
 
     finalMsg += `\nYour request returned \`${totalPlayers}\` players.\nThis data is from [Fisu](https://ps2.fisu.pw/population/?world=${serverNumList})`;
 
     await interaction.editReply({
-      embeds: [BasicEmbed(client, "Population Info", finalMsg)],
+      embeds: [
+        BasicEmbed(
+          client,
+          "Population Info",
+          `Your request returned \`${totalPlayers}\` players`,
+          fields
+        ),
+      ],
     });
   },
 };

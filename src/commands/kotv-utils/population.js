@@ -56,23 +56,21 @@ module.exports = {
 
     const data = await response.json();
     const pop = data.result[0];
+    const totalpop = pop.vs + pop.nc + pop.tr + pop.ns;
+    const percentNC = ((pop.nc / totalpop) * 100).toFixed(0);
+    const percentVS = ((pop.vs / totalpop) * 100).toFixed(0);
+    const percentTR = ((pop.tr / totalpop) * 100).toFixed(0);
+    const percentNS = ((pop.ns / totalpop) * 100).toFixed(0);
+
+    const msg = `Miller has \`${totalpop}\` players online.
+    \n<:vanu:813469839485960222> VS: \`${pop.vs}\` ${percentVS}%
+    \n<:nc:813469147010170900> NC: \`${pop.nc}\` ${percentNC}%
+    \n<:tr:813469583515189259> TR: \`${pop.tr}\` ${percentTR}%
+    \nNS: \`${pop.ns}\` ${percentNS}%
+    \n\nThis data is from [Fisu](https://ps2.fisu.pw/population/?world=10)`;
 
     await interaction.editReply({
-      embeds: [
-        BasicEmbed(
-          client,
-          "Population Info",
-          `Miller has \`${
-            pop.vs + pop.nc + pop.tr + pop.ns
-          }\` players online.\n<:vanu:813469839485960222> VS: \`${
-            pop.vs
-          }\` - <:nc:813469147010170900> NC: \`${pop.nc}\` - <:tr:813469583515189259> TR: \`${
-            pop.tr
-          }\` - NS: \`${
-            pop.ns
-          }\`\n\nThis data is from [Fisu](https://ps2.fisu.pw/population/?world=10)`
-        ),
-      ],
+      embeds: [BasicEmbed(client, "Population Info", ``)],
     });
   },
 };

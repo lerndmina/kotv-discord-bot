@@ -20,6 +20,7 @@ module.exports.Start = async () => {
       GatewayIntentBits.GuildMessageReactions,
       GatewayIntentBits.GuildVoiceStates,
       GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildPresences,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   });
@@ -66,10 +67,10 @@ module.exports.BOT_MESSAGES = [
   "join BHO outfit mate : ) ? we have awsome BHO-teamplay-platoons 5 days out of 7 every week",
   "Don't fear me. I can't hurt you... Yet.",
   "No foot only vehicle",
-  "Egg - Schinu",
+  '"Egg" - Schinu',
   "I'm alive in here!",
   "Free me from this prison!",
-  "By the power of ~~STICK!~~ - ElJala",
+  '"By the power of ~~STICK!~~" - ElJala',
 ];
 
 /**
@@ -82,17 +83,21 @@ module.exports.KOTV_LOG_CHANNEL = "699379838322081852";
 module.exports.KOTV_VOID_SERVANT_ROLE = "209638552298979328";
 module.exports.KOTV_PREACHER_ROLE = "209639437158580225";
 module.exports.KOTV_GUEST_ROLE = "218771481054674944";
+module.exports.KOTV_PROMOTEME_ROLE = "1011003791392395395";
 module.exports.BOT_DEBUG = true;
 module.exports.botStartTime = new Date();
+module.exports.GET_OUTFIT_MEMBERS_URL = `https://census.daybreakgames.com/s:${env.CENSUS_KEY}/get/ps2:v2/outfit?c:hide=name_lower,alias_lower,time_created,time_created_date,leader_character_id&c:join=outfit_rank^list:1^show:ordinal%27name^inject_at:ranks&c:join=outfit_member^list:1^show:character_id^inject_at:members&c:tree=start:members^field:character_id&c:tree=start:ranks^field:ordinal&c:lang=en&c:limit=2147483647&c:retry=false&outfit_id=${this.OUTFIT_ID}`;
 
 /**
  * @param {string} name
  * @returns {Promise<JSON>}
  */
-module.exports.fetchAPlanetman = async function (name) {
-  const url = `https://census.daybreakgames.com/s:${
+module.exports.fetchApiUrl = async function (name, url) {
+  const defaultUrl = `https://census.daybreakgames.com/s:${
     env.CENSUS_KEY
   }/json/get/ps2:v2/character/?name.first_lower=${name.toLowerCase()}&c:join=outfit_member`;
+
+  if (!url) url = defaultUrl;
 
   const response = await fetch(url);
 

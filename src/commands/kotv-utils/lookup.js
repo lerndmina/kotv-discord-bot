@@ -18,7 +18,7 @@ const {
   OUTFIT_ID,
   KOTV_GUEST_ROLE,
   KOTV_VOID_SERVANT_ROLE,
-  fetchAPlanetman,
+  fetchApiUrl,
 } = require("../../Bot");
 const FetchEnvs = require("../../utils/FetchEnvs")();
 const COMMAND_NAME = "lookup";
@@ -347,7 +347,7 @@ async function handleAdd(interaction, user, add) {
     });
   }
 
-  fetchAPlanetman(add).then(async (data) => {
+  fetchApiUrl(add).then(async (data) => {
     // The api nicely tells us how many objects were returned
     if (data.returned == 0) {
       await i.editReply({

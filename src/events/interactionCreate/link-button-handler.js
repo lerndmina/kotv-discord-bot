@@ -12,7 +12,7 @@ const log = require("fancy-log");
 const linkUser = require("../../models/linkUserSchema");
 const {
   getApiUrl,
-  fetchAPlanetman,
+  fetchApiUrl,
   setCommandCooldown,
   OUTFIT_ID,
   KOTV_LOG_CHANNEL,
@@ -176,7 +176,7 @@ async function handleLinkInteraction(interaction, client) {
       // Collect all data for use later
       debugMsg(`Fetching data from census API`);
       const startTime = Date.now();
-      const data = await fetchAPlanetman(name);
+      const data = await fetchApiUrl(name);
       const endTime = Date.now();
       debugMsg(`Census API took ${endTime - startTime}ms to respond`);
 

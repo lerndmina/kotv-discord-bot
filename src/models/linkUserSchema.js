@@ -6,6 +6,7 @@ const { Schema, model } = require("mongoose");
  */
 const linkUserSchema = new Schema({
   discordId: {
+    // TODO make not unique allow multiple accounts to be linked, not using findOne
     type: String,
     required: true,
   },

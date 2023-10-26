@@ -8,6 +8,7 @@ const {
 } = require("discord.js");
 const log = require("fancy-log");
 const BasicEmbed = require("../../utils/BasicEmbed");
+const sleep = require("../../utils/TinyUtils");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -44,6 +45,9 @@ module.exports = {
       return;
     }
 
+    // Create a unique interaction ID for this poll
+    const pollId = `${interaction.user.id}-${Date.now()}`;
+
     // get the question
     const question = content[0];
 
@@ -70,7 +74,7 @@ module.exports = {
     );
 
     const selectMenu = new StringSelectMenuBuilder()
-      .setCustomId("pollMenu")
+      .setCustomId(pollId)
       .setPlaceholder("Select an option")
       .setMinValues(1)
       .setMaxValues(1);
@@ -97,7 +101,10 @@ module.exports = {
 
     // create the collector & filter to listen for responses
 
-    const collectorFilter = (i) => i.user.id === interaction.user.id;
+    /**
+     * @param {MessageComponentInteraction} i
+     */
+    const collectorFilter = (i) => i.customId === pollId;
     const collector = response.createMessageComponentCollector({
       filter: collectorFilter,
       time: POLL_TIME,
@@ -105,12 +112,14 @@ module.exports = {
 
     const votes = [];
 
-    collector.on("collect", (i) => {
+    collector.on("collect", async (i) => {
+      await i.deferReply({ ephemeral: true });
+
       const vote = i.values[0];
       const userId = i.user.id;
 
       if (vote == "end" && userId != interaction.user.id) {
-        i.reply({
+        await i.editReply({
           content: "Only the poll creator can end the poll.",
           ephemeral: true,
         });
@@ -123,7 +132,7 @@ module.exports = {
       }
 
       if (votes[userId]) {
-        i.reply({
+        await i.editReply({
           content: "You have already voted.",
           ephemeral: true,
         });
@@ -132,7 +141,7 @@ module.exports = {
 
       votes[userId] = vote;
 
-      i.reply({
+      await i.editReply({
         content: `You voted for \`${options[vote]}\``,
         ephemeral: true,
       });
@@ -140,7 +149,7 @@ module.exports = {
 
     collector.on("end", (collected, reason) => {
       if (reason == "time" || reason == "done") {
-        endVote(interaction, response, options, votes);
+        endVote(interaction, response, options, votes, question);
       }
     });
   },
@@ -153,7 +162,7 @@ module.exports = {
  * @param {Array} options
  * @param {Map} votes
  */
-function endVote(voteInteraction, response, options, votes) {
+function endVote(voteInteraction, response, options, votes, question) {
   // Count all instances of 0, 1, 2, etc
 
   const voteCounts = {};
@@ -173,14 +182,14 @@ function endVote(voteInteraction, response, options, votes) {
   const finalEmbed = BasicEmbed(
     voteInteraction.client,
     "Poll Results",
-    options
+    `Poll: ${question}\n${options
       .map((option, index) => {
         const voteCount = voteCounts[index] || 0;
         const percentage = Math.floor((voteCount / totalVotes) * 100);
 
         return `${index + 1}. \`${option}\` - ${percentage}% (${voteCount} vote(s))`;
       })
-      .join("\n"),
+      .join("\n")}`,
     "#0099ff"
   );
 
@@ -192,6 +201,7 @@ function endVote(voteInteraction, response, options, votes) {
       components: [],
       ephemeral: false,
     });
+    voteInteraction.channel.send({ embeds: [finalEmbed] });
   } catch (error) {
     log.error(error);
     log(
@@ -199,6 +209,4 @@ function endVote(voteInteraction, response, options, votes) {
     );
     return;
   }
-
-  voteInteraction.channel.send({ embeds: [finalEmbed] });
 }

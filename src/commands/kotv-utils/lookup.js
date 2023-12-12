@@ -350,7 +350,7 @@ async function handleAdd(interaction, user, add) {
   fetchApiUrl(add).then(async (data) => {
     // The api nicely tells us how many objects were returned
     if (data.returned == 0) {
-      await i.editReply({
+      i.reply({
         content: `Character ${add} does not exist!`,
         ephemeral: true,
       });
@@ -360,7 +360,7 @@ async function handleAdd(interaction, user, add) {
     if (data.character_list[0]) {
       character = data.character_list[0];
     } else {
-      i.editReply({
+      i.reply({
         content: `API returned malformed data. Please try again later.`,
         ephemeral: true,
       });
@@ -379,7 +379,7 @@ async function handleAdd(interaction, user, add) {
     const guildmember = interaction.guild.members.cache.get(user.id);
 
     if (!isInKOTV) {
-      return await interaction.reply({
+      return interaction.reply({
         embeds: [
           BasicEmbed(
             interaction.client,

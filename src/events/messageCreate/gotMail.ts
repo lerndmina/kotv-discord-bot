@@ -25,7 +25,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import Modmail from "../../models/Modmail";
 import ModmailConfig from "../../models/ModmailConfig";
 import ButtonWrapper from "../../utils/ButtonWrapper";
-import { removeMentions, waitingEmoji } from "../../Bot";
+import { redisClient, removeMentions, waitingEmoji } from "../../Bot";
 import {
   debugMsg,
   isVoiceMessage,
@@ -347,7 +347,8 @@ async function handleReply(message: Message, client: Client<true>, staffUser: Us
 
   const mail = await db.findOne(Modmail, { forumThreadId: thread.id });
   if (!mail) {
-    return;
+    // This is not a modmail thread so we tell the redis to cache that fact
+    return redisClient.set(`${env.MODMAIL_TABLE}:forumThreadId:${thread.id}`, "false");
   }
   const getter = new ThingGetter(client);
   const guild = await getter.getGuild(mail.guildId);

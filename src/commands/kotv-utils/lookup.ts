@@ -43,6 +43,7 @@ export const data = new SlashCommandBuilder()
 export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
+  guildOnly: true,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {

@@ -21,7 +21,7 @@ export const data = new SlashCommandBuilder()
 export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
-  botPermissions: ["Administrator"],
+  userPermissions: ["ManageMessages"],
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {

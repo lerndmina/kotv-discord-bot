@@ -38,12 +38,11 @@ export const data = new SlashCommandBuilder()
   .addBooleanOption((option) =>
     option.setName("fetch-realtime").setDescription("Fetch realtime data.").setRequired(false)
   )
-  .setDMPermission(false);
+  .setDMPermission(true);
 
 export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
-  guildOnly: true,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {

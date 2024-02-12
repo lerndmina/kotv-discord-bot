@@ -78,7 +78,7 @@ export default async function (message: Message, client: Client<true>) {
     if (!env.OWNER_IDS.includes(message.author.id)) return;
     if (message.content == `${env.PREFIX}reboot hard`) {
       await message.reply({
-        content: "https://media1.tenor.com/m/8knHdqV3MTkAAAAC/king-of-the-hill-hank.gif",
+        content: "https://tenor.com/view/tissue-roll-hangging-suicide-funny-gif-22276377",
       });
       process.exit(0);
     }

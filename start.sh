@@ -1,5 +1,5 @@
 #!/bin/bash
-FILE="src/Bot.js"
+FILE="src/Bot.ts"
 LOGFILE="bot.log"
 while true; do
     if [ -f $FILE ]; then

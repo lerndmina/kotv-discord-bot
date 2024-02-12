@@ -4,7 +4,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import log from "fancy-log";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
-import { setCommandCooldown, userCooldownKey } from "../../Bot";
+import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
 const env = FetchEnvs();
 
 const configuration = new Configuration({
@@ -23,7 +23,7 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  await setCommandCooldown(userCooldownKey(interaction.user.id, interaction.commandName), 30);
+  await setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
   const requestMessage = interaction.options.getString("message") as string;
 
   const configuration = new Configuration({

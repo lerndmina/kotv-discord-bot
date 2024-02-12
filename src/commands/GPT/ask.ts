@@ -26,7 +26,7 @@ export const options = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  setCommandCooldown(userCooldownKey(interaction.user.id, "ask"), 15);
+  await setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
   const requestMessage = interaction.options.getString("message");
 
   const configuration = new Configuration({

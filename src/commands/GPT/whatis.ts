@@ -4,7 +4,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import log from "fancy-log";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
-import { setCommandCooldown, userCooldownKey } from "../../Bot";
+import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
 const env = FetchEnvs();
 
 export const data = new SlashCommandBuilder()
@@ -24,7 +24,7 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  setCommandCooldown(userCooldownKey(interaction.user.id, "whatis"), 60);
+  await setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
   const requestMessage = interaction.options.getString("object");
   if (!requestMessage)
     return interaction.reply({ content: "You must specify an object.", ephemeral: true });

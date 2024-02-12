@@ -75,7 +75,10 @@ export default async function (message: Message, client: Client<true>) {
 
   // Reboot command
   if (message.content.startsWith(`${env.PREFIX}reboot`)) {
-    if (!env.OWNER_IDS.includes(message.author.id)) return;
+    if (!env.OWNER_IDS.includes(message.author.id))
+      return message.reply(
+        "I'm sorry dave, I'm afraid I can't do that. <:pikagun:1168644356828303383>"
+      );
     if (message.content == `${env.PREFIX}reboot hard`) {
       await message.reply({
         content: "https://tenor.com/view/tissue-roll-hangging-suicide-funny-gif-22276377",

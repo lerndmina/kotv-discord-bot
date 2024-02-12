@@ -1,0 +1,1 @@
+nodemon --watch 'src/**/*.ts' --exec 'npx tsx' src/Bot.ts

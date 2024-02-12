@@ -21,7 +21,7 @@ export const data = new SlashCommandBuilder()
 export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
-  userPermissions: ["ManageMessages"],
+  // userPermissions: ["ManageMessages"],
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
@@ -67,7 +67,15 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   (await getter.getUser(mail.userId)).send({
     embeds: [embed],
   });
-  forumThread.setArchived(true, reason);
+  try {
+    await forumThread.setLocked(true, reason);
+    await forumThread.setArchived(true, reason);
+  } catch (error) {
+    console.error(error);
+    forumThread.send(
+      "Failed to archive and lock thread, please do so manually.\nI'm probably missing permissions."
+    );
+  }
 
   const db = new Database();
   await db.deleteOne(Modmail, { forumThreadId: forumThread.id });

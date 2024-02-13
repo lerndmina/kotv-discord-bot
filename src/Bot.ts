@@ -10,6 +10,7 @@ import { debugMsg } from "./utils/TinyUtils";
 const env = fetchEnvs();
 
 export const Start = async () => {
+  startTimer();
   /**
    * @param {Client} client
    */
@@ -117,6 +118,18 @@ export const setCommandCooldown = async function (key: string, cooldownSeconds: 
 
 export function removeMentions(str: string) {
   return str.replace(/<@.*?>|@here|@everyone/g, "");
+}
+
+var startTime: Date;
+
+export function startTimer() {
+  startTime = new Date();
+}
+
+export function stopTimer() {
+  const endTime = new Date();
+  const timeDiff = endTime.getTime() - startTime.getTime();
+  return timeDiff;
 }
 
 export const redisClient = createClient({

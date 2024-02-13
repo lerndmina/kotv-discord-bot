@@ -61,7 +61,13 @@ export default function () {
     }
   }
   if (missingKeys.length > 0) {
-    log.error(`ENV ${missingKeys.join(", ")} are missing and are required.`);
+    log.error(`You are missing required enviroment variables:`);
+    log.error(``);
+    missingKeys.forEach((key) => {
+      log.error(`  ${key}`);
+    });
+    log.error(``);
+    log.warning(`Goodbye :(`);
     process.exit(1);
   }
 

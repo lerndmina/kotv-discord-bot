@@ -12,7 +12,7 @@ import {
   EmojiResolvable,
 } from "discord.js";
 
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import { json } from "stream/consumers";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { debuglog } from "util";
@@ -106,9 +106,9 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     });
   }
 
-  log(`Roles: ${roles}`);
-  log(`Content: ${content}`);
-  log(`Emoji: ${emoji}`);
+  log.info(`Roles: ${roles}`);
+  log.info(`Content: ${content}`);
+  log.info(`Emoji: ${emoji}`);
 
   const modalId = `modal-${interaction.id}`;
   const inputId = `input-${interaction.id}`;
@@ -136,11 +136,11 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
       var raw = i.fields.getTextInputValue(inputId) as string | any;
       var json = null;
-      log(`Url: ${raw}`);
+      log.info(`Url: ${raw}`);
       const urlRegex = /(https?:\/\/[^\s]+)/g;
 
       if (urlRegex.test(raw)) {
-        log(`Looks like a url to me.`);
+        log.info(`Looks like a url to me.`);
 
         // Go to the URL and get the raw text
         var url = raw.match(urlRegex)![0].replace("/u/", "/r/");
@@ -153,12 +153,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
           const res = await fetch(url);
           raw = (await res.text()).trim();
         }
-        log(`Fetched / Base64 Decoded`);
+        log.info(`Fetched / Base64 Decoded`);
 
         // We have the json
         try {
           json = JSON.parse(raw);
-          log(`Parsed`);
+          log.info(`Parsed`);
         } catch (error) {
           log.error(error);
           return i.reply({

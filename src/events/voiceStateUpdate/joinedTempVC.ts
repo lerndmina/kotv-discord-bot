@@ -7,7 +7,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import GuildNewVC from "../../models/GuildNewVC";
 import ActiveTempChannels from "../../models/ActiveTempChannels";
 import BasicEmbed from "../../utils/BasicEmbed";

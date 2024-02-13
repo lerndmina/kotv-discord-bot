@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 

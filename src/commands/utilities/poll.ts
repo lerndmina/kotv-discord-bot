@@ -15,7 +15,7 @@ import {
 import BasicEmbed from "../../utils/BasicEmbed";
 import { debugMsg, sleep } from "../../utils/TinyUtils";
 import { CommandOptions, SlashCommandProps } from "commandkit";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 
 export const data = new SlashCommandBuilder()
   .setName("poll")
@@ -149,7 +149,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       return;
     }
 
-    log(`Applying vote for ${userId}`);
+    log.info(`Applying vote for ${userId}`);
     votes.set(userId, vote);
 
     await i.editReply({
@@ -223,7 +223,7 @@ function endVote(
     voteInteraction.channel!.send({ embeds: [finalEmbed] });
   } catch (error) {
     log.error(error);
-    log(
+    log.info(
       "Poll has ended, but could not edit the original message. It has probably been deleted intentionally."
     );
     return;

@@ -4,7 +4,7 @@ import Modmail from "../../models/Modmail";
 import { waitingEmoji } from "../../Bot";
 import { ThingGetter } from "../../utils/TinyUtils";
 import Database from "../../utils/cache/database";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 
 export const data = new SlashCommandBuilder()

@@ -1,5 +1,5 @@
 import { BaseInteraction, Client, AutocompleteInteraction } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import TagSchema from "../../models/TagSchema";
 import { upperCaseFirstLetter, getTagKey, getTagName, debugMsg } from "../../utils/TinyUtils";
 import { redisClient } from "../../Bot";

@@ -1,6 +1,6 @@
 import type { CommandData, SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import { globalCooldownKey, redisClient, setCommandCooldown, waitingEmoji } from "../../Bot";
 import ms from "ms";
 import FetchEnvs from "../../utils/FetchEnvs";

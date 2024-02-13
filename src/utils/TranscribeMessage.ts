@@ -1,4 +1,4 @@
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import https from "https";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
@@ -56,7 +56,7 @@ export default async function (client: Client<true>, message: Message, apiKey: s
     .transcribe(`${fileName}.mp3`, "whisper-1")
     .then((text: string) => {
       message.reply(`✨ Voice Transcription:\n\n\`\`\`${text}\`\`\``);
-      log(
+      log.info(
         `Transcribed a message from ${message.author.username} in ${
           !message.channel.isDMBased() ? message.channel.name : "Direct Messages"
         }`

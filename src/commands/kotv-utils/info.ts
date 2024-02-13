@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import linkUserSchema from "../../models/linkUserSchema";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { fetchApiReturnCharacter, debugMsg } from "../../utils/TinyUtils";

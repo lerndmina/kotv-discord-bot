@@ -1,4 +1,4 @@
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import {
   userCooldownKey,
   guildCooldownKey,

@@ -1,7 +1,7 @@
 import { BaseInteraction, Client, GatewayIntentBits, Partials, Snowflake } from "discord.js";
 import { CommandKit } from "commandkit";
 import path from "path";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import mongoose from "mongoose";
 import { config as dotenvConfig } from "dotenv";
 import { createClient } from "redis";

@@ -1,6 +1,6 @@
 import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 
 export const data = new SlashCommandBuilder()

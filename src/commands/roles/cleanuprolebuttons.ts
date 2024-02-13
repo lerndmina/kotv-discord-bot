@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, Message, TextBasedChannel, ComponentType } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import { ROLE_BUTTON_PREFIX, waitingEmoji } from "../../Bot";
 import RoleButtons from "../../models/RoleButtons";
 import BasicEmbed from "../../utils/BasicEmbed";
@@ -47,7 +47,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
         if (!button.customId) return;
         if (!button.customId.startsWith(ROLE_BUTTON_PREFIX)) return;
         const uuid = button.customId.split("-").slice(1).join("-");
-        log("Deleting button: " + uuid);
+        log.info("Deleting button: " + uuid);
         cleaned++;
         await db.deleteOne(RoleButtons, { buttonId: uuid });
       });
@@ -55,7 +55,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     try {
       await message.delete();
     } catch (error) {
-      log("Error deleting message: " + message.id + " " + error);
+      log.info("Error deleting message: " + message.id + " " + error);
       errors += `\nCan't delete message, it either doesn't exist or I don't have permission to delete it.`;
     }
   });

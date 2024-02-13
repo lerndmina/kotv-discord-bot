@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import { ChannelType } from "discord.js";
 import { Channel } from "diagnostics_channel";
 
@@ -135,7 +135,7 @@ export async function run({ interaction, client, handler }: CommandProps) {
         ],
       });
     } catch (error) {
-      log(`Error creating temp vc creator: \`\`\`${error}\`\`\``);
+      log.info(`Error creating temp vc creator: \`\`\`${error}\`\`\``);
 
       await i.editReply({
         embeds: [
@@ -194,8 +194,8 @@ export async function run({ interaction, client, handler }: CommandProps) {
         ],
       });
     } catch (error) {
-      log(`Error deleting temp vc creator:`);
-      log(error);
+      log.info(`Error deleting temp vc creator:`);
+      log.info(error);
 
       await i.editReply({
         embeds: [

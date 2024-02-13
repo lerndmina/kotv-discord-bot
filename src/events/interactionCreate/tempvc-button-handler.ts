@@ -21,7 +21,7 @@ import {
   UserSelectMenuBuilder,
   StringSelectMenuInteraction,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import ms from "ms";
 
@@ -39,7 +39,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
   if (!interaction.channel || interaction.channel.type != ChannelType.GuildVoice) return;
   if (!interaction.guild) return;
 
-  // log(`Interaction with custom id ${interaction.customId} received.`);
+  // log.info(`Interaction with custom id ${interaction.customId} received.`);
   if (
     !interaction.channel
       .permissionsFor(interaction.user)

@@ -7,7 +7,7 @@ import {
   MessageComponentInteraction,
   CacheType,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { ThingGetter } from "../../utils/TinyUtils";
 import { StringSelectMenuBuilder, ActionRowBuilder } from "discord.js";
@@ -30,7 +30,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     await guild.members
       .fetch(interaction.user)
       .then(() => guilds.push(guild))
-      .catch((error) => console.log(error));
+      .catch((error) => log.info(error));
   }
 
   //code to generate array of server names & IDs for .addOption() in select menu component
@@ -79,7 +79,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
      */
     const guild = await getter.getGuild(i.values[0]);
 
-    log(guild.name);
+    log.info(guild.name);
 
     /**
      * @type {import("discord.js").MessageEmbed}

@@ -1,7 +1,7 @@
 import { Client, Message, REST, Routes, Snowflake } from "discord.js";
 import fs from "fs";
 import path from "path";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import DeleteMessage from "./DeleteMessage";
 import BasicEmbed from "./BasicEmbed";
 import FetchEnvs from "./FetchEnvs";
@@ -9,7 +9,12 @@ import { assert } from "console";
 
 const env = FetchEnvs();
 
-export default async function (client: Client<true>, message: Message, guildId: Snowflake | undefined, global: boolean) {
+export default async function (
+  client: Client<true>,
+  message: Message,
+  guildId: Snowflake | undefined,
+  global: boolean
+) {
   // Construct and prepare an instance of the REST module
   const rest = new REST().setToken(env.BOT_TOKEN);
 
@@ -36,4 +41,4 @@ export default async function (client: Client<true>, message: Message, guildId: 
       return;
     }
   }
-};
+}

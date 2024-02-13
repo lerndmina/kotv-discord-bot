@@ -7,7 +7,7 @@ import {
   ChannelType,
   ThreadChannel,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import syncCommands from "../../utils/unregister-commands";
 import BasicEmbed from "../../utils/BasicEmbed";
 import FetchEnvs from "../../utils/FetchEnvs";
@@ -89,7 +89,7 @@ export default async function (message: Message, client: Client<true>) {
     await message.reply({
       content: "https://tenor.com/view/bye-bourne-gif-22698046",
     });
-    log("Rebooting...");
+    log.info("Rebooting...");
 
     // Set offline
     client.user.setActivity("my own death.", { type: ActivityType.Watching });

@@ -18,7 +18,7 @@ import {
   GuildMember,
 } from "discord.js";
 import FetchEnvs from "./FetchEnvs";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import BasicEmbed from "./BasicEmbed";
 import { Url } from "url";
 import chalk from "chalk";

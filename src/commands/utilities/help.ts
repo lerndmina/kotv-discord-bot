@@ -6,7 +6,7 @@ import {
   Embed,
   EmbedField,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import GetAllFiles from "../../utils/GetAllFiles";
 import path from "path";
 import BasicEmbed from "../../utils/BasicEmbed";
@@ -36,7 +36,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     const commandName = command.name;
 
     if (!commandCategory) {
-      log.warn(
+      log.warning(
         `Command ${commandName.toUpperCase()} does not have a category! Spooky! Skipping...`
       );
       continue;
@@ -84,7 +84,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       for (const command of commands[category]) {
         if (!command.subcommands) {
           value += standardHelpMsg(command);
-          log("We found a command without a subcommand, wtf?");
+          log.info("We found a command without a subcommand, wtf?");
           break;
         }
         for (const subcommand of command.subcommands) {
@@ -106,7 +106,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     }
   }
 
-  const embed = BasicEmbed(client, "Help", "To run commands, use `/(command-Name)`\n", fields);
+  const embed = BasicEmbed(
+    client,
+    "Help",
+    "To run commands, use `/(command-Name)` Or just click on a listed command to prefil it into chat.\n",
+    fields
+  );
 
   interaction.editReply({
     embeds: [embed],

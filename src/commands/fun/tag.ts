@@ -10,7 +10,7 @@ import {
 } from "discord.js";
 import { waitingEmoji } from "../../Bot";
 import Database from "../../utils/cache/database";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import {
   returnMessage,
   getTagKey,

@@ -1,5 +1,5 @@
 import { GuildMember, User } from "discord.js";
-import logger from "fancy-log";
+import { log } from "itsasht-logger";
 import { OUTFIT_ID, KOTV_GUEST_ROLE, KOTV_VOID_SERVANT_ROLE } from "../../Bot";
 import linkUserSchema from "../../models/linkUserSchema";
 import { debugMsg, fetchApiReturnCharacter } from "../TinyUtils";
@@ -22,7 +22,7 @@ export default async function (
       `${discordUser.username} left/joined the server, the character they were linked to does not exist so they were removed from the database.`
     );
     await linkUserSchema.deleteOne({ discordId: guildMember.id }).catch((err) => {
-      logger.error(
+      log.error(
         `Error deleting user ${discordUser.username} (${discordUser.id}) from the database: ${err}`
       );
     });
@@ -50,14 +50,14 @@ export default async function (
       kotvRank: dataIsInKotv ? fetchedKOTVRank : "Guest",
     };
     await linkUserSchema.findOneAndUpdate({ discordId: discordUser.id }, update);
-    logger.info(`Updated user ${discordUser.username} (${discordUser.id})`);
+    log.info(`Updated user ${discordUser.username} (${discordUser.id})`);
   }
 
   if (isInServer) {
     const guestRole = guildMember.guild.roles.cache.get(KOTV_GUEST_ROLE);
     const voidServantRole = guildMember.guild.roles.cache.get(KOTV_VOID_SERVANT_ROLE);
     if (!guestRole || !voidServantRole) {
-      logger.error(`Could not find guest or void servant role in the guild!`);
+      log.error(`Could not find guest or void servant role in the guild!`);
       return;
     }
 

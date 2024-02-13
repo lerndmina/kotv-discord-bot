@@ -1,5 +1,5 @@
 import { MessageMentions } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import FetchEnvs from "./FetchEnvs";
 
 const env = FetchEnvs();
@@ -31,4 +31,4 @@ export default async function (response: string) {
   response = response.replace(MessageMentions.RolesPattern, "\\@REMOVED");
 
   return response;
-};
+}

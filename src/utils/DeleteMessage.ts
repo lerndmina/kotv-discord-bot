@@ -1,8 +1,7 @@
 import { Message } from "discord.js";
 
 const { DiscordAPIError } = require("discord.js");
-const log = require("fancy-log");
-const { set } = require("mongoose");
+import { log } from "itsasht-logger";
 
 export default async function (message: Message, time: number) {
   if (time == undefined) time = 0;
@@ -16,4 +15,4 @@ export default async function (message: Message, time: number) {
       }
     }
   }, time);
-};
+}

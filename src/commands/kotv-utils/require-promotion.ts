@@ -1,6 +1,6 @@
 import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { EmbedField, SlashCommandBuilder } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { KOTV_PROMOTEME_ROLE } from "../../Bot";
 const COMMAND_NAME = "require-promotion";

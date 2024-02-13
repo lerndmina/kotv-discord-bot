@@ -1,6 +1,6 @@
 import { Client, GuildMember } from "discord.js";
 import linkUserSchema from "../../models/linkUserSchema";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import updateCharacter from "../../utils/kotv/updateCharacter";
 
 /**
@@ -13,7 +13,7 @@ export default async (member: GuildMember, client: Client<true>) => {
   if (!user)
     return log.info(`${member.user.tag} joined the server. They were not linked to an account.`);
 
-  log(`User has joined the server. Fetching their data now.`);
+  log.info(`User has joined the server. Fetching their data now.`);
 
   updateCharacter(member, member.user, user, true);
 };

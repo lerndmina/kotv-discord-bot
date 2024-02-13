@@ -1,5 +1,5 @@
 import { SnowflakeUtil } from "discord.js";
-import * as log from "fancy-log";
+import { log } from "itsasht-logger";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -57,7 +57,7 @@ export default function () {
     }
     if (env[key as keyof typeof env] === OPTIONAL_STRING) {
       if (accessedCount > 0) continue;
-      log.warn(`Env ${key} is optional and is not set.`);
+      log.warning(`Env ${key} is optional and is not set.`);
     }
   }
   if (missingKeys.length > 0) {

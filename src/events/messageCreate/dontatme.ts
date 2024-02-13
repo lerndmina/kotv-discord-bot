@@ -1,5 +1,5 @@
 import { Message, Client, ChannelType } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import Database from "../../utils/cache/database";
 import { ThingGetter, debugMsg } from "../../utils/TinyUtils";
 import RoleButtons from "../../models/RoleButtons";
@@ -41,7 +41,7 @@ export default async (message: Message, client: Client<true>) => {
   const role = guild.roles.cache.get(roleId);
 
   if (!role) {
-    log("Don't @ Me Role is setup but not found " + roleId);
+    log.info("Don't @ Me Role is setup but not found " + roleId);
     return false;
   }
   var hasRole = false;

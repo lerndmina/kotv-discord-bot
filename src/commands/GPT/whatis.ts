@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, Client } from "discord.js";
 import { Configuration, OpenAIApi } from "openai";
 import BasicEmbed from "../../utils/BasicEmbed";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";

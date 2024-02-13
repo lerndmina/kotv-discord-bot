@@ -12,12 +12,11 @@ import {
   User,
   ThreadChannel,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import TranscribeMessage from "../../utils/TranscribeMessage";
 import FetchEnvs from "../../utils/FetchEnvs";
 import BasicEmbed from "../../utils/BasicEmbed";
 import DeleteMessage from "../../utils/DeleteMessage";
-import logger from "fancy-log";
 
 const env = FetchEnvs();
 
@@ -29,7 +28,7 @@ export default async function (reaction: MessageReaction, user: User, client: Cl
 
   if (user.bot) return;
 
-  logger(`[MESSAGE REACTION ADD] ${user.tag} reacted ${reaction.emoji} to a message.`);
+  log.info(`[MESSAGE REACTION ADD] ${user.tag} reacted ${reaction.emoji} to a message.`);
 
   if (message.flags.bitfield != MessageFlags.IsVoiceMessage || message.attachments.size != 1)
     return;
@@ -67,7 +66,7 @@ export default async function (reaction: MessageReaction, user: User, client: Cl
     return;
   }
 
-  log(`[MESSAGE REACTION ADD] ${user.tag} reacted ${reaction.emoji} to a voice message.`);
+  log.info(`[MESSAGE REACTION ADD] ${user.tag} reacted ${reaction.emoji} to a voice message.`);
 
   // If the reaction is ✍️ begin transcribing
   if (reaction.emoji.name == "✍️") {

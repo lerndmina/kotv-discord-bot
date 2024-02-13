@@ -11,7 +11,7 @@ import {
   TextBasedChannel,
   User,
 } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import linkUser from "../../models/linkUserSchema";
 import {
   setCommandCooldown,
@@ -154,7 +154,7 @@ async function handleLinkInteraction(
         return;
       }
 
-      log(`Got modal submit interaction for user ${i.user.username} with value ${name}`);
+      log.info(`Got modal submit interaction for user ${i.user.username} with value ${name}`);
 
       const isCharacterLinkedToSomeone = await linkUser.findOne({ ps2Name: name });
 

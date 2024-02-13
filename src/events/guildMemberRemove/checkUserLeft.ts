@@ -1,7 +1,7 @@
 import { Client, GuildMember } from "discord.js";
 import linkUserSchema from "../../models/linkUserSchema";
 import updateCharacter from "../../utils/kotv/updateCharacter";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 
 /**
  *
@@ -15,7 +15,7 @@ export default async (member: GuildMember, client: Client) => {
     return;
   }
 
-  log(`User has left the server. Fetching their data now.`);
+  log.info(`User has left the server. Fetching their data now.`);
 
   updateCharacter(member, member.user, planetManData, false);
 };

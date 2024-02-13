@@ -2,7 +2,7 @@ import { CommandOptions, SlashCommandProps } from "commandkit";
 import { EmbedField, SlashCommandBuilder } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { globalCooldownKey, setCommandCooldown } from "../../Bot";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 
 const COMMAND_NAME = "population";
 
@@ -127,7 +127,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const url = "https://ps2.fisu.pw/api/population/?world=" + serverNumList;
 
-  log(
+  log.info(
     `${interaction.user.username} is fetching ${requestingForString} population data from fisu...`
   );
 
@@ -135,11 +135,11 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const response = await fetch(url);
   const endTime = Date.now();
   const timeTaken = endTime - startTime;
-  log(`Api took: ${timeTaken}ms to respond`);
+  log.info(`Api took: ${timeTaken}ms to respond`);
 
   // If non 200 status code
   if (response.status !== 200) {
-    log(`API returned non-200 status code: ${response.status}`);
+    log.info(`API returned non-200 status code: ${response.status}`);
     return interaction.editReply({
       embeds: [
         BasicEmbed(

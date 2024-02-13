@@ -20,7 +20,7 @@ import {
   Snowflake,
 } from "discord.js";
 import { ButtonBuilder, ButtonStyle, SlashCommandBuilder } from "discord.js";
-import log from "fancy-log";
+import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import Modmail from "../../models/Modmail";
 import ModmailConfig from "../../models/ModmailConfig";
@@ -148,7 +148,7 @@ async function newModmail(
       await guild.members
         .fetch(i.user)
         .then(() => sharedGuilds.push(guild))
-        .catch((error) => console.log(error));
+        .catch((error) => log.info(error));
     }
     const stringSelectMenuID = `guildList-${i.id}`;
     var guildList = new StringSelectMenuBuilder()

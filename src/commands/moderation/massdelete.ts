@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { CommandOptions, SlashCommandProps } from "commandkit";
-import { log } from "console";
+import { log } from "itsasht-logger";
 const permission = PermissionFlagsBits;
 
 export const data = new SlashCommandBuilder()
@@ -21,7 +21,7 @@ export const options: CommandOptions = {
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   var number = interaction.options.getInteger("number")!;
   if (!number || !interaction.channel || !interaction.inGuild())
-    return log("Required interaction parameters are missing.");
+    return log.info("Required interaction parameters are missing.");
   if (number > 100) {
     await interaction.reply({
       content: "You cannot delete more than 100 messages at a time.",

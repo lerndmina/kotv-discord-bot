@@ -11,8 +11,9 @@ import { stopTimer } from "../../Bot";
 export default (c: Client<true>, client: Client<true>, handler: CommandKit) => {
   const startTime = stopTimer();
   log.info(`Logged in as ${client.user?.tag}`);
+  console.log("");
   log.info(
-    `Took ${startTime}ms to start the bot. ${startTime > 5000 ? "That's a long time!" : "🚀"}`
+    `Startup complete in ${startTime}ms. Ready to serve ${client.guilds.cache.size} server(s).`
   );
 
   // Set online

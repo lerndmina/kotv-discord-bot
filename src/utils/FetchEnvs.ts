@@ -9,6 +9,11 @@ const OPTIONAL_STRING = "optional";
 var accessedCount = 0;
 
 export default function () {
+  if (accessedCount === 0) {
+    console.log("");
+    log.info(`Begining enviroment variable validation...`);
+  }
+
   // Key value array to store the environment variables
   var env: {
     BOT_TOKEN: string;
@@ -90,6 +95,11 @@ export default function () {
       process.exit(1);
     }
   });
+
+  if (accessedCount === 0) {
+    log.info(`All enviroment variables required have been validated. You're good to continue :)`);
+    console.log("");
+  }
 
   accessedCount++;
   return env;

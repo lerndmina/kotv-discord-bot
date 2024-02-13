@@ -13,7 +13,7 @@ const configuration = new Configuration({
 
 export const data = new SlashCommandBuilder()
   .setName("ask-basic")
-  .setDescription("Ask the AI without previous chat messages. And no system prompt. Go wild!")
+  .setDescription("Ask the AI without a system prompt.")
   .addStringOption((option) =>
     option.setName("message").setDescription("The message to send to the AI.").setRequired(true)
   );

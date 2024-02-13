@@ -14,8 +14,14 @@ import {
 import BasicEmbed from "../../utils/BasicEmbed";
 import linkUserSchema from "../../models/linkUserSchema";
 import { ThingGetter, fetchApiUrl, fetchRealtime } from "../../utils/TinyUtils";
-import log from "fancy-log";
-import { KOTV_GUEST_ROLE, KOTV_VOID_SERVANT_ROLE, OUTFIT_ID } from "../../Bot";
+import { log } from "itsasht-logger";
+import {
+  KOTV_GUEST_ROLE,
+  KOTV_VOID_SERVANT_ROLE,
+  OUTFIT_ID,
+  globalCooldownKey,
+  setCommandCooldown,
+} from "../../Bot";
 import FetchEnvs from "../../utils/FetchEnvs";
 
 const COMMAND_NAME = "lookup";
@@ -77,7 +83,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const fetchRealtime = interaction.options.getBoolean("fetch-realtime");
   if (fetchRealtime) {
-    // TODO HANDLE COOLDOWNS
+    setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
 
     usingRealtime = true;
   }
@@ -189,20 +195,20 @@ async function handleUserLookup(
         rank = "Void Servant or higher";
         guildMember.roles.add(voidServantRole).catch((error) => {
           log.error("Error adding void servant role");
-          log(error);
+          log.info(error);
         });
         guildMember.roles.remove(guestRole).catch((error) => {
           log.error("Error removing guest role");
-          log(error);
+          log.info(error);
         });
       } else {
         guildMember.roles.add(guestRole).catch((error) => {
           log.error("Error adding guest role");
-          log(error);
+          log.info(error);
         });
         guildMember.roles.remove(voidServantRole).catch((error) => {
           log.error("Error removing void servant role");
-          log(error);
+          log.info(error);
         });
       }
 
@@ -224,8 +230,8 @@ async function handleUserLookup(
           { isInKOTV: realtimeIsInKOTV, kotvRank: rank }
         );
       } catch (error) {
-        log("Error updating user in DB");
-        log(error);
+        log.info("Error updating user in DB");
+        log.info(error);
       }
     }
   }
@@ -394,7 +400,7 @@ async function handleAdd(interaction: ChatInputCommandInteraction, user: User, a
     guildmember.roles.add(voidServantRole).catch((error) => {
       const env = FetchEnvs();
       log.error("Error adding void servant role");
-      log(error);
+      log.info(error);
       errormsg = `\n\nError adding void servant role, please contact <@${env.OWNER_IDS[0]}>`;
     });
 

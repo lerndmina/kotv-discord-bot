@@ -29,7 +29,10 @@ export default async (message: Message, client: Client<true>) => {
   debugMsg(`Fetched role ${fetchedRole}`);
 
   // If the role is not found, we can safely assume that the feature is not enabled so we cache this for faster response times
-  if (!fetchedRole) return redisClient.set("DontAtMeRole:guildId:" + guildId, "false");
+  if (!fetchedRole) {
+    redisClient.set("DontAtMeRole:guildId:" + guildId, "false");
+    return false;
+  }
 
   const roleId = fetchedRole.roleId;
   const getter = new ThingGetter(client);
@@ -39,7 +42,7 @@ export default async (message: Message, client: Client<true>) => {
 
   if (!role) {
     log("Don't @ Me Role is setup but not found " + roleId);
-    return;
+    return false;
   }
   var hasRole = false;
   message.mentions.users.forEach((user) => {

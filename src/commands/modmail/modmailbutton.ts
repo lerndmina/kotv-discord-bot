@@ -44,11 +44,11 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       .setLabel("Open Modmail")
       .setStyle(ButtonStyle.Primary)
       .setEmoji("📬"),
-    new ButtonBuilder()
-      .setLabel("Go to Modmail")
-      .setStyle(ButtonStyle.Link)
-      .setURL("https://discord.com/channels/@me/" + client.user.dmChannel?.id)
-      .setEmoji("💨"),
+    // new ButtonBuilder() // Well fuck me I guess, the dm channel is per user. Thanks Discord
+    //   .setLabel("Go to Modmail")
+    //   .setStyle(ButtonStyle.Link)
+    //   .setURL("https://discord.com/channels/@me/" + client.user.dmChannel?.id)
+    //   .setEmoji("💨"),
   ]);
 
   await channel.send({

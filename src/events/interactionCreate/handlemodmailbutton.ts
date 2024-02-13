@@ -1,4 +1,10 @@
-import { Client, EmbedBuilder, MessageComponentInteraction } from "discord.js";
+import {
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  EmbedBuilder,
+  MessageComponentInteraction,
+} from "discord.js";
 import { MODMAIL_BUTTON_ID } from "../../commands/modmail/modmailbutton";
 import {
   globalCooldownKey,
@@ -7,10 +13,11 @@ import {
   userCooldownKey,
   waitingEmoji,
 } from "../../Bot";
-import { getCooldown } from "../../validations/cooldowns";
+import { getCooldown, hasCooldownBypass } from "../../validations/cooldowns";
 import { debugMsg } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
 import FetchEnvs from "../../utils/FetchEnvs";
+import ButtonWrapper from "../../utils/ButtonWrapper";
 
 export default async (interaction: MessageComponentInteraction, client: Client<true>) => {
   debugMsg("Handling modmail button interaction " + interaction.customId);
@@ -24,7 +31,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
   const cooldownSeconds = await getCooldown(
     userCooldownKey(interaction.user.id, MODMAIL_BUTTON_ID)
   );
-  if (cooldownSeconds)
+  if (cooldownSeconds && !(await hasCooldownBypass(interaction)))
     return interaction.editReply({
       content: `You're on cooldown for this interaction you will be able to use this interaction <t:${cooldownSeconds}:R>`,
     });
@@ -59,5 +66,13 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
 
   setCommandCooldown(userCooldownKey(interaction.user.id, MODMAIL_BUTTON_ID), 60 * 5);
 
-  interaction.editReply({ content: "I've sent you a DM! Click the button above to go to it." });
+  const buttons = ButtonWrapper([
+    new ButtonBuilder()
+      .setURL("https://discord.com/channels/@me/" + channel.id)
+      .setLabel("Go to Modmail")
+      .setEmoji("💨")
+      .setStyle(ButtonStyle.Link),
+  ]);
+
+  interaction.editReply({ content: "I've sent you a DM!", components: buttons });
 };

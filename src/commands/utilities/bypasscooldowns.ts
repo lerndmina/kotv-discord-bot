@@ -28,7 +28,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.reply({ content: waitingEmoji, ephemeral: true });
 
   if (!env.OWNER_IDS.includes(interaction.user.id)) {
-    return interaction.editReply("You do not have permission to use this command. ");
+    return interaction.editReply("I'm sorry dave, I'm afraid I can't do that.");
   }
 
   var time = interaction.options.getString("time")!;

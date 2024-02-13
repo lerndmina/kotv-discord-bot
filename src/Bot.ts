@@ -70,7 +70,7 @@ export const BOT_MESSAGES: string[] = [
  */
 export const BOT_URL: string = env.BOT_URL;
 
-// KOTV Stuff
+// KOTV Stuff (SpandexSensei)
 // TODO: Make these environment variables
 export const OUTFIT_ID = "37512545478660293";
 export const KOTV_LOG_CHANNEL = "699379838322081852";
@@ -98,6 +98,12 @@ export function globalCooldownKey(commandName: string) {
   return `${COOLDOWN_PREFIX}:${commandName}`;
 }
 
+/**
+ * @description Set a cooldown for a command
+ * @param {string} key The key to set the cooldown for
+ * @param {number} cooldownSeconds The cooldown in seconds
+ * @returns {Promise<void>}
+ */
 export const setCommandCooldown = async function (key: string, cooldownSeconds: number) {
   const time = Date.now() + cooldownSeconds * 1000;
   const setting = await redisClient.set(key, time);

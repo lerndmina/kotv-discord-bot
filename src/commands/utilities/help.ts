@@ -55,7 +55,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
     var commandDescription;
 
-    const MAX_LENGTH = 64;
+    const MAX_LENGTH = 50;
     if (resultCommand.description.length > MAX_LENGTH) {
       commandDescription = resultCommand.description.slice(0, MAX_LENGTH - 3) + "...";
     } else commandDescription = resultCommand.description;

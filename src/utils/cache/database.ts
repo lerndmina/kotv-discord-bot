@@ -158,4 +158,18 @@ export default class Database {
     if (env.DEBUG_LOG) debugMsg(`DB - Clean - Time taken: ${Date.now() - start!}ms`);
     return keys;
   }
+
+  /**
+   * @description Stores a key value pair in the cache with an optional cache time in seconds
+   */
+  async cacheStore(key: string, value: string, cacheTime = ONE_HOUR) {
+    debugMsg(`Storing key: ${key} with value: ${value} in cache`);
+    await redisClient.set(key, value);
+    await redisClient.expire(key, cacheTime);
+  }
+
+  async cacheFetch(key: string) {
+    debugMsg(`Fetching key: ${key} from cache`);
+    return await redisClient.get(key);
+  }
 }

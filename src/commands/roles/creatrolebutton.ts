@@ -10,6 +10,9 @@ import {
   Role,
   Emoji,
   EmojiResolvable,
+  ComponentEmojiResolvable,
+  RoleResolvable,
+  Message,
 } from "discord.js";
 
 import { log } from "itsasht-logger";
@@ -19,211 +22,261 @@ import { debuglog } from "util";
 import ButtonWrapper from "../../utils/ButtonWrapper";
 import { randomUUID } from "crypto";
 import RoleButtons from "../../models/RoleButtons";
-import { ROLE_BUTTON_PREFIX, waitingEmoji } from "../../Bot";
+import { ROLE_BUTTON_PREFIX, globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import Database from "../../utils/cache/database";
 import { CommandOptions, SlashCommandProps } from "commandkit";
+import {
+  ThingGetter,
+  getValidUrl,
+  modalTimedOutFollowUp,
+  pastebinUrlToJson,
+} from "../../utils/TinyUtils";
 
 export const data = new SlashCommandBuilder()
   .setName("createrolebutton")
   .setDescription("Creates a button that gives a role when clicked")
-  .setDMPermission(false)
-  .addRoleOption((option) =>
-    option
-      .setName("role1")
-      .setDescription("The role to give when the button is clicked")
-      .setRequired(true)
-  )
   .addStringOption((option) =>
-    option.setName("button1").setDescription("The content of the button").setRequired(true)
+    option.setName("url").setDescription("The URL to grab the styling from").setRequired(false)
   )
-  .addStringOption((option) =>
-    option.setName("emoji1").setDescription("The emoji to use for the button").setRequired(false)
-  )
-  .addRoleOption((option) =>
-    option
-      .setName("role2")
-      .setDescription("The role to give when the button is clicked")
-      .setRequired(false)
-  )
-  .addStringOption((option) =>
-    option.setName("button2").setDescription("The content of the button").setRequired(false)
-  )
-  .addStringOption((option) =>
-    option.setName("emoji2").setDescription("The emoji to use for the button").setRequired(false)
-  )
-  .addRoleOption((option) =>
-    option
-      .setName("role3")
-      .setDescription("The role to give when the button is clicked")
-      .setRequired(false)
-  )
-  .addStringOption((option) =>
-    option.setName("button3").setDescription("The content of the button").setRequired(false)
-  )
-  .addStringOption((option) =>
-    option.setName("emoji3").setDescription("The emoji to use for the button").setRequired(false)
-  )
-  .addRoleOption((option) =>
-    option
-      .setName("role4")
-      .setDescription("The role to give when the button is clicked")
-      .setRequired(false)
-  )
-  .addStringOption((option) =>
-    option.setName("button4").setDescription("The content of the button").setRequired(false)
-  )
-  .addStringOption((option) =>
-    option.setName("emoji4").setDescription("The emoji to use for the button").setRequired(false)
-  );
+  .setDMPermission(false);
 
 export const options: CommandOptions = {
-  devOnly: false,
+  devOnly: true,
   deleted: false,
-  userPermissions: ["Administrator"],
-  botPermissions: ["Administrator"],
+  userPermissions: ["ManageRoles", "ManageMessages"],
+  botPermissions: ["ManageRoles", "ManageMessages"],
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  var roles: Role[] = [];
-  var content: string[] = [];
-  var emoji: string[] = [];
-  interaction.options.data.forEach((option) => {
-    if (option.name.startsWith("role")) {
-      roles.push(option.role as Role);
-    } else if (option.name.startsWith("button")) {
-      content.push(option.value as string);
-    } else if (option.name.startsWith("emoji")) {
-      emoji.push(option.value as string);
-    }
-  });
+  if (!interaction.channel)
+    interaction.reply({ content: "This command can only be used in a server", ephemeral: true });
+  setCommandCooldown(globalCooldownKey(interaction.commandName), 120);
 
-  if (roles.length !== content.length) {
-    return interaction.reply({
-      embeds: [
-        BasicEmbed(client, "‼️ Error", `You need to have the same amount of roles and buttons.`),
-      ],
-      ephemeral: true,
-    });
-  }
+  try {
+    const urlString = interaction.options.getString("url");
 
-  log.info(`Roles: ${roles}`);
-  log.info(`Content: ${content}`);
-  log.info(`Emoji: ${emoji}`);
-
-  const modalId = `modal-${interaction.id}`;
-  const inputId = `input-${interaction.id}`;
-
-  const modal = new ModalBuilder()
-    .setCustomId(modalId)
-    .setTitle("Type in your custom embed content");
-  const jsonInput = new TextInputBuilder()
-    .setCustomId(inputId)
-    .setLabel("Enter shrt.zip link Here")
-    .setMinLength(1)
-    .setStyle(TextInputStyle.Paragraph)
-    .setPlaceholder(`https://shrt.zip/u/AbCd.txt`);
-
-  const firstActionRow = new ActionRowBuilder().addComponents(jsonInput);
-  modal.addComponents(firstActionRow as any);
-
-  await interaction.showModal(modal);
-  const filter = (interaction: ModalSubmitInteraction) => interaction.customId === modalId;
-
-  interaction
-    .awaitModalSubmit({ filter, time: 120_000 })
-    .then(async (modalInteraction) => {
-      const i: ModalSubmitInteraction = modalInteraction;
-
-      var raw = i.fields.getTextInputValue(inputId) as string | any;
-      var json = null;
-      log.info(`Url: ${raw}`);
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-      if (urlRegex.test(raw)) {
-        log.info(`Looks like a url to me.`);
-
-        // Go to the URL and get the raw text
-        var url = raw.match(urlRegex)![0].replace("/u/", "/r/");
-        url = url.replace("/code/", "/r/");
-        var raw = null;
-        if (url.startsWith("https://discohook.org/?data=")) {
-          url = Buffer.from(url.split("=")[1], "base64").toString("utf-8").trim();
-          raw = url;
-        } else {
-          const res = await fetch(url);
-          raw = (await res.text()).trim();
-        }
-        log.info(`Fetched / Base64 Decoded`);
-
-        // We have the json
-        try {
-          json = JSON.parse(raw);
-          log.info(`Parsed`);
-        } catch (error) {
-          log.error(error);
-          return i.reply({
-            embeds: [
-              BasicEmbed(
-                client,
-                "‼️ Error",
-                `There was an error parsing the JSON.`,
-                undefined,
-                "Red"
-              ),
-            ],
-            ephemeral: true,
-          });
-        }
-      } else {
-        return i.reply({
-          embeds: [BasicEmbed(client, "‼️ Error", `You didn't give me a url`, undefined, "Red")],
+    if (urlString) {
+      const url = getValidUrl(urlString);
+      if (!url) {
+        return interaction.reply({
+          content: "",
+          embeds: [
+            BasicEmbed(
+              client,
+              "Invalid Url",
+              "You entered an invalid url. Please try again.",
+              undefined,
+              "Red"
+            ),
+          ],
           ephemeral: true,
         });
       }
 
-      await i.reply({
-        embeds: [],
-        content: waitingEmoji,
-        ephemeral: true,
-      });
-
-      const db = new Database();
-      const buttons = [];
-      for (let index = 0; index < roles.length; index++) {
-        var uuid = randomUUID();
-        const button = new ButtonBuilder()
-          .setCustomId(ROLE_BUTTON_PREFIX + uuid)
-          .setLabel(content[index])
-          .setStyle(ButtonStyle.Primary);
-        if (emoji[index]) {
-          button.setEmoji(emoji[index]);
-        }
-        buttons.push(button);
-        const role = roles[index];
-        const data = {
-          guildId: interaction.guild!.id,
-          roleId: role.id,
-          buttonId: uuid,
-        };
-        await db.findOneAndUpdate(RoleButtons, { buttonId: uuid }, data);
+      const messageJson = await pastebinUrlToJson(url);
+      if (!messageJson) {
+        return interaction.reply({
+          content: "",
+          embeds: [
+            BasicEmbed(
+              client,
+              "Invalid Url",
+              "The url you entered does not contain valid JSON. Please try again.",
+              undefined,
+              "Red"
+            ),
+          ],
+          ephemeral: true,
+        });
       }
-      const components = ButtonWrapper(buttons);
+      const db = new Database();
+      await db.cacheStore(
+        `${interaction.commandName}:${interaction.id}`,
+        JSON.stringify(messageJson),
+        10 * 60
+      );
+    }
 
-      await i.channel!.send({
-        content: json.messages ? json.messages[0].data.content : json.content || "",
-        embeds: json.messages ? json.messages[0].data.embeds : json.embeds,
-        components: components,
-      });
+    const modalId = `modal-${interaction.id}`;
+    const inputId = `input-${interaction.id}`;
 
-      await i.editReply("Done!");
-    })
-    .catch((error) => {
-      log.error(error);
-      return interaction.followUp({
-        embeds: [
-          BasicEmbed(client, "Error", `The interaction timed out or failed.`, undefined, "Red"),
-        ],
-        ephemeral: true,
-      });
+    const modal = new ModalBuilder().setCustomId(modalId).setTitle("Enter the role details");
+    const input = new TextInputBuilder()
+      .setCustomId(inputId)
+      // Each field splits by | each line splits by \n
+      .setPlaceholder("ROLE_NAME|ROLE_ID|EMOJI(OPTIONAL)|BUTTON_TYPE(OPTIONAL)")
+      .setLabel("Role Name|Role ID|Emoji|Button Type")
+      .setStyle(TextInputStyle.Paragraph);
+
+    const modalActionRow = new ActionRowBuilder().addComponents(input);
+    modal.addComponents(modalActionRow as any);
+
+    await interaction.showModal(modal);
+    const filter = (i: ModalSubmitInteraction) => i.customId === modalId;
+    interaction
+      .awaitModalSubmit({ filter, time: 5 * 60 * 1000 })
+      .then(async (i: ModalSubmitInteraction) => {
+        await i.reply({ content: waitingEmoji, ephemeral: true });
+
+        const raw = i.fields.getTextInputValue(inputId) as string;
+        type ButtonData = {
+          roleName: string;
+          roleId: string;
+          emoji: ComponentEmojiResolvable;
+          buttonType: ButtonStyle;
+        };
+
+        const rawArr = raw.split("\n");
+
+        var invalidLines: string[] = [];
+
+        var buttonData: ButtonData[] = [];
+
+        for (const line of rawArr) {
+          const array = splitValidLines(line);
+
+          if (!array) {
+            invalidLines.push(`Button syntax error on line: ${line}`);
+            continue;
+          }
+
+          if (array.length > 4 || array.length < 2) {
+            invalidLines.push(`Invalid array length: ${array.length} for line: ${line}`);
+            continue;
+          }
+
+          var [roleName, roleId, emoji, buttonTypeStr] = array;
+
+          buttonTypeStr = buttonTypeStr?.toUpperCase();
+
+          var buttonType: ButtonStyle = ButtonStyle.Primary;
+
+          if (buttonTypeStr && buttonTypeStr !== "PRIMARY" && buttonTypeStr !== "SECONDARY") {
+            invalidLines.push(`Invalid button type: ${buttonTypeStr} for line: ${line}`);
+            continue;
+          } else if (buttonTypeStr) {
+            if (buttonTypeStr === "PRIMARY") {
+              buttonType = ButtonStyle.Primary;
+            } else {
+              buttonType = ButtonStyle.Secondary;
+            }
+          }
+
+          buttonData.push({
+            roleName,
+            roleId,
+            emoji,
+            buttonType,
+          });
+        }
+
+        if (invalidLines.length > 0) {
+          return i.editReply({
+            content: "",
+            embeds: [
+              BasicEmbed(
+                client,
+                "Error",
+                `There were ${
+                  invalidLines.length
+                } invalid line(s) in your input. Please make sure you follow the format.\n\n\`\`\`${invalidLines.join(
+                  "\n"
+                )}\`\`\``
+              ),
+            ],
+          });
+        }
+
+        const buttons: ButtonBuilder[] = [];
+        const db = new Database();
+        const getter = new ThingGetter(client);
+
+        for (const data of buttonData) {
+          const uuid = randomUUID();
+          const button = new ButtonBuilder()
+            .setCustomId(`${ROLE_BUTTON_PREFIX}${uuid}`)
+            .setLabel(data.roleName)
+            .setStyle(data.buttonType);
+
+          if (data.emoji) button.setEmoji(data.emoji);
+
+          buttons.push(button);
+
+          const role = await getter.getRole(interaction.guild!, data.roleId);
+
+          if (!role) {
+            return i.editReply({
+              content: "",
+              embeds: [BasicEmbed(client, "Error", `Role with id: ${data.roleId} does not exist.`)],
+            });
+          }
+
+          const dbData = {
+            guildId: interaction.guild!.id,
+            roleId: role.id,
+            buttonId: uuid,
+          };
+
+          await db.findOneAndUpdate(RoleButtons, { buttonId: uuid }, data);
+        }
+
+        ButtonWrapper(buttons);
+
+        const messageJsonString = await db.cacheFetch(
+          `${interaction.commandName}:${interaction.id}`
+        );
+        if (messageJsonString) {
+          var messageJson = JSON.parse(messageJsonString);
+
+          messageJson.components = ButtonWrapper(buttons);
+
+          await interaction.channel!.send(messageJson);
+        } else {
+          interaction.channel?.send({
+            content:
+              "Because you didn't provide me with any messageJSON I'm gonna make this as ugly as possible\n\nWant buttons? Here Buttons. Click them idc man do what ever you want.",
+            components: ButtonWrapper(buttons),
+          });
+        }
+
+        i.editReply({
+          content: "Done!",
+          embeds: [
+            BasicEmbed(
+              client,
+              "Role Button Creation",
+              `Created ${buttonData.length} button(s)`,
+              undefined,
+              "Green"
+            ),
+          ],
+        });
+      })
+      .catch();
+  } catch (error) {
+    console.error(error);
+
+    interaction.channel?.send({
+      content: "",
+      embeds: [
+        BasicEmbed(
+          client,
+          "Error",
+          "We just fell back to the final trycatch for this command. Something has gone horribly wrong.\n```" +
+            error +
+            "```"
+        ),
+      ],
     });
+  }
+}
+
+function splitValidLines(line: string) {
+  const pattern = /^[^\|]+\|[^\|]+(\|[^\|]*){0,2}$/;
+
+  if (!pattern.test(line)) {
+    return [];
+  }
+
+  return line.split("|").filter(Boolean);
 }

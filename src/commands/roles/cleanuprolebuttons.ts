@@ -5,7 +5,7 @@ import RoleButtons from "../../models/RoleButtons";
 import BasicEmbed from "../../utils/BasicEmbed";
 import Database from "../../utils/cache/database";
 import { debugMsg } from "../../utils/TinyUtils";
-import { SlashCommandProps } from "commandkit";
+import { CommandOptions, SlashCommandProps } from "commandkit";
 import { UUID } from "crypto";
 import { Channel } from "diagnostics_channel";
 
@@ -22,10 +22,10 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
   );
 
-export const options = {
+export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
-  userPermissions: ["Administrator"],
+  userPermissions: ["ManageRoles"],
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {

@@ -93,6 +93,11 @@ export class ThingGetter {
     return member ? member : await guild.members.fetch(id);
   }
 
+  async getRole(guild: Guild, id: Snowflake) {
+    const role = guild.roles.cache.get(id);
+    return role ? role : await guild.roles.fetch(id);
+  }
+
   getMemberName(guildMember: GuildMember) {
     return guildMember.nickname || this.getUsername(guildMember.user);
   }
@@ -302,6 +307,52 @@ export async function fetchApiUrl(name: string, url?: string) {
   const response = await fetch(url);
 
   return response.json();
+}
+
+export async function modalTimedOutFollowUp(interaction: CommandInteraction, client: Client<true>) {
+  interaction.followUp({
+    content: "",
+    embeds: [
+      BasicEmbed(
+        client,
+        "Modal Timed Out",
+        "Hey!\nYou took too long, slowpoke!\nThe modal you were interacting with has timed out and you forced me here. I don't like it here. It's cold and dark without your modal content to warm my heart. Try better next time yeah?"
+      ),
+    ],
+    ephemeral: true,
+  });
+}
+
+export async function pastebinUrlToJson(url: URL): Promise<JSON> {
+  // Check if valid url
+  if (url.hostname !== "pastebin.com" && url.hostname !== "shrt.zip") return {} as JSON;
+
+  if (url.hostname === "shrt.zip") {
+    url = replaceInUrl(url, "/u/", "/r/");
+    url = replaceInUrl(url, "/code/", "/r/");
+
+    const json = await (await fetch(url.href)).json();
+    return json;
+  }
+
+  if (url.pathname.startsWith("/raw")) return await (await fetch(url.href)).json();
+
+  return await (await fetch(`${url.origin}/raw${url.pathname}`)).json();
+}
+
+export function getValidUrl(urlString: string) {
+  try {
+    return new URL(urlString);
+  } catch (error) {
+    return null;
+  }
+}
+
+export function replaceInUrl(url: URL, oldString: string, newString: string) {
+  var urlString = url.toString();
+  urlString = urlString.replace(oldString, newString);
+
+  return new URL(urlString);
 }
 
 export async function fetchRealtime(planetmanId: string) {

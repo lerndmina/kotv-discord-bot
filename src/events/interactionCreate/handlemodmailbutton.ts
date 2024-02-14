@@ -20,8 +20,6 @@ import FetchEnvs from "../../utils/FetchEnvs";
 import ButtonWrapper from "../../utils/ButtonWrapper";
 
 export default async (interaction: MessageComponentInteraction, client: Client<true>) => {
-  debugMsg("Handling modmail button interaction " + interaction.customId);
-
   if (!interaction.customId) return;
   if (!interaction.isButton()) return;
   if (!interaction.customId.startsWith(MODMAIL_BUTTON_ID)) return;

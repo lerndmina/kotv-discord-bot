@@ -6,7 +6,7 @@ import {
   Embed,
   EmbedField,
 } from "discord.js";
-import { log } from "itsasht-logger";
+import log from "fancy-log";
 import GetAllFiles from "../../utils/GetAllFiles";
 import path from "path";
 import BasicEmbed from "../../utils/BasicEmbed";
@@ -31,12 +31,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   debugMsg("Building command map");
   for (const command of localCommands) {
-    debugMsg(command);
+    debugMsg(command); // Logs the command object
     var commandCategory = command.category;
     const commandName = command.name;
 
     if (!commandCategory) {
-      log.warning(
+      log.warn(
         `Command ${commandName.toUpperCase()} does not have a category! Spooky! Skipping...`
       );
       continue;
@@ -55,7 +55,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
     var commandDescription;
 
-    const MAX_LENGTH = 50;
+    const MAX_LENGTH = 64;
     if (resultCommand.description.length > MAX_LENGTH) {
       commandDescription = resultCommand.description.slice(0, MAX_LENGTH - 3) + "...";
     } else commandDescription = resultCommand.description;
@@ -68,7 +68,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     });
   }
 
-  var fields = []; // {name: category, value: "command1: description\ncommand2: description"}
+  var fields: EmbedField[] = []; // {name: category, value: "command1: description\ncommand2: description"}
 
   // Clean up and make it pesentable
   for (const category in commands) {
@@ -84,7 +84,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       for (const command of commands[category]) {
         if (!command.subcommands) {
           value += standardHelpMsg(command);
-          log.info("We found a command without a subcommand, wtf?");
+          log("We found a command without a subcommand, wtf?");
           break;
         }
         for (const subcommand of command.subcommands) {
@@ -98,6 +98,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
         }
       }
 
+      if (!value || !name) continue;
+
       fields.push({
         name: name,
         value: value,
@@ -109,8 +111,9 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const embed = BasicEmbed(
     client,
     "Help",
-    "To run commands, use `/(command-Name)` Or just click on a listed command to prefil it into chat.\n",
-    fields
+    "To run commands, use `/(command-Name)`\n",
+    fields,
+    undefined
   );
 
   interaction.editReply({

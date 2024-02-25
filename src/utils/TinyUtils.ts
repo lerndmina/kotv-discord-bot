@@ -125,7 +125,7 @@ export class ThingGetter {
 export function debugMsg(msg: string | Object) {
   if (!env.DEBUG_LOG) return;
   if (msg instanceof Object) {
-    log.info(msg);
+    console.log(msg);
   } else {
     log.info(`DEBUG: ${msg}`);
   }

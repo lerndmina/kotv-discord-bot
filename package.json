@@ -17,6 +17,7 @@
     "discord-api-types": "^0.37.69",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
+    "fancy-log": "^2.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "itsasht-logger": "^1.0.0",
     "minecraft-protocol": "^1.45.0",

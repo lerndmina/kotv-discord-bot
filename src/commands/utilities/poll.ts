@@ -11,6 +11,9 @@ import {
   CacheType,
   Snowflake,
   InteractionResponse,
+  APIEmbed,
+  EmbedBuilder,
+  Client,
 } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { debugMsg, sleep } from "../../utils/TinyUtils";
@@ -32,11 +35,11 @@ export const data = new SlashCommandBuilder()
     option
       .setName("time")
       .setDescription("The time for the poll to last. (1m, 1h, 1d, 1w, 1mo etc.)")
-      .setRequired(false)
+      .setRequired(true)
   );
 
 export const options: CommandOptions = {
-  devOnly: true,
+  devOnly: false,
   deleted: false,
   dm_permissions: false,
 };
@@ -44,8 +47,20 @@ export const options: CommandOptions = {
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const content = interaction.options.getString("content")!.replace(/;+$/, "").split(";");
   const timeString = interaction.options.getString("time");
+  if (!timeString) return; // Discord should always give us a time string
+  const timeStringArr = timeString!.split(" ");
 
-  var time = Math.floor(ms(timeString?.toString() || "60s") / 1000) || 60;
+  var time = 0;
+
+  for (const timeStr of timeStringArr) {
+    time += ms(timeStr);
+
+    debugMsg(`Adding ${timeStr} to time. Total: ${time}`);
+  }
+
+  time = Math.round(time / 1000);
+
+  console.log(`TimeString: ${timeString} translated to ${time} seconds`);
 
   if (time > 2592000) {
     await interaction.reply({
@@ -78,15 +93,14 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const options = content.slice(1);
 
-  const embed = BasicEmbed(
-    interaction.client,
-    question,
-    `Poll will end <t:${endTimeSeconds}:R> \n\n` +
-      options.map((option, index) => `${index + 1}. \`${option}\``).join("\n") +
-      "\n\n **All votes are anonymous**.",
-    undefined,
-    "#0099ff"
-  );
+  const embedDescriptionArray = [
+    `Poll will end <t:${endTimeSeconds}:R>`,
+    `Total Votes - 0`,
+    `\n${options.map((option, index) => `${index + 1}. \`${option}\``).join("\n")}`,
+    "\n **All votes are anonymous**.",
+  ];
+
+  const embed = BasicEmbed(interaction.client, question, embedDescriptionArray.join("\n"));
 
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId(pollId)
@@ -124,6 +138,26 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     time: POLL_TIME,
   });
 
+  // const voteHandler: ProxyHandler<Map<string, number>> = {
+  //   get: function (target: Map<string, number>, key: string) {
+  //     if (key === "set") {
+  //       return function (key: string, value: number) {
+  //         console.log(`Vote set: ${key} = ${value}`);
+  //         target.set(key, value);
+  //         updateResponse(client, response, embed, embedDescriptionArray, row, votes);
+  //         return true;
+  //       };
+  //     }
+  //     if (key === "size") return target.size;
+  //     if (typeof key === "string" && ["get", "has", "delete", "clear"].includes(key)) {
+  //       // @ts-ignore
+  //       return target[key].bind(target);
+  //     }
+  //     console.log(`Getting vote: ${key}`);
+  //     return target.get(key);
+  //   },
+  // };
+
   const votes: Map<Snowflake, number> = new Map();
 
   collector.on("collect", async (i: StringSelectMenuInteraction<CacheType>) => {
@@ -155,8 +189,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       return;
     }
 
-    log(`Applying vote for ${userId}`);
     votes.set(userId, vote);
+    updateResponse(client, response, embed, embedDescriptionArray, row, votes);
 
     await i.editReply({
       content: `You voted for \`${options[vote]}\``,
@@ -167,6 +201,26 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     if (reason == "time" || reason == "done") {
       endVote(interaction, response, options, votes, question);
     }
+  });
+}
+
+function updateResponse(
+  client: Client<true>,
+  response: InteractionResponse,
+  embed: EmbedBuilder,
+  embedDescriptionArray: string[],
+  components: any,
+  votes: Map<Snowflake, number>
+) {
+  const totalVotes = votes.size.toString();
+
+  embedDescriptionArray[1] = `Total Votes - ${totalVotes}`;
+
+  const newEmbed = BasicEmbed(client, embed.data.title!, embedDescriptionArray.join("\n"));
+
+  response.edit({
+    embeds: [newEmbed],
+    components: [components],
   });
 }
 

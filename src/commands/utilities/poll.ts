@@ -15,7 +15,8 @@ import {
 import BasicEmbed from "../../utils/BasicEmbed";
 import { debugMsg, sleep } from "../../utils/TinyUtils";
 import { CommandOptions, SlashCommandProps } from "commandkit";
-import { log } from "itsasht-logger";
+import log from "fancy-log";
+import ms from "ms";
 
 export const data = new SlashCommandBuilder()
   .setName("poll")
@@ -27,22 +28,33 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
       .setMaxLength(100)
   )
-  .addIntegerOption((option: SlashCommandIntegerOption) =>
+  .addStringOption((option: SlashCommandStringOption) =>
     option
       .setName("time")
-      .setDescription("The time in seconds for the poll to last.")
+      .setDescription("The time for the poll to last. (1m, 1h, 1d, 1w, 1mo etc.)")
       .setRequired(false)
   );
 
 export const options: CommandOptions = {
-  devOnly: false,
+  devOnly: true,
   deleted: false,
   dm_permissions: false,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const content = interaction.options.getString("content")!.replace(/;+$/, "").split(";");
-  const time = interaction.options.getInteger("time");
+  const timeString = interaction.options.getString("time");
+
+  var time = Math.floor(ms(timeString?.toString() || "60s") / 1000) || 60;
+
+  if (time > 2592000) {
+    await interaction.reply({
+      content: "",
+      embeds: [BasicEmbed(client, "Poll Time Limit", "The maximum time limit is 30 days.")],
+      ephemeral: true,
+    });
+    return;
+  }
 
   // check if the content is valid
   if (content.length < 3) {
@@ -59,13 +71,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   // get the question
   const question = content[0];
 
-  var POLL_TIME;
-
-  if (time) {
-    POLL_TIME = time * 1000;
-  } else {
-    POLL_TIME = 60000;
-  }
+  const POLL_TIME = time * 1000;
 
   const endTime = Date.now() + POLL_TIME;
   const endTimeSeconds = Math.floor(endTime / 1000);
@@ -149,7 +155,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       return;
     }
 
-    log.info(`Applying vote for ${userId}`);
+    log(`Applying vote for ${userId}`);
     votes.set(userId, vote);
 
     await i.editReply({
@@ -223,7 +229,7 @@ function endVote(
     voteInteraction.channel!.send({ embeds: [finalEmbed] });
   } catch (error) {
     log.error(error);
-    log.info(
+    log(
       "Poll has ended, but could not edit the original message. It has probably been deleted intentionally."
     );
     return;

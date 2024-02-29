@@ -9,6 +9,7 @@ export default async function (message: Message, client: Client<true>) {
   if (message.author.bot) return;
   if (message.channel.type == ChannelType.DM) return;
   if (!message.content.includes(":") && !message.content.includes("/")) return;
+  if (message.content.includes("http")) return;
 
   log.info("Processing message for time. . .");
 

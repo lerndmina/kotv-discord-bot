@@ -231,7 +231,7 @@ async function handleUserLookup(
         );
       } catch (error) {
         log.info("Error updating user in DB");
-        log.info(error);
+        log.info(error as string);
       }
     }
   }

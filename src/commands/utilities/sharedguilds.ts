@@ -34,7 +34,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   }
 
   //code to generate array of server names & IDs for .addOption() in select menu component
-  const servers = [];
+  const servers: { label: string; value: string }[] = [];
   for (let i = 0; i < Object.keys(guilds).length; i++) {
     servers.push({
       label: Object.entries(guilds)[i][1].name,
@@ -99,7 +99,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       components: [],
     });
   } catch (e) {
-    log.error(e);
+    log.error(e as string);
     await interaction.editReply({
       content: "No response was given in time or an error occured.",
       components: [],

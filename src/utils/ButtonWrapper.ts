@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonComponentData } from "discord.js";
 
 export default function (buttons: ButtonBuilder[]) {
-  const components = [];
+  const components: any = [];
   var actionRow = new ActionRowBuilder();
 
   for (var a = 0; a < buttons.length && a < 25; a++) {

@@ -195,7 +195,7 @@ export async function run({ interaction, client, handler }: CommandProps) {
       });
     } catch (error) {
       log.info(`Error deleting temp vc creator:`);
-      log.info(error);
+      log.info(error as string);
 
       await i.editReply({
         embeds: [

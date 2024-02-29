@@ -21,7 +21,7 @@ export default async (interaction: AutocompleteInteraction, client: Client<true>
 
   const tags = await db.find(TagSchema, { guildId: interaction.guild.id }, false, 15);
 
-  const data = [];
+  const data: { name: string; value: string }[] = [];
   if (tags && tags.length > 0 && focusedValue) {
     for (const tag of tags) {
       const tagName = getTagName(tag.key);

@@ -41,7 +41,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
     try {
       await handleLinkInteraction(interaction, client);
     } catch (error) {
-      log.error(error);
+      log.error(error as string);
       await interaction.user.send({
         content: `An error occured while processing your request. I have notified a developer. You do not need to do anything else. You can try again later if you wish.`,
       });
@@ -382,7 +382,7 @@ async function saveData(
 
     return true;
   } catch (error) {
-    log.error(error);
+    log.error(error as string);
     return false;
   }
 }

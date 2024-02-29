@@ -56,7 +56,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     });
   } catch (error: unknown) {
     log.error(`OpenAI Error:`);
-    log.error(error);
+    log.error(error as string);
   }
 
   if (!response || !response.data.choices || !response.data.choices[0].message) {

@@ -282,7 +282,7 @@ function endVote(
     });
     voteInteraction.channel!.send({ embeds: [finalEmbed] });
   } catch (error) {
-    log.error(error);
+    log.error(error as string);
     log(
       "Poll has ended, but could not edit the original message. It has probably been deleted intentionally."
     );

@@ -30,6 +30,6 @@ export default async (oldState: VoiceState, newState: VoiceState, client: Client
     vcList.channelIDs = vcList.channelIDs.filter((vc) => vc !== leftChannelID);
     await vcList.save();
   } catch (error) {
-    log.error(error);
+    log.error(error as string);
   }
 };

@@ -25,7 +25,7 @@ export default async function (
       await message.channel.send("Guild's commands deleted.");
       return;
     } catch (error) {
-      log.error(error);
+      log.error(error as string);
       await message.channel.send("Error deleting commands.");
       return;
     }
@@ -36,7 +36,7 @@ export default async function (
       await message.channel.send("Global commands deleted.");
       return;
     } catch (error) {
-      log.error(error);
+      log.error(error as string);
       await message.channel.send("Error deleting commands.");
       return;
     }

@@ -124,6 +124,6 @@ export default async (oldState: VoiceState, newState: VoiceState, client: Client
       await newTempList.save();
     }
   } catch (error) {
-    log.error(error);
+    log.error(error as string);
   }
 };

@@ -69,7 +69,7 @@ export default async function (message: Message, client: Client<true>) {
         ),
       ],
     });
-    log.error(error);
+    log.error(error as string);
   }
 }
 
@@ -330,7 +330,7 @@ async function sendMessage(
       log.error("Failed to send message to thread, sending normally.");
     }
   } catch (error) {
-    log.error(error);
+    log.error(error as string);
     return message.react("<:error:1182430951897321472>");
   }
   return message.react("📨");

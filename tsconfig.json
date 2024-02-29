@@ -5,7 +5,8 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
   "include": ["src/**/*.ts", "declarations.d.ts"],
   "exclude": ["node_modules"]

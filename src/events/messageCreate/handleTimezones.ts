@@ -68,6 +68,7 @@ async function handleReplyTrigger(reply: Message, client: Client<true>) {
   if (!messageId) return;
   const originalMessage = await reply.channel.messages.fetch(messageId);
   if (!originalMessage) return;
+  if (originalMessage.author.bot) return;
 
   console.log("Original message: ", originalMessage.content);
 

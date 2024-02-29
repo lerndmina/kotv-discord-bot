@@ -60,7 +60,7 @@ export async function sendDM(userId: Snowflake, content: string, client: Client<
         userId +
         "I probably don't have permission to send DMs to them. Error to follow:"
     );
-    log.error(error);
+    log.error(error as string);
   }
 }
 
@@ -275,7 +275,7 @@ export async function deleteMessage(message: Message, timeout = 0) {
     log.error(
       `Failed to delete message: ${message.id} in ${message.channel.id} it may have already been deleted.`
     );
-    log.error(error);
+    log.error(error as string);
   }
 }
 

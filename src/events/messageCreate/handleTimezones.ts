@@ -1,13 +1,19 @@
-import { ButtonBuilder, ButtonStyle, ChannelType, Client, Message } from "discord.js";
+import { ButtonBuilder, ButtonStyle, ChannelType, Client, Message, MessageType } from "discord.js";
 import log from "fancy-log";
 import ParseTimeFromMessage from "../../utils/ParseTimeFromMessage";
 import BasicEmbed from "../../utils/BasicEmbed";
-import { sleep } from "../../utils/TinyUtils";
+import { ThingGetter, sleep } from "../../utils/TinyUtils";
 import ButtonWrapper from "../../utils/ButtonWrapper";
 
 export default async function (message: Message, client: Client<true>) {
   if (message.author.bot) return;
-  if (message.channel.type == ChannelType.DM) return;
+  if (message.channel.type != ChannelType.GuildText) return;
+  if (
+    message.type === MessageType.Reply &&
+    !message.author.bot &&
+    message.mentions.has(client.user.id)
+  )
+    handleReplyTrigger(message, client);
   if (!(message.content.includes(":") && message.content.includes("/"))) return;
   if (message.content.includes("http")) return;
 
@@ -53,4 +59,32 @@ export default async function (message: Message, client: Client<true>) {
   // });
 
   return false;
+}
+
+async function handleReplyTrigger(reply: Message, client: Client<true>) {
+  if (reply.channel.type != ChannelType.GuildText) return;
+  console.log("Mentions: ", reply.mentions.users.size);
+  const messageId = reply.reference?.messageId;
+  if (!messageId) return;
+  const originalMessage = await reply.channel.messages.fetch(messageId);
+  if (!originalMessage) return;
+
+  console.log("Original message: ", originalMessage.content);
+
+  const data = ParseTimeFromMessage(originalMessage);
+
+  if (!data.success) {
+    return false;
+  }
+
+  originalMessage.reply({
+    content: `⏰ <t:${data.seconds}:F>\n\nRequested by <@${reply.author.id}>`,
+    allowedMentions: { repliedUser: false },
+  });
+
+  try {
+    await reply.delete();
+  } catch (error) {
+    // We don't care if this fails, it's just a cleanup.
+  }
 }

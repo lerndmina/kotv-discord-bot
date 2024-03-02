@@ -29,7 +29,7 @@ export default async function (message: Message, client: Client<true>) {
   // We don't return true here because we want to continue to the next event
 
   // Send reactions for transcriptions
-  if (isVoiceMessage(message) && message.channel! instanceof ThreadChannel) {
+  if (isVoiceMessage(message) && !(message.channel! instanceof ThreadChannel)) {
     if (message.reactions.cache.size > 0) return;
     message.react("✍️").then(() => message.react("❌"));
     return true; // Stop the event loop we've delt with this message

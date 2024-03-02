@@ -3,6 +3,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import { userMention } from "discord.js";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { returnMessage } from "../../utils/TinyUtils";
+import { setCommandCooldown, userCooldownKey } from "../../Bot";
 
 export const data = new SlashCommandBuilder()
   .setName("poke")
@@ -21,6 +22,7 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
+  setCommandCooldown(userCooldownKey(interaction.user.id, interaction.commandName), 600);
   const user = interaction.options.getUser("user");
   const text = interaction.options.getString("message");
   if (!user || !text)

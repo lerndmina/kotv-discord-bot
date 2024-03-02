@@ -47,11 +47,13 @@ export default async function (message: Message, client: Client<true>) {
   const user = message.author;
 
   try {
-    if (isVoiceMessage(message))
-      return message.reply("I don't support voice messages in modmail threads.");
-
     if (message.guildId) {
       if (message.channel instanceof ThreadChannel) {
+        if (isVoiceMessage(message)) {
+          message.reply("I don't support voice messages in modmail threads.");
+          return;
+        }
+
         await handleReply(message, client, user);
       }
     } else {

@@ -11,12 +11,12 @@ export const data = new SlashCommandBuilder()
   );
 
 export const options: CommandOptions = {
-  devOnly: true,
+  devOnly: false,
   deleted: false,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  const text = interaction.options.getString("text")!; // Won't be null because it's required
+  const text = interaction.options.getString("text")?.toLocaleLowerCase()!; // Won't be null because it's required
 
   const emojified = text
     .split("")

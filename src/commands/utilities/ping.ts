@@ -4,6 +4,7 @@ import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import { fetchApiUrl, sleep } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
+import logger from "fancy-log";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")
@@ -66,11 +67,15 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
     censusData = await Promise.race([fetchApiUrl("AWildLerndmina"), timeout]);
   } catch (error) {
+    log.error(`Census Error:`);
+    logger.error(error);
     censusError = true;
   }
   const endTime = Date.now();
 
   if (!censusData || censusData.returned == 0 || !censusData.character_list[0]) {
+    log.error(`Census Error: Invalid Response`);
+    logger.error(censusData);
     censusError = true;
   }
 

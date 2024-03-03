@@ -1,7 +1,9 @@
 import type { CommandData, SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { log } from "itsasht-logger";
-import { waitingEmoji } from "../../Bot";
+import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
+import { fetchApiUrl, sleep } from "../../utils/TinyUtils";
+import BasicEmbed from "../../utils/BasicEmbed";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")
@@ -17,51 +19,82 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  var isPrivate = interaction.options.getBoolean("private");
+  setCommandCooldown(globalCooldownKey(interaction.commandName), 15);
+
+  var isPrivate = interaction.options.getBoolean("private") || false;
+  await interaction.reply({ content: waitingEmoji, ephemeral: isPrivate });
 
   if (isPrivate == null) isPrivate = true;
 
   const timestamp = interaction.createdTimestamp;
   const currentTime = Date.now();
-  const latency = currentTime - timestamp;
+  const latency = timestamp - currentTime;
   var latencyString = "";
   if (latency < 0) {
-    latencyString = `${latency}ms (This is probably wrong)\n\nAt least you know the bot is alive lmao!`;
+    latencyString = `${latency}ms (This is probably wrong)`;
   } else {
     latencyString = latency.toString() + "ms";
   }
 
   var wsPing = interaction.client.ws.ping;
-  var deferred = false;
 
+  let censusData: any;
+  let censusError: boolean = false;
+
+  const fields = [
+    { name: "Websocket", value: `${wsPing}ms`, inline: false },
+    { name: "Message Latency", value: `${latencyString}`, inline: false },
+    { name: "Census Latency", value: waitingEmoji, inline: false },
+  ];
+
+  let needsRefresh = false;
   if (wsPing < 5 || latency < 5) {
-    var preEmbed = new EmbedBuilder()
-      .setTitle("🏓 Pong!")
-      .addFields({
-        name: `Websocket`,
-        value: `The bot just started. Waiting 1m for websocket ping to be cached. ${waitingEmoji}`,
-      })
-      .addFields({
-        name: `Message Latency`,
-        value: `${latencyString}`,
-      })
-      .setColor("#0099ff");
-    await interaction.reply({ embeds: [preEmbed], ephemeral: isPrivate });
-
-    await new Promise((r) => setTimeout(r, 60000));
-    wsPing = interaction.client.ws.ping;
-    deferred = true;
+    fields[0].value = `${waitingEmoji}`;
+    needsRefresh = true;
   }
 
-  const postEmbed = new EmbedBuilder()
-    .setTitle("🏓 Pong!")
-    .addFields({ name: `Websocket`, value: `${wsPing}ms` })
-    .addFields({ name: `Message Latency`, value: `${latencyString}` })
-    .setColor("#0099ff");
+  const embedTitle = "🏓 Pong!";
+  const embedDescription = `Bot online! Results Below.`;
 
-  if (deferred) {
-    await interaction.editReply({ embeds: [postEmbed] });
+  const reply = await interaction.editReply({
+    content: "",
+    embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)],
+  });
+
+  const startTime = Date.now();
+  try {
+    const timeout = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error("Request timed out"));
+      }, 10000); // 10 seconds
+    });
+
+    censusData = await Promise.race([fetchApiUrl("AWildLerndmina"), timeout]);
+  } catch (error) {
+    censusError = true;
+  }
+  const endTime = Date.now();
+
+  if (!censusData || censusData.returned == 0 || !censusData.character_list[0]) {
+    censusError = true;
+  }
+
+  if (censusError) {
+    fields[2].name = "Census ERROR!";
+    fields[2].value =
+      "Census is either down or returned an invalid response. This will cause issues with character linking.";
   } else {
-    await interaction.reply({ embeds: [postEmbed], ephemeral: isPrivate });
+    fields[2].value = `${endTime - startTime}ms`;
+  }
+
+  await reply.edit({ embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)] });
+
+  if (needsRefresh) {
+    await sleep(15 * 1000);
+    fields[0].value = `${interaction.client.ws.ping}ms`;
+    await interaction.editReply({
+      content: "",
+      embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)],
+    });
   }
 }

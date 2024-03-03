@@ -31,7 +31,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const latency = timestamp - currentTime;
   var latencyString = "";
   if (latency < 0) {
-    latencyString = `${latency}ms (This is probably wrong)`;
+    latencyString = `${currentTime - timestamp}ms`;
   } else {
     latencyString = latency.toString() + "ms";
   }

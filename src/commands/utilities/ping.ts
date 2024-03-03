@@ -28,7 +28,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const timestamp = interaction.createdTimestamp;
   const currentTime = Date.now();
-  var latency = timestamp - currentTime > 0 ? currentTime - timestamp : timestamp - currentTime;
+  var latency = timestamp - currentTime < 0 ? currentTime - timestamp : timestamp - currentTime;
   const latencyString = latency.toString() + "ms";
 
   var wsPing = interaction.client.ws.ping;

@@ -57,6 +57,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)],
   });
 
+  let censusErrorString = "";
+
   const startTime = Date.now();
   try {
     const timeout = new Promise((resolve, reject) => {
@@ -69,6 +71,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   } catch (error) {
     log.error(`Census Error: ${error}`);
     censusError = true;
+    censusErrorString = error as string;
   }
   const endTime = Date.now();
 
@@ -79,7 +82,9 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   if (censusError) {
     fields[2].name = "Census ERROR!";
     fields[2].value =
-      "Census is either down or returned an invalid response. This will cause issues with character linking.";
+      "Census is either down or returned an invalid response. This will cause issues with character linking.\n\nHere's the error: ```\n" +
+      censusErrorString +
+      "```";
   } else {
     fields[2].value = `${endTime - startTime}ms`;
   }

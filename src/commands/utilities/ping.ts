@@ -67,15 +67,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
     censusData = await Promise.race([fetchApiUrl("AWildLerndmina"), timeout]);
   } catch (error) {
-    log.error(`Census Error:`);
-    logger.error(error);
+    log.error(`Census Error: ${error}`);
     censusError = true;
   }
   const endTime = Date.now();
 
   if (!censusData || censusData.returned == 0 || !censusData.character_list[0]) {
-    log.error(`Census Error: Invalid Response`);
-    logger.error(censusData);
     censusError = true;
   }
 

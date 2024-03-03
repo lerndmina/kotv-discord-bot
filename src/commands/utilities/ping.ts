@@ -84,7 +84,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     fields[2].value =
       "Census is either down or returned an invalid response. This will cause issues with character linking.\n\nHere's the error: ```\n" +
       censusErrorString +
-      "```";
+      "```\n\nThis is not an issue with the bot but an issue with the census API. Please try again later.";
   } else {
     fields[2].value = `${endTime - startTime}ms`;
   }

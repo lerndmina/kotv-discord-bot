@@ -33,7 +33,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const channel = interaction.options.getChannel("channel")! as TextChannel;
   // @ts-ignore
-  if (!channel.isText()) return interaction.editReply({ content: "Invalid channel" });
+  if (!channel.isTextBased) return interaction.editReply({ content: "Invalid channel" });
 
   const buttons = [
     new ButtonBuilder()

@@ -52,7 +52,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const embedTitle = "🏓 Pong!";
   const embedDescription = `Bot online! Results Below.`;
 
-  const reply = await interaction.editReply({
+  await interaction.editReply({
     content: "",
     embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)],
   });
@@ -89,7 +89,9 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     fields[2].value = `${endTime - startTime}ms`;
   }
 
-  await reply.edit({ embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)] });
+  await interaction.editReply({
+    embeds: [BasicEmbed(client, embedTitle, embedDescription, fields)],
+  });
 
   if (needsRefresh) {
     await sleep(15 * 1000);

@@ -81,6 +81,9 @@ export const KOTV_GUEST_ROLE = "218771481054674944";
 export const KOTV_PROMOTEME_ROLE = "1011003791392395395";
 export const GET_OUTFIT_MEMBERS_URL = `https://census.daybreakgames.com/s:${env.CENSUS_KEY}/get/ps2:v2/outfit?c:hide=name_lower,alias_lower,time_created,time_created_date,leader_character_id&c:join=outfit_rank^list:1^show:ordinal%27name^inject_at:ranks&c:join=outfit_member^list:1^show:character_id^inject_at:members&c:tree=start:members^field:character_id&c:tree=start:ranks^field:ordinal&c:lang=en&c:limit=2147483647&c:retry=false&outfit_id=${OUTFIT_ID}`;
 
+export const KOTV_CENSUS_INFO_CHANNEL = "699942138602848323";
+export const KOTV_CENSUS_INFO_MESSAGE = "1214238356196565042";
+
 export const ROLE_BUTTON_PREFIX = "roleGive-";
 
 export const waitingEmoji: string = env.WAITING_EMOJI;

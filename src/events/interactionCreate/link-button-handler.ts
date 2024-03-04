@@ -25,7 +25,7 @@ import { fetchRealtime, fetchApiUrl, debugMsg, ThingGetter } from "../../utils/T
 
 import FetchEnvs from "../../utils/FetchEnvs";
 import Database from "../../utils/cache/database";
-import { CensusStatusType } from "../../models/CensusStatus";
+import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 const env = FetchEnvs();
 const db = new Database();
 
@@ -42,7 +42,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
     interaction.customId == INTERACTION_LINK_GUEST
   ) {
     try {
-      const censusStatusData = (await db.findOne("CensusStatus", { id: 1 })) as CensusStatusType;
+      const censusStatusData = (await db.findOne(CensusStatus, { id: 1 })) as CensusStatusType;
       if (censusStatusData?.isOffline) {
         interaction.reply(
           "The bot has detected that the census API is offline. Please try again later, please notify a preacher if you think this is a mistake."
@@ -51,7 +51,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
       }
       await handleLinkInteraction(interaction, client);
     } catch (error) {
-      log.error(error as string);
+      console.error(error);
       await interaction.user.send({
         content: `An error occured while processing your request. I have notified a developer. You do not need to do anything else. You can try again later if you wish.`,
       });

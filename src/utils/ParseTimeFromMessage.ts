@@ -2,6 +2,7 @@ import { Message } from "discord.js";
 import * as chrono from "chrono-node";
 import moment from "moment-timezone";
 import { parse } from "path";
+import { debugMsg } from "./TinyUtils";
 
 export default function (message: Message | string):
   | {
@@ -30,7 +31,7 @@ export default function (message: Message | string):
       seconds: null,
     };
 
-  const CETOffset = moment.tz("Europe/Paris").utcOffset();
+  const CETOffset = moment.tz("Europe/Paris").utcOffset() * -1;
 
   let date = moment.utc(parsed.start.date());
 
@@ -38,6 +39,8 @@ export default function (message: Message | string):
   if (parsed.start.knownValues.timezoneOffset === undefined) {
     console.log("No timezone offset found, assuming CET");
     date = date.add(CETOffset, "minutes");
+    // @ts-ignore
+    parsed.start.knownValues.timezoneOffset = CETOffset;
   }
 
   return {

@@ -14,7 +14,9 @@ export default async function (message: Message, client: Client<true>) {
     message.mentions.has(client.user.id)
   )
     handleReplyTrigger(message, client);
-  if (!(message.content.includes(":") && message.content.includes("/"))) return;
+  const colonMatches = (message.content.match(/:/g) || []).length;
+  const slashMatches = (message.content.match(/\//g) || []).length;
+  if (!(colonMatches === 1 && slashMatches === 2)) return;
   if (message.content.includes("http")) return;
 
   log.info("Processing message for time. . .");

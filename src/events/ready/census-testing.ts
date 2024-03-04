@@ -6,6 +6,8 @@ import {
   ChannelType,
   Message,
   Snowflake,
+  Embed,
+  EmbedBuilder,
 } from "discord.js";
 import type { CommandKit } from "commandkit";
 import { log } from "itsasht-logger";
@@ -26,11 +28,20 @@ import { debug } from "console";
 
 let offlinePings = 0;
 let onlinePings = 0;
-const MAX_OFFLINE_PINGS = 6;
-const MAX_ONLINE_PINGS = 6;
+const MAX_OFFLINE_PINGS = 3;
+const MAX_ONLINE_PINGS = 3;
 const CHECK_INTERVAL_MINS = 5;
 const CHECK_INTERVAL = CHECK_INTERVAL_MINS * 60 * 1000;
 let lastChangeData: CensusStatusType;
+
+let updateInstantlyCount = MAX_ONLINE_PINGS;
+function shouldUpdateInstantly() {
+  if (updateInstantlyCount > 0) {
+    updateInstantlyCount--;
+    return true;
+  }
+  return false;
+}
 
 const db = new Database();
 
@@ -40,21 +51,22 @@ const db = new Database();
  * @param {Client} client
  */
 export default async (c: Client<true>, client: Client<true>, handler: CommandKit) => {
-  if (!lastChangeData) {
-    lastChangeData = await fetchLastChange();
-  }
-
+  if (!KOTV_CENSUS_INFO_MESSAGE || !KOTV_CENSUS_INFO_CHANNEL) return;
   const censusStatusMessage = await getCensusStatusMessage(client);
   if (!censusStatusMessage) {
     log.error("Census status message not found, cannot update. . .");
     return;
   }
 
-  debugMsg("Census status message found, begining update loop. . .");
-  debugMsg(`Will check for census every ${CHECK_INTERVAL_MINS} minutes.`);
-  updateCensusStatus(client, censusStatusMessage, false);
-  setInterval(() => {
-    updateCensusStatus(client, censusStatusMessage);
+  log.info("Census status message found, begining update loop. . .");
+  log.info(`Will check for census every ${CHECK_INTERVAL_MINS} minutes.`);
+
+  lastChangeData = await getRecordedCensusStatus();
+  updateCensusStatus(client, censusStatusMessage, shouldUpdateInstantly());
+
+  setInterval(async () => {
+    lastChangeData = await getRecordedCensusStatus();
+    updateCensusStatus(client, censusStatusMessage, shouldUpdateInstantly());
   }, CHECK_INTERVAL);
 };
 
@@ -89,6 +101,8 @@ export async function updateCensusStatus(
   let censusStatusMsg = "🟢 Census API is online. Character linking should work.";
   let fields: any = [];
 
+  debugMsg(`Upate instantly: ${updateInstantly}`);
+
   try {
     // Promise race fetching the urla
     const timeout = new Promise((resolve, reject) => {
@@ -116,10 +130,10 @@ export async function updateCensusStatus(
     ];
   }
 
-  const online_offlineSince = `<t:${lastChangeData.lastChange}:F> <t:${lastChangeData.lastChange}:R>`;
+  const online_offlineSince = `<t:${lastChangeData.lastChange}:F> | <t:${lastChangeData.lastChange}:R>`;
 
   // Census offline
-  if (offlinePings >= MAX_OFFLINE_PINGS || updateInstantly) {
+  if (offlinePings >= MAX_OFFLINE_PINGS || (offlinePings > 0 && updateInstantly)) {
     onlinePings = 0;
     if (!lastChangeData.isOffline) {
       // If not already OFFLINE that's a change
@@ -133,13 +147,12 @@ export async function updateCensusStatus(
       value: online_offlineSince,
     });
 
-    const embed = BasicEmbed(client, "Census Status", censusStatusMsg, fields);
-    await message.edit({ embeds: [embed], content: "", components: [] });
+    editMessage(message, "Census Status", censusStatusMsg, fields, false);
     return;
   }
 
   // Census online
-  if (onlinePings >= MAX_ONLINE_PINGS) {
+  if (onlinePings >= MAX_ONLINE_PINGS || (onlinePings > 0 && updateInstantly)) {
     offlinePings = 0;
     if (lastChangeData.isOffline) {
       // If not already ONLINE that's a change
@@ -153,14 +166,17 @@ export async function updateCensusStatus(
       value: online_offlineSince,
     });
 
-    const embed = BasicEmbed(client, "Census Status", censusStatusMsg, fields);
-    await message.edit({ embeds: [embed], content: "", components: [] });
+    editMessage(message, "Census Status", censusStatusMsg, fields, true);
     return;
   }
 
   // Census is unstable
-  if (offlinePings || (onlinePings && !updateInstantly)) {
+  if ((offlinePings || onlinePings) && !updateInstantly) {
     censusStatusMsg = "🟡 Census API is **unstable**. Character linking may not work.";
+    fields.push({
+      name: "Unstable Since",
+      value: online_offlineSince,
+    });
     fields.push({
       name: "Offline Pings",
       value: `${offlinePings}`,
@@ -171,8 +187,7 @@ export async function updateCensusStatus(
       value: `${onlinePings}`,
       inline: true,
     });
-    const embed = BasicEmbed(client, "Census Status", censusStatusMsg, fields);
-    await message.edit({ embeds: [embed], content: "", components: [] });
+    editMessage(message, "Census Status", censusStatusMsg, fields, false);
     return;
   }
 }
@@ -182,7 +197,7 @@ async function fetchCensus(url: string) {
   const data = await response.json();
   return data;
 }
-async function fetchLastChange() {
+async function getRecordedCensusStatus() {
   const censusDbData = await db.findOne(CensusStatus, { id: 1 });
   if (censusDbData) {
     return censusDbData;
@@ -194,4 +209,20 @@ async function fetchLastChange() {
   });
   await db.findOneAndUpdate(CensusStatus, { id: 1 }, newCensusData);
   return newCensusData;
+}
+
+async function editMessage(
+  message: Message,
+  title: string,
+  description: string,
+  fields: any,
+  online = true
+) {
+  const originalEmbed = message.embeds[0];
+  const embed = new EmbedBuilder()
+    .setTitle(title)
+    .setDescription(description)
+    .addFields(fields)
+    .setColor(online ? "Green" : "DarkRed");
+  await message.edit({ embeds: [originalEmbed ? originalEmbed : {}, embed] });
 }

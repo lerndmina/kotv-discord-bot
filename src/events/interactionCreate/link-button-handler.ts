@@ -24,7 +24,10 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import { fetchRealtime, fetchApiUrl, debugMsg, ThingGetter } from "../../utils/TinyUtils";
 
 import FetchEnvs from "../../utils/FetchEnvs";
+import Database from "../../utils/cache/database";
+import { CensusStatusType } from "../../models/CensusStatus";
 const env = FetchEnvs();
+const db = new Database();
 
 const INTERACTION_LINK_USER = "kotv-link";
 const INTERACTION_LINK_GUEST = "kotv-link-guest";
@@ -39,6 +42,13 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
     interaction.customId == INTERACTION_LINK_GUEST
   ) {
     try {
+      const censusStatusData = (await db.findOne("CensusStatus", { id: 1 })) as CensusStatusType;
+      if (censusStatusData?.isOffline) {
+        interaction.reply(
+          "The bot has detected that the census API is offline. Please try again later, please notify a preacher if you think this is a mistake."
+        );
+        return;
+      }
       await handleLinkInteraction(interaction, client);
     } catch (error) {
       log.error(error as string);

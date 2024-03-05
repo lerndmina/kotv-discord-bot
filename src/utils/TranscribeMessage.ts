@@ -9,13 +9,14 @@ import ConvertFile from "./ConvertFile";
 import { Client, Message } from "discord.js";
 import { Url } from "url";
 import FetchEnvs from "./FetchEnvs";
+import logger from "fancy-log";
 
 export default async function (client: Client<true>, message: Message, apiKey: string) {
   const whisper = new Whisper(apiKey);
   // check if ffmpeg is installed
   ffmpeg.getAvailableFormats(function (err, formats) {
     if (err) {
-      log.error(`FFMPEG ERR: ${err}`);
+      logger.error(`FFMPEG ERR: ${err}`);
       const env = FetchEnvs();
       return message.reply(
         `Sorry, there was an error while trying to load FFMPEG. <@${

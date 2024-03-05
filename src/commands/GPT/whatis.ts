@@ -1,10 +1,11 @@
 import { SlashCommandBuilder, Client } from "discord.js";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { log } from "itsasht-logger";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
+import { returnMessage } from "../../utils/TinyUtils";
 const env = FetchEnvs();
 
 export const data = new SlashCommandBuilder()
@@ -23,17 +24,13 @@ export const options: CommandOptions = {
   deleted: false,
 };
 
+const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  await setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
+  await setCommandCooldown(globalCooldownKey(interaction.commandName), 30);
   const requestMessage = interaction.options.getString("object");
   if (!requestMessage)
     return interaction.reply({ content: "You must specify an object.", ephemeral: true });
-
-  const configuration = new Configuration({
-    apiKey: env.OPENAI_API_KEY,
-  });
-
-  const openai = new OpenAIApi(configuration);
 
   let conversation = [
     {
@@ -52,20 +49,31 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.deferReply({ ephemeral: false });
 
   // Send the message to OpenAI to be processed
-  const response = (await openai
-    .createChatCompletion({
-      model: "gpt-4",
+  const response = await openai.chat.completions
+    .create({
+      model: "gpt-3.5-turbo",
       messages: conversation as any,
       // max_tokens: 256, // limit token usage
     })
     .catch((error) => {
       log.error(`OPENAI ERR: ${error}`);
-      return interaction.editReply({
+      interaction.editReply({
         content: "Something went wrong with the AI. Please try again.",
       });
-    })) as any;
+      return;
+    });
 
-  const aiResponse = response.data.choices[0].message.content;
+  if (!response || !response.choices[0] || !response.choices[0].message.content) {
+    return returnMessage(
+      interaction,
+      client,
+      "Error",
+      "Something went wrong with the AI. Please try again.",
+      { error: true }
+    );
+  }
+
+  const aiResponse = response.choices[0].message.content;
 
   // Send the response back to discord
   interaction.editReply({

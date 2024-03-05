@@ -1,15 +1,15 @@
 import { SlashCommandBuilder, Client } from "discord.js";
-import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { log } from "itsasht-logger";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
+import { ObjectExpressionOperatorReturningObject } from "mongoose";
+import logger from "fancy-log";
 const env = FetchEnvs();
 
-const configuration = new Configuration({
-  apiKey: env.OPENAI_API_KEY,
-});
+const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 
 export const data = new SlashCommandBuilder()
   .setName("ask-basic")
@@ -26,12 +26,6 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   await setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
   const requestMessage = interaction.options.getString("message") as string;
 
-  const configuration = new Configuration({
-    apiKey: env.OPENAI_API_KEY,
-  });
-
-  const openai = new OpenAIApi(configuration);
-
   let conversation = [
     {
       role: "system",
@@ -46,27 +40,27 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   // Tell discord to wait while we process the request
   await interaction.deferReply({ ephemeral: false });
-  var response;
+  var response: OpenAI.Chat.Completions.ChatCompletion | undefined;
   try {
     // Send the message to OpenAI to be processed
-    response = await openai.createChatCompletion({
+    response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: conversation as any,
       // max_tokens: 256, // limit token usage
     });
   } catch (error: unknown) {
     log.error(`OpenAI Error:`);
-    log.error(error as string);
+    logger.error(error);
   }
 
-  if (!response || !response.data.choices || !response.data.choices[0].message) {
+  if (!response || !response.choices[0] || !response.choices[0].message.content) {
     interaction.editReply({
       content: "Sorry, I couldn't get a response from the AI. Please try again later.",
     });
     return;
   }
 
-  const aiResponse = response.data.choices[0].message.content as string;
+  const aiResponse = response.choices[0].message.content;
 
   if (aiResponse.length > 2000) {
     var responses: string[] = [];

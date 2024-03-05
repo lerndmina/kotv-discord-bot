@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, Client } from "discord.js";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { log } from "itsasht-logger";
 import FetchEnvs from "../../utils/FetchEnvs";
@@ -10,7 +10,7 @@ import { returnMessage } from "../../utils/TinyUtils";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
 const env = FetchEnvs();
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
 });
 
@@ -29,12 +29,6 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   await setCommandCooldown(globalCooldownKey(interaction.commandName), 60);
   const requestMessage = interaction.options.getString("message");
 
-  const configuration = new Configuration({
-    apiKey: env.OPENAI_API_KEY,
-  });
-
-  const openai = new OpenAIApi(configuration);
-
   let conversation = [{ role: "system", content: systemPrompt }];
 
   conversation.push({
@@ -46,8 +40,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.deferReply({ ephemeral: false });
 
   // Send the message to OpenAI to be processed
-  const response = await openai
-    .createChatCompletion({
+  const response = await openai.chat.completions
+    .create({
       model: "gpt-4",
       messages: conversation as any,
       // max_tokens: 256, // limit token usage
@@ -56,7 +50,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       log.error(`OPENAI ERR: ${error}`);
     });
 
-  if (!response || !response.data.choices[0] || !response.data.choices[0].message) {
+  if (!response || !response.choices[0] || !response.choices[0].message.content) {
     return returnMessage(
       interaction,
       client,
@@ -66,7 +60,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     );
   }
 
-  const aiResponse = await ResponsePlugins(response.data.choices[0].message.content!);
+  const aiResponse = await ResponsePlugins(response.choices[0].message.content);
 
   // Send the response back to discord
   interaction.editReply({ content: aiResponse });

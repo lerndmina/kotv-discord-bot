@@ -2,7 +2,7 @@ import { log } from "itsasht-logger";
 import https from "https";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
-import Whisper from "whisper-nodejs";
+import OpenAI from "openai";
 import DownloadFile from "./DownloadFile";
 import DeleteFile from "./DeleteFile";
 import ConvertFile from "./ConvertFile";
@@ -12,7 +12,7 @@ import FetchEnvs from "./FetchEnvs";
 import logger from "fancy-log";
 
 export default async function (client: Client<true>, message: Message, apiKey: string) {
-  const whisper = new Whisper(apiKey);
+  const openai = new OpenAI({ apiKey: apiKey });
   // check if ffmpeg is installed
   ffmpeg.getAvailableFormats(function (err, formats) {
     if (err) {
@@ -52,22 +52,19 @@ export default async function (client: Client<true>, message: Message, apiKey: s
   await ConvertFile(fileName, "ogg", "mp3");
   DeleteFile(fileName, "ogg");
 
-  // Transcribe audio
-  whisper
-    .transcribe(`${fileName}.mp3`, "whisper-1")
-    .then((text: string) => {
-      message.reply(`✨ Voice Transcription:\n\n\`\`\`${text}\`\`\``);
-      log.info(
-        `Transcribed a message from ${message.author.username} in ${
-          !message.channel.isDMBased() ? message.channel.name : "Direct Messages"
-        }`
-      );
-      DeleteFile(fileName, "mp3");
-    })
-    .catch((error: unknown) => {
-      console.error(error);
-      DeleteFile(fileName, "mp3");
-    });
+  const transcription = await openai.audio.transcriptions.create({
+    file: fs.createReadStream(`${fileName}.mp3`),
+    model: "whisper-1",
+  });
 
+  DeleteFile(fileName, "mp3");
+
+  log.info(
+    `Transcribed a message from ${message.author.username} in ${
+      !message.channel.isDMBased() ? message.channel.name : "Direct Messages"
+    }`
+  );
+
+  message.reply(`✨ Voice Transcription:\n\n\`\`\`${transcription.text}\`\`\``);
   return true;
 }

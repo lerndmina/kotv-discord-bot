@@ -12,6 +12,7 @@ import { Channel } from "diagnostics_channel";
 import GuildNewVC from "../../models/GuildNewVC";
 import { ThingGetter } from "../../utils/TinyUtils";
 import { CommandData, CommandOptions, CommandProps } from "commandkit";
+import { KOTV_PREACHER_ROLE } from "../../Bot";
 
 export const data = new SlashCommandBuilder()
   .setName("tempvc")
@@ -44,7 +45,6 @@ export const data = new SlashCommandBuilder()
 export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
-  userPermissions: ["Administrator"],
 };
 
 export async function run({ interaction, client, handler }: CommandProps) {
@@ -54,6 +54,10 @@ export async function run({ interaction, client, handler }: CommandProps) {
 
   if (!subcommand) return log.error("We got a command interaction without a subcommand.");
   if (!i.guild) return log.error("We got a guildOnly command interaction without a guild.");
+
+  const member = await getter.getMember(i.guild, i.user.id);
+  if (!member.roles.cache.get(KOTV_PREACHER_ROLE))
+    return i.reply({ content: "You do not have permission to use this command.", ephemeral: true });
 
   const query = {
     guildID: i.guild!.id, // This is a guild only command clientside so we can assume a guild exists

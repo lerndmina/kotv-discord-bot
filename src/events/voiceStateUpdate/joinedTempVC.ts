@@ -66,27 +66,27 @@ export default async (oldState: VoiceState, newState: VoiceState, client: Client
 
     const buttons = [
       new ButtonBuilder()
-        .setCustomId(`tempvc-delete`)
+        .setCustomId(`tempvc-delete-${newChannel.id}`)
         .setLabel("Delete")
         .setStyle(ButtonStyle.Danger)
         .setEmoji("🗑️"),
       new ButtonBuilder()
-        .setCustomId(`tempvc-rename`)
+        .setCustomId(`tempvc-rename-${newChannel.id}`)
         .setLabel("Rename")
         .setStyle(ButtonStyle.Primary)
         .setEmoji("📝"),
       new ButtonBuilder()
-        .setCustomId(`tempvc-invite`)
+        .setCustomId(`tempvc-invite-${newChannel.id}`)
         .setLabel("Invite")
         .setStyle(ButtonStyle.Success)
         .setEmoji("📨"),
       new ButtonBuilder()
-        .setCustomId(`tempvc-ban`)
+        .setCustomId(`tempvc-ban-${newChannel.id}`)
         .setLabel("Ban")
         .setStyle(ButtonStyle.Danger)
         .setEmoji("🔨"),
       new ButtonBuilder()
-        .setCustomId(`tempvc-limit`)
+        .setCustomId(`tempvc-limit-${newChannel.id}`)
         .setLabel("Limit")
         .setStyle(ButtonStyle.Primary)
         .setEmoji("🔢"),

@@ -4,6 +4,7 @@ import { userMention } from "discord.js";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { returnMessage } from "../../utils/TinyUtils";
 import { setCommandCooldown, userCooldownKey } from "../../Bot";
+import logger from "fancy-log";
 
 export const data = new SlashCommandBuilder()
   .setName("poke")
@@ -25,21 +26,13 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   setCommandCooldown(userCooldownKey(interaction.user.id, interaction.commandName), 600);
   const user = interaction.options.getUser("user");
   const text = interaction.options.getString("message");
-  if (!user || !text)
-    return returnMessage(
-      interaction,
-      client,
-      "Interaction Errror",
-      "Please mention a user and provide a message",
-      { error: true, firstMsg: true }
-    );
+  if (!user)
+    return returnMessage(interaction, client, "Error", "You must specify a user.", { error: true });
 
   const embed = BasicEmbed(
     client,
     "Poke! 👉",
-    `${userMention(interaction.user.id)} poked you! ${text ? `\n\n\`${text}\`` : ""}`,
-    undefined,
-    "#0099ff"
+    `${userMention(interaction.user.id)} poked you! ${text ? `\`\`\`${text}\`\`\`` : ""}`
   );
 
   await interaction.reply({

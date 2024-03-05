@@ -136,7 +136,11 @@ export async function returnMessage(
   client: Client<true>,
   title: string,
   message: string,
-  args: { error?: boolean; firstMsg?: boolean } = { error: false, firstMsg: false }
+  args: { error?: boolean; firstMsg?: boolean; ephemeral?: boolean } = {
+    error: false,
+    firstMsg: false,
+    ephemeral: true,
+  }
 ) {
   const embed = BasicEmbed(
     client,
@@ -150,6 +154,7 @@ export async function returnMessage(
     return await interaction.reply({
       content: "",
       embeds: [embed],
+      ephemeral: args.ephemeral,
     });
   }
   await interaction.editReply({

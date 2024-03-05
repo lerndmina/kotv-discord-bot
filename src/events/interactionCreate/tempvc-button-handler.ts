@@ -62,44 +62,28 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
   const channel = interaction.channel;
   const user = interaction.user;
   try {
-    switch (interaction.customId) {
-      case interactionDeleteVC_REQUEST:
-        DeleteChannelButtons(interaction, channel, user);
-        break;
-      case interactionDeleteVC_YES:
-        /**
-         * Kick all members from the channel, we delete it somewhere else
-         * @file /src/events/voiceStatUpdate/leftTempVC.js
-         */
-        channel.members.forEach((member) => {
-          member.voice.setChannel(null);
-        });
-
-        break;
-
-      case interactionDeleteVC_NO:
-        interaction.message.delete();
-        break;
-
-      case interactionRenameVC:
-        RenameVCModal(interaction, channel, user);
-        break;
-
-      case interactionSendInvite:
-        SendInvite(interaction, channel, user);
-        break;
-
-      case interactionPostBanMenu:
-        PostBanUserDropdown(interaction, channel, user);
-        break;
-
-      case interactionBanUser:
-        BanUserFromChannel(interaction as StringSelectMenuInteraction, channel, user);
-        break;
-
-      case interactionLimitUsers:
-        LimitUsers(interaction, channel, user);
-        break;
+    if (interaction.customId.startsWith(interactionDeleteVC_REQUEST)) {
+      DeleteChannelButtons(interaction, channel, user);
+    } else if (interaction.customId.startsWith(interactionDeleteVC_YES)) {
+      /**
+       * Kick all members from the channel, we delete it somewhere else
+       * @file /src/events/voiceStatUpdate/leftTempVC.js
+       */
+      channel.members.forEach((member) => {
+        member.voice.setChannel(null);
+      });
+    } else if (interaction.customId.startsWith(interactionDeleteVC_NO)) {
+      interaction.message.delete();
+    } else if (interaction.customId.startsWith(interactionRenameVC)) {
+      RenameVCModal(interaction, channel, user);
+    } else if (interaction.customId.startsWith(interactionSendInvite)) {
+      SendInvite(interaction, channel, user);
+    } else if (interaction.customId.startsWith(interactionPostBanMenu)) {
+      PostBanUserDropdown(interaction, channel, user);
+    } else if (interaction.customId.startsWith(interactionBanUser)) {
+      BanUserFromChannel(interaction as StringSelectMenuInteraction, channel, user);
+    } else if (interaction.customId.startsWith(interactionLimitUsers)) {
+      LimitUsers(interaction, channel, user);
     }
   } catch (error) {
     log.error(`Error handling interaction: ${error}`);

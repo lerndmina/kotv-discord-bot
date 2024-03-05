@@ -134,6 +134,8 @@ export async function updateCensusStatus(
 
   // Census offline
   if (offlinePings >= MAX_OFFLINE_PINGS || (offlinePings > 0 && updateInstantly)) {
+    console.log("offlinePings", offlinePings);
+    console.log("Was Already Offline", lastChangeData.isOffline);
     onlinePings = 0;
     if (!lastChangeData.isOffline) {
       // If not already OFFLINE that's a change
@@ -153,6 +155,8 @@ export async function updateCensusStatus(
 
   // Census online
   if (onlinePings >= MAX_ONLINE_PINGS || (onlinePings > 0 && updateInstantly)) {
+    console.log("onlinePings", onlinePings);
+    console.log("Was Already Offline", lastChangeData.isOffline);
     offlinePings = 0;
     if (lastChangeData.isOffline) {
       // If not already ONLINE that's a change

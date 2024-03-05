@@ -145,7 +145,7 @@ export async function updateCensusStatus(
       await db.findOneAndUpdate(CensusStatus, { id: 1 }, lastChangeData);
     }
     fields.push({
-      name: "Offline Since",
+      name: "Last Online",
       value: online_offlineSince,
     });
 
@@ -166,7 +166,7 @@ export async function updateCensusStatus(
       await db.findOneAndUpdate(CensusStatus, { id: 1 }, lastChangeData);
     }
     fields.push({
-      name: "Online Since",
+      name: "Last Offline",
       value: online_offlineSince,
     });
 

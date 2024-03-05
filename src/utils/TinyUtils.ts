@@ -149,7 +149,7 @@ export async function returnMessage(
   if (args.firstMsg) {
     return await interaction.reply({
       content: "",
-      embeds: [],
+      embeds: [embed],
     });
   }
   await interaction.editReply({

@@ -16,12 +16,16 @@ import {
   MessageFlags,
   Message,
   GuildMember,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import FetchEnvs from "./FetchEnvs";
 import { log } from "itsasht-logger";
 import BasicEmbed from "./BasicEmbed";
 import { Url } from "url";
 import chalk from "chalk";
+import { ParsedTime } from "./ParseTimeFromMessage";
+import ButtonWrapper from "./ButtonWrapper";
 
 const env = FetchEnvs();
 
@@ -372,4 +376,22 @@ export async function fetchRealtime(planetmanId: string) {
   }
 
   return response.json();
+}
+
+export function getTimeMessage(time: ParsedTime, id: Snowflake, ephemeral = false) {
+  const buttons = ButtonWrapper([
+    new ButtonBuilder()
+      .setCustomId("deleteMe-" + id)
+      .setLabel("Delete Me")
+      .setStyle(ButtonStyle.Danger)
+      .setEmoji("🗑️"),
+    new ButtonBuilder()
+      .setURL("https://hammertime.cyou/en-GB?t=" + time.seconds)
+      .setLabel("Edit this timestamp")
+      .setStyle(ButtonStyle.Link),
+  ]);
+
+  const content = `Converted to timestamp: ⏰ <t:${time.seconds}:F>\nUsing the timezone: \`${time.tz}\`\n\nUse this in your own message: \`\`\`<t:${time.seconds}:F>\`\`\``;
+
+  return { content, components: buttons, ephemeral };
 }

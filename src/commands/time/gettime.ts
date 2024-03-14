@@ -28,7 +28,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const message = interaction.options.getString("time");
   if (!message) return interaction.editReply("You sent an invalid interaction!");
 
-  const data = ParseTimeFromMessage(message);
+  const data = await ParseTimeFromMessage(message);
   if (!data.success) {
     return interaction.editReply({ content: data.message });
   }

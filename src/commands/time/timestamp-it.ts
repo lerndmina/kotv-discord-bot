@@ -3,6 +3,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { MessageContextMenuCommandProps } from "commandkit";
 import ParseTimeFromMessage from "../../utils/ParseTimeFromMessage";
+import { getTimeMessage } from "../../utils/TinyUtils";
 const env = FetchEnvs();
 
 export const data = new ContextMenuCommandBuilder()
@@ -15,9 +16,7 @@ export const options = {
 };
 
 export async function run({ interaction, client, handler }: MessageContextMenuCommandProps) {
-  const content = interaction.targetMessage.content;
-
-  const data = ParseTimeFromMessage(content);
+  const data = await ParseTimeFromMessage(interaction.targetMessage);
 
   if (!data.success) {
     return interaction.reply({
@@ -25,7 +24,5 @@ export async function run({ interaction, client, handler }: MessageContextMenuCo
       ephemeral: true,
     });
   }
-  return interaction.reply({
-    content: `Converted to timestamp: ⏰ <t:${data.seconds}:F>\n\nUse this in your own message: \`\`\`<t:${data.seconds}:F>\`\`\``,
-  });
+  return interaction.reply(getTimeMessage(data, interaction.targetMessage.author.id));
 }

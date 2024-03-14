@@ -23,7 +23,7 @@ import ButtonWrapper from "../../utils/ButtonWrapper";
 import { randomUUID } from "crypto";
 import RoleButtons from "../../models/RoleButtons";
 import { ROLE_BUTTON_PREFIX, globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import {
   ThingGetter,

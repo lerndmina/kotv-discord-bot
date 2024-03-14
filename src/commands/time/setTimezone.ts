@@ -54,8 +54,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 // Now imported from src/utils/data/static/TIMEZONE_NAMES.ts
 
 export async function autocomplete({ interaction, client, handler }: AutocompleteProps) {
-  const focusedTzOption = interaction.options.getFocused(true).value;
-  const filteredChoices = TIMEZONE_NAMES.filter((tz) => tz.startsWith(focusedTzOption));
+  const focusedTzOption = interaction.options.getFocused(true).value.toLowerCase();
+  const filteredChoices = TIMEZONE_NAMES.filter((tz) => tz.toLowerCase().includes(focusedTzOption));
   const choices = filteredChoices.map((tz) => ({ name: tz, value: tz }));
   interaction.respond(choices.slice(0, 25));
 }

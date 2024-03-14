@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 import UserTimezone from "../models/UserTimezone";
 import FetchEnvs from "./FetchEnvs";
 import Database from "./data/database";
+import { debugMsg } from "./TinyUtils";
 const env = FetchEnvs();
 
 export type ParsedTime =
@@ -33,7 +34,7 @@ export default async function (
     timezone: 0, // Parse all dates in UTC, we'll apply the timezone offset later
   })[0];
 
-  console.log(parsed);
+  debugMsg(parsed);
   // Get the default timezone from the environment
   let tz = env.DEFAULT_TIMEZONE;
 

@@ -21,7 +21,7 @@ import { ThingGetter, debugMsg } from "../../utils/TinyUtils";
 import FetchEnvs from "../../utils/FetchEnvs";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { setuid } from "process";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 import { Model } from "mongoose";
 import { debug } from "console";

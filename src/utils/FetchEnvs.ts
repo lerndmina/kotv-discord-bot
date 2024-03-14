@@ -1,5 +1,5 @@
 import { SnowflakeUtil } from "discord.js";
-import { log } from "itsasht-logger";
+import * as log from "fancy-log";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -9,11 +9,6 @@ const OPTIONAL_STRING = "optional";
 var accessedCount = 0;
 
 export default function () {
-  if (accessedCount === 0) {
-    console.log("");
-    log.info(`Begining enviroment variable validation...`);
-  }
-
   // Key value array to store the environment variables
   var env: {
     BOT_TOKEN: string;
@@ -29,9 +24,10 @@ export default function () {
     DEBUG_LOG: boolean;
     IMGUR_CLIENT_ID: string;
     IMGUR_CLIENT_SECRET: string;
+    MODMAIL_TABLE: string;
+    DEFAULT_TIMEZONE: string;
     CENSUS_KEY: string;
     REALTIME_API: string;
-    MODMAIL_TABLE: string;
   } = {
     BOT_TOKEN: process.env.BOT_TOKEN || "",
     OWNER_IDS: (process.env.OWNER_IDS || "").split(","),
@@ -46,9 +42,10 @@ export default function () {
     DEBUG_LOG: process.env.DEBUG_LOG === "true",
     IMGUR_CLIENT_ID: process.env.IMGUR_CLIENT_ID || "",
     IMGUR_CLIENT_SECRET: process.env.IMGUR_CLIENT_SECRET || "",
+    MODMAIL_TABLE: process.env.MODMAIL_TABLE || "",
+    DEFAULT_TIMEZONE: process.env.DEFAULT_TIMEZONE || "Europe/London",
     CENSUS_KEY: process.env.CENSUS_KEY || "",
     REALTIME_API: process.env.REALTIME_API || "",
-    MODMAIL_TABLE: process.env.MODMAIL_TABLE || "",
   };
 
   var missingKeys: string[] = [];
@@ -62,17 +59,11 @@ export default function () {
     }
     if (env[key as keyof typeof env] === OPTIONAL_STRING) {
       if (accessedCount > 0) continue;
-      log.warning(`Env ${key} is optional and is not set.`);
+      log.warn(`Env ${key} is optional and is not set.`);
     }
   }
   if (missingKeys.length > 0) {
-    log.error(`You are missing required enviroment variables:`);
-    log.error(``);
-    missingKeys.forEach((key) => {
-      log.error(`  ${key}`);
-    });
-    log.error(``);
-    log.warning(`Goodbye :(`);
+    log.error(`ENV ${missingKeys.join(", ")} are missing and are required.`);
     process.exit(1);
   }
 
@@ -95,11 +86,6 @@ export default function () {
       process.exit(1);
     }
   });
-
-  if (accessedCount === 0) {
-    log.info(`All enviroment variables required have been validated. You're good to continue :)`);
-    console.log("");
-  }
 
   accessedCount++;
   return env;

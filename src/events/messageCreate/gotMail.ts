@@ -33,7 +33,7 @@ import {
   prepModmailMessage,
   ThingGetter,
 } from "../../utils/TinyUtils";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import { Url } from "url";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { debug } from "console";

@@ -4,7 +4,7 @@ import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey, waitingEmoji } from "../../Bot";
 import { ThingGetter, sleep } from "../../utils/TinyUtils";
 import FetchEnvs from "../../utils/FetchEnvs";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import HonkBirthdayCounter from "../../models/HonkBirthdayCounter";
 import BasicEmbed from "../../utils/BasicEmbed";
 

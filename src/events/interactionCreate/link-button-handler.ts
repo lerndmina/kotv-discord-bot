@@ -24,7 +24,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import { fetchRealtime, fetchApiUrl, debugMsg, ThingGetter } from "../../utils/TinyUtils";
 
 import FetchEnvs from "../../utils/FetchEnvs";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 const env = FetchEnvs();
 const db = new Database();

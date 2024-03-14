@@ -1,6 +1,6 @@
 import { Message, Client, ChannelType } from "discord.js";
 import { log } from "itsasht-logger";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import { ThingGetter, debugMsg } from "../../utils/TinyUtils";
 import RoleButtons from "../../models/RoleButtons";
 import DontAtMeRole from "../../models/DontAtMeRole";

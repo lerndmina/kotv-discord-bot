@@ -3,7 +3,7 @@ import { log } from "itsasht-logger";
 import { ROLE_BUTTON_PREFIX, waitingEmoji } from "../../Bot";
 import RoleButtons from "../../models/RoleButtons";
 import BasicEmbed from "../../utils/BasicEmbed";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import { debugMsg } from "../../utils/TinyUtils";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { UUID } from "crypto";

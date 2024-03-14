@@ -9,7 +9,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { waitingEmoji } from "../../Bot";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import { log } from "itsasht-logger";
 import {
   returnMessage,

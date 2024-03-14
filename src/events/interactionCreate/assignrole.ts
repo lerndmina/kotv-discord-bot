@@ -8,7 +8,7 @@ import {
 import RoleButtons from "../../models/RoleButtons";
 import { log } from "console";
 import { ROLE_BUTTON_PREFIX, waitingEmoji } from "../../Bot";
-import Database from "../../utils/cache/database";
+import Database from "../../utils/data/database";
 import { debugMsg } from "../../utils/TinyUtils";
 import FetchEnvs from "../../utils/FetchEnvs";
 const env = FetchEnvs();

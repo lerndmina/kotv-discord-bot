@@ -36,7 +36,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const embed = BasicEmbed(
     client,
     "Parsed Time",
-    `You sent \`${message}\`\n I found a string containing time \`${data.message}\nI assumed the timezone \`${data.tz}\`\`\n\nThe parsed time is: \`\`\`<t:${data.seconds}:F>\`\`\`\n This will resolve to <t:${data.seconds}:F>`
+    `You sent \`${message}\`\n I found a string containing time \`${data.message}\`\nI assumed the timezone \`${data.tz}\`\n\nThe parsed time is: \`\`\`<t:${data.seconds}:F>\`\`\`\n This will resolve to <t:${data.seconds}:F>`
   );
 
   interaction.editReply({ content: "", embeds: [embed] });

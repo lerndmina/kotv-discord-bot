@@ -6,8 +6,8 @@ import {
   AutocompleteInteraction,
 } from "discord.js";
 import UserTimezone from "../../models/UserTimezone";
-import TIMEZONE_NAMES from "../../utils/data/static/TIMEZONE_NAMES";
 import Database from "../../utils/data/database";
+import moment from "moment-timezone";
 
 export const data = new SlashCommandBuilder()
   .setName("settimezone")
@@ -24,6 +24,8 @@ export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
 };
+
+const TIMEZONE_NAMES = moment.tz.names();
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const timezone = interaction.options.getString("timezone");
@@ -49,9 +51,6 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   await interaction.reply({ embeds: [postEmbed], ephemeral: true });
 }
-
-// List of timezones that is supported (from https://www.zeitverschiebung.net/en/all-time-zones.html)
-// Now imported from src/utils/data/static/TIMEZONE_NAMES.ts
 
 export async function autocomplete({ interaction, client, handler }: AutocompleteProps) {
   const focusedTzOption = interaction.options.getFocused(true).value.toLowerCase();

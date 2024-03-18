@@ -26,6 +26,7 @@ import { Url } from "url";
 import chalk from "chalk";
 import { ParsedTime } from "./ParseTimeFromMessage";
 import ButtonWrapper from "./ButtonWrapper";
+import { KOTV_PREACHER_ROLE } from "../Bot";
 
 const env = FetchEnvs();
 
@@ -391,7 +392,22 @@ export function getTimeMessage(time: ParsedTime, id: Snowflake, ephemeral = fals
       .setStyle(ButtonStyle.Link),
   ]);
 
-  const content = `Converted to timestamp: ⏰ <t:${time.seconds}:F>\nUsing the timezone: \`${time.tz}\`\n\nUse this in your own message: \`\`\`<t:${time.seconds}:F>\`\`\``;
+  const content = `Converted to timestamp: ⏰ <t:${time.seconds}:F>\nUsing the timezone: \`${
+    time.tz
+  }\`\n\nUse this in your own message: \`\`\`<t:${time.seconds}:F>\`\`\`${
+    ephemeral ? "\n\nYou don't have permission to send public timestamps on other's messages." : ""
+  }`;
 
-  return { content, components: buttons, ephemeral };
+  return { content, components: ephemeral ? [] : buttons, ephemeral };
+}
+
+export async function isStaff(member: GuildMember) {
+  const getter = new ThingGetter(member.client);
+  const role = await getter.getRole(member.guild, KOTV_PREACHER_ROLE);
+  if (!role) {
+    log.error("Failed to get KOTV Preacher role");
+    return false;
+  }
+
+  return member.roles.cache.has(role.id);
 }

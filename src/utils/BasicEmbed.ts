@@ -1,15 +1,6 @@
 import { Client, EmbedBuilder, Embed, ColorResolvable, EmbedField } from "discord.js";
 import { BOT_MESSAGES, BOT_URL } from "../Bot";
 
-/**
- *
- * @param {Client} client
- * @param {string} title
- * @param {string} description
- * @param {[{name: string, value: string, inline: boolean}]} fields
- * @param {string} color
- * @returns {Embed}
- */
 export default function (
   client: Client<true>,
   title: string,

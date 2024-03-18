@@ -3,7 +3,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { MessageContextMenuCommandProps } from "commandkit";
 import ParseTimeFromMessage from "../../utils/ParseTimeFromMessage";
-import { getTimeMessage } from "../../utils/TinyUtils";
+import { ThingGetter, getTimeMessage, isStaff } from "../../utils/TinyUtils";
 const env = FetchEnvs();
 
 export const data = new ContextMenuCommandBuilder()
@@ -24,5 +24,23 @@ export async function run({ interaction, client, handler }: MessageContextMenuCo
       ephemeral: true,
     });
   }
+  if (!interaction.guild) {
+    interaction.reply(getTimeMessage(data, interaction.targetMessage.author.id));
+    return;
+  }
+
+  if (interaction.user.id !== interaction.targetMessage.author.id) {
+    const getter = new ThingGetter(client);
+    return interaction.reply(
+      getTimeMessage(
+        data,
+        interaction.targetMessage.author.id,
+        (await isStaff(await getter.getMember(interaction.guild, interaction.user.id)))
+          ? false
+          : true
+      )
+    );
+  }
+
   return interaction.reply(getTimeMessage(data, interaction.targetMessage.author.id));
 }

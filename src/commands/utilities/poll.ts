@@ -47,7 +47,11 @@ export const options: CommandOptions = {
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const content = interaction.options.getString("content")!.replace(/;+$/, "").split(";");
   const timeString = interaction.options.getString("time");
-  if (!timeString) return; // Discord should always give us a time string
+  if (!timeString)
+    return interaction.reply({
+      content:
+        "No poll end time provided. Poll times can be formatted like `1d 2h` or `5tm`, ephemeral: true ",
+    });
   const timeStringArr = timeString!.split(" ");
 
   var time = 0;

@@ -28,3 +28,5 @@ Thumbs.db
 .env
 *.mp3
 *.ogg
+.env.test
+.env.main

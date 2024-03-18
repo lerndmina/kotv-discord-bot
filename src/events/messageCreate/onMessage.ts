@@ -64,9 +64,13 @@ export default async function (message: Message, client: Client<true>) {
   // Unync commmand
   if (message.content.startsWith(`${env.PREFIX}unsync`)) {
     if (!env.OWNER_IDS.includes(message.author.id)) return;
-    if (message.content.includes("global")) {
+    const args = message.content.split(" ");
+    if (args.length == 1 && args[1] == "global") {
       syncCommands(client, message, undefined, true);
       return true;
+    } else if (!isNaN(Number(args[1]))) {
+      const commandId = args[1];
+      syncCommands(client, message, undefined, false, commandId);
     } else if (message.guildId) {
       syncCommands(client, message, message.guildId, false);
       return true;

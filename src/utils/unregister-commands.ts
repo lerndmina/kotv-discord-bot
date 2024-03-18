@@ -13,12 +13,13 @@ export default async function (
   client: Client<true>,
   message: Message,
   guildId: Snowflake | undefined,
-  global: boolean
+  global: boolean,
+  id?: Snowflake
 ) {
   // Construct and prepare an instance of the REST module
   const rest = new REST().setToken(env.BOT_TOKEN);
 
-  if (global == false && guildId != undefined) {
+  if (global == false && guildId != undefined && !id) {
     try {
       await message.channel.send("Deleting this guild's commands...");
       await rest.put(Routes.applicationGuildCommands(client.user.id, guildId), { body: [] });
@@ -38,6 +39,17 @@ export default async function (
     } catch (error) {
       log.error(error as string);
       await message.channel.send("Error deleting commands.");
+      return;
+    }
+  } else if (id) {
+    try {
+      await message.channel.send("Deleting this command...");
+      await rest.delete(Routes.applicationCommand(client.user.id, id));
+      await message.channel.send("Command deleted.");
+      return;
+    } catch (error) {
+      log.error(error as string);
+      await message.channel.send("Error deleting command.");
       return;
     }
   }

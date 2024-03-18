@@ -82,6 +82,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       var value = "";
 
       for (const command of commands[category]) {
+        debugMsg(`Command: ${command.name} - ${command.id}`);
         if (!command.subcommands) {
           value += standardHelpMsg(command);
           log("We found a command without a subcommand, wtf?");

@@ -21,7 +21,7 @@ import { CommandOptions, SlashCommandProps } from "commandkit";
 import log from "fancy-log";
 import ms from "ms";
 import Database from "../../utils/data/database";
-import Polls, { PollsType } from "../../models/PollsSchema";
+import PollsSchema, { PollsType } from "../../models/PollsSchema";
 import { getPollEmbed } from "../../events/interactionCreate/poll-interaction";
 import { waitForPollEnd } from "../../events/ready/checkpolls";
 import { channel } from "diagnostics_channel";
@@ -173,10 +173,10 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   };
 
   const db = new Database();
-  await db.findOneAndUpdate(Polls, { pollId }, poll);
+  await db.findOneAndUpdate(PollsSchema, { pollId }, poll);
 
   const getter = new ThingGetter(client);
 
-  waitForPollEnd(poll as PollsType, db, client, getter);
+  waitForPollEnd(poll as unknown as PollsType, db, client, getter);
   return;
 }

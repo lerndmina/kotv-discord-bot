@@ -51,7 +51,8 @@ export async function waitForPollEnd(
   const pollEndTime = new Date(poll.endsAt).getTime();
 
   log.info(
-    `Waiting for poll to end: ${poll.question} - ${poll.pollId} - ${pollEndTime - Date.now()}`
+    // prettier-ignore
+    `Starting timeout for poll: "${poll.question.substring(0, 20)}..." -> "pollId:${poll.pollId}"`
   );
   const channel = await getter.getChannel(poll.channelId);
   if (!channel || channel.type !== ChannelType.GuildText)

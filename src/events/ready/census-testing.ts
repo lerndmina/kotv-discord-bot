@@ -25,6 +25,7 @@ import Database from "../../utils/data/database";
 import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 import { Model } from "mongoose";
 import { debug } from "console";
+import { editMessage } from "../../utils/messages/editMessage";
 
 let offlinePings = 0;
 let onlinePings = 0;
@@ -62,11 +63,19 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
   log.info(`Will check for census every ${CHECK_INTERVAL_MINS} minutes.`);
 
   lastChangeData = await getRecordedCensusStatus();
-  updateCensusStatus(client, censusStatusMessage, shouldUpdateInstantly());
+  try {
+    await updateCensusStatus(client, censusStatusMessage, shouldUpdateInstantly());
+  } catch (error) {
+    log.error("Error updating census status: ", error);
+  }
 
   setInterval(async () => {
     lastChangeData = await getRecordedCensusStatus();
-    updateCensusStatus(client, censusStatusMessage, shouldUpdateInstantly());
+    try {
+      await updateCensusStatus(client, censusStatusMessage, shouldUpdateInstantly());
+    } catch (error) {
+      log.error("Error updating census status: ", error);
+    }
   }, CHECK_INTERVAL);
 };
 
@@ -213,20 +222,4 @@ async function getRecordedCensusStatus() {
   });
   await db.findOneAndUpdate(CensusStatus, { id: 1 }, newCensusData);
   return newCensusData;
-}
-
-async function editMessage(
-  message: Message,
-  title: string,
-  description: string,
-  fields: any,
-  online = true
-) {
-  const originalEmbed = message.embeds[0];
-  const embed = new EmbedBuilder()
-    .setTitle(title)
-    .setDescription(description)
-    .addFields(fields)
-    .setColor(online ? "Green" : "DarkRed");
-  await message.edit({ embeds: [originalEmbed ? originalEmbed : {}, embed] });
 }

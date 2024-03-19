@@ -11,7 +11,7 @@ import { log } from "itsasht-logger";
 import syncCommands from "../../utils/unregister-commands";
 import BasicEmbed from "../../utils/BasicEmbed";
 import FetchEnvs from "../../utils/FetchEnvs";
-import { isVoiceMessage } from "../../utils/TinyUtils";
+import { debugMsg, isVoiceMessage } from "../../utils/TinyUtils";
 
 const env = FetchEnvs();
 
@@ -65,7 +65,7 @@ export default async function (message: Message, client: Client<true>) {
   if (message.content.startsWith(`${env.PREFIX}unsync`)) {
     if (!env.OWNER_IDS.includes(message.author.id)) return;
     const args = message.content.split(" ");
-    if (args.length == 1 && args[1] == "global") {
+    if (args.length == 2 && args[1] == "global") {
       syncCommands(client, message, undefined, true);
       return true;
     } else if (!isNaN(Number(args[1]))) {

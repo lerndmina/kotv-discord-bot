@@ -38,10 +38,12 @@ export const Start = async () => {
 
   log.info(`Logging in to Discord with ${Object.keys(env).length} enviroment variables.`);
 
-  await mongoose.connect(env.MONGODB_URI).then(() => {
-    log.info("Connected to MongoDB");
-    client.login(env.BOT_TOKEN);
-  });
+  await mongoose
+    .connect(env.MONGODB_URI, { dbName: env.MONGODB_DATABASE, retryWrites: true })
+    .then(() => {
+      log.info("Connected to MongoDB");
+      client.login(env.BOT_TOKEN);
+    });
 
   await redisClient.connect();
 };

@@ -16,18 +16,30 @@ import {
   Client,
 } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
-import { debugMsg, sleep } from "../../utils/TinyUtils";
+import { ThingGetter, debugMsg, sleep } from "../../utils/TinyUtils";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import log from "fancy-log";
 import ms from "ms";
+import Database from "../../utils/data/database";
+import Polls, { PollsType } from "../../models/PollsSchema";
+import { getPollEmbed } from "../../events/interactionCreate/poll-interaction";
+import { waitForPollEnd } from "../../events/ready/checkpolls";
+import { channel } from "diagnostics_channel";
 
 export const data = new SlashCommandBuilder()
   .setName("poll")
   .setDescription("Create a poll for people to vote on anonymously.")
   .addStringOption((option: SlashCommandStringOption) =>
     option
-      .setName("content")
-      .setDescription("The poll content: question;vote1;vote2;etc")
+      .setName("question")
+      .setDescription("The poll question")
+      .setRequired(true)
+      .setMaxLength(100)
+  )
+  .addStringOption((option: SlashCommandStringOption) =>
+    option
+      .setName("options")
+      .setDescription("The poll content: vote1;vote2;etc")
       .setRequired(true)
       .setMaxLength(100)
   )
@@ -39,19 +51,27 @@ export const data = new SlashCommandBuilder()
   );
 
 export const options: CommandOptions = {
-  devOnly: false,
+  devOnly: true,
   deleted: false,
   dm_permissions: false,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  const content = interaction.options.getString("content")!.replace(/;+$/, "").split(";");
+  const question = interaction.options.getString("question")!;
+  const options = interaction.options.getString("options")!.replace(/;+$/, "").split(";");
   const timeString = interaction.options.getString("time");
-  if (!timeString)
+  if (!question || !options || !timeString) {
     return interaction.reply({
-      content:
-        "No poll end time provided. Poll times can be formatted like `1d 2h` or `5tm`, ephemeral: true ",
+      content: "You need to provide a question, options and a time for the poll to last.",
+      ephemeral: true,
     });
+  }
+  if (!interaction.channel)
+    return interaction.reply({
+      content: "This command can only be used in a server.",
+      ephemeral: true,
+    });
+
   const timeStringArr = timeString!.split(" ");
 
   var time = 0;
@@ -76,26 +96,23 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   }
 
   // check if the content is valid
-  if (content.length < 3) {
+  if (options.length < 2 || options.length > 25) {
     await interaction.reply({
-      content: "You need at least 2 options to create a poll.",
+      content: "You need at least 2 options to create a poll. Max 25 options.",
       ephemeral: true,
     });
     return;
   }
 
   // Create a unique interaction ID for this poll
-  const pollId = `${interaction.user.id}-${Date.now()}`;
-
-  // get the question
-  const question = content[0];
+  const pollId = `poll-${interaction.user.id}-${Date.now()}`;
 
   const POLL_TIME = time * 1000;
 
   const endTime = Date.now() + POLL_TIME;
   const endTimeSeconds = Math.floor(endTime / 1000);
 
-  const options = content.slice(1);
+  const dbOptions = options.map((option) => ({ name: option, votes: 0 }));
 
   const embedDescriptionArray = [
     `Poll will end <t:${endTimeSeconds}:R>`,
@@ -104,7 +121,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     "\n **All votes are anonymous**.",
   ];
 
-  const embed = BasicEmbed(interaction.client, question, embedDescriptionArray.join("\n"));
+  const embed = getPollEmbed(interaction, embedDescriptionArray, question);
 
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId(pollId)
@@ -128,168 +145,38 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const row = new ActionRowBuilder().addComponents(selectMenu);
 
-  const response = await interaction.reply({
-    embeds: [embed],
-    components: [row as any],
-    ephemeral: false,
-  });
-
-  // create the collector & filter to listen for responses
-
-  const collectorFilter = (i: MessageComponentInteraction) => i.customId === pollId;
-  const collector = response.createMessageComponentCollector({
-    filter: collectorFilter,
-    time: POLL_TIME,
-  });
-
-  // const voteHandler: ProxyHandler<Map<string, number>> = {
-  //   get: function (target: Map<string, number>, key: string) {
-  //     if (key === "set") {
-  //       return function (key: string, value: number) {
-  //         console.log(`Vote set: ${key} = ${value}`);
-  //         target.set(key, value);
-  //         updateResponse(client, response, embed, embedDescriptionArray, row, votes);
-  //         return true;
-  //       };
-  //     }
-  //     if (key === "size") return target.size;
-  //     if (typeof key === "string" && ["get", "has", "delete", "clear"].includes(key)) {
-  //       // @ts-ignore
-  //       return target[key].bind(target);
-  //     }
-  //     console.log(`Getting vote: ${key}`);
-  //     return target.get(key);
-  //   },
-  // };
-
-  const votes: Map<Snowflake, number> = new Map();
-
-  collector.on("collect", async (i: StringSelectMenuInteraction<CacheType>) => {
-    await i.deferReply({ ephemeral: true });
-
-    const vote = Number.parseInt(i.values[0]);
-
-    const userId = i.user.id as Snowflake;
-
-    if (vote === END_OPTION && userId != interaction.user.id) {
-      await i.editReply({
-        content: "Only the poll creator can end the poll.",
-      });
-      return;
-    }
-
-    if (vote === END_OPTION) {
-      collector.stop("done");
-      i.editReply({
-        content: "Ending the poll.",
-      });
-      return;
-    }
-
-    if (votes.get(userId) != undefined) {
-      await i.editReply({
-        content: "You have already voted.",
-      });
-      return;
-    }
-
-    votes.set(userId, vote);
-    updateResponse(client, response, embed, embedDescriptionArray, row, votes);
-
-    await i.editReply({
-      content: `You voted for \`${options[vote]}\``,
-    });
-  });
-
-  collector.on("end", (collected, reason) => {
-    if (reason == "time" || reason == "done") {
-      endVote(interaction, response, options, votes, question);
-    }
-  });
-}
-
-function updateResponse(
-  client: Client<true>,
-  response: InteractionResponse,
-  embed: EmbedBuilder,
-  embedDescriptionArray: string[],
-  components: any,
-  votes: Map<Snowflake, number>
-) {
-  const totalVotes = votes.size.toString();
-
-  embedDescriptionArray[1] = `Total Votes - ${totalVotes}`;
-
-  const newEmbed = BasicEmbed(client, embed.data.title!, embedDescriptionArray.join("\n"));
-
-  response.edit({
-    embeds: [newEmbed],
-    components: [components],
-  });
-}
-
-function endVote(
-  voteInteraction: BaseInteraction,
-  response: InteractionResponse,
-  options: string[],
-  votes: Map<Snowflake, number>,
-  question: string
-) {
-  debugMsg("Ending vote");
-  debugMsg(options);
-
-  var voteTally = new Map<number, number>();
-
-  for (const option in options) {
-    voteTally.set(Number.parseInt(option), 0);
-  }
-
-  var totalVotes = 0;
-
-  for (const vote of votes) {
-    debugMsg(vote);
-    const voteValue = vote[1];
-    const voteCount = voteTally.get(voteValue)!;
-    voteTally.set(voteValue, voteCount + 1);
-    totalVotes++;
-  }
-
-  debugMsg(voteTally);
-
-  const resultString =
-    `**${question}**\n\n` +
-    options
-      .map((option, index) => {
-        const voteCount = voteTally.get(index)!;
-        const percent = Math.round((voteCount / totalVotes) * 100);
-        return `${index + 1}. \`${option}\` - ${voteCount} ${
-          voteCount == 1 ? "vote" : "votes"
-        } (${percent}%)`;
-      })
-      .join("\n") +
-    `\n\nTotal Votes: ${totalVotes}`;
-
-  const finalEmbed = BasicEmbed(
-    voteInteraction.client,
-    "Poll Results",
-    resultString,
-    undefined,
-    "#0099ff"
-  );
-
-  const editEmbed = BasicEmbed(voteInteraction.client, "Poll Ended", "Results Posted Below");
-
+  let response: Message;
   try {
-    response.edit({
-      embeds: [editEmbed],
-      components: [],
+    response = await interaction.channel.send({
+      embeds: [embed],
+      components: [row as any],
     });
-    voteInteraction.channel!.send({ embeds: [finalEmbed] });
   } catch (error) {
-    log.error(error as string);
-    log(
-      "Poll has ended, but could not edit the original message. It has probably been deleted intentionally."
-    );
+    debugMsg(error as any);
+    interaction.reply({ content: "Failed to create poll!", ephemeral: true });
     return;
   }
+
+  interaction.reply({ content: "Poll created!", ephemeral: true });
+
+  // Add the poll to the DB
+
+  const poll = {
+    pollId,
+    messageId: response.id,
+    channelId: interaction.channel.id,
+    creatorId: interaction.user.id,
+    endsAt: new Date(endTime),
+    options: dbOptions,
+    question,
+    embedDescriptionArray,
+  };
+
+  const db = new Database();
+  await db.findOneAndUpdate(Polls, { pollId }, poll);
+
+  const getter = new ThingGetter(client);
+
+  waitForPollEnd(poll as PollsType, db, client, getter);
+  return;
 }

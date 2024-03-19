@@ -65,13 +65,12 @@ export default class Database {
     debugMsg(`Key: ${mongoKey} -> ${redisKey}`);
 
     debugMsg(`Fetching from cache: ${redisKey}`);
-    var data = await redisClient.get(redisKey);
+    var data = (await redisClient.get(redisKey)) as any;
 
     if (!data || data.length == 0) {
-      debugMsg(`Cache miss fetching db:`);
       debugMsg(model);
       data = await schema.find(model);
-      if (!data) {
+      if (!data || data.length == 0) {
         debugMsg(`Database miss no data found`);
         if (!saveNull) return null;
       }

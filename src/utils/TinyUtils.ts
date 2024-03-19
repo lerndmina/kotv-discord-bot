@@ -58,6 +58,10 @@ export async function sendDM(userId: Snowflake, content: string, client: Client<
   try {
     const thingGetter = new ThingGetter(client);
     const user = await thingGetter.getUser(userId);
+    if (!user) {
+      log.error("Failed to send a DM to user: " + userId + "I couldn't find the user.");
+      return;
+    }
     return await user.send(content);
   } catch (error) {
     log.error(
@@ -82,25 +86,45 @@ export class ThingGetter {
   }
 
   async getUser(id: Snowflake) {
-    return this.#get(id, "users") as unknown as User; // This is technically safe
+    try {
+      return (await this.#get(id, "users")) as unknown as User; // This is technically safe
+    } catch (error) {
+      return null;
+    }
   }
 
   async getChannel(id: Snowflake) {
-    return this.#get(id, "channels") as unknown as Channel; // This is technically safe
+    try {
+      return (await this.#get(id, "channels")) as unknown as Channel; // This is technically safe
+    } catch (error) {
+      return null;
+    }
   }
 
   async getGuild(id: Snowflake) {
-    return this.#get(id, "guilds") as unknown as Guild; // This is technically safe
+    try {
+      return (await this.#get(id, "guilds")) as unknown as Guild; // This is technically safe
+    } catch (error) {
+      return null;
+    }
   }
 
   async getMember(guild: Guild, id: Snowflake) {
-    const member = guild.members.cache.get(id);
-    return member ? member : await guild.members.fetch(id);
+    try {
+      const member = guild.members.cache.get(id);
+      return member ? member : await guild.members.fetch(id);
+    } catch (error) {
+      return null;
+    }
   }
 
   async getRole(guild: Guild, id: Snowflake) {
-    const role = guild.roles.cache.get(id);
-    return role ? role : await guild.roles.fetch(id);
+    try {
+      const role = guild.roles.cache.get(id);
+      return role ? role : await guild.roles.fetch(id);
+    } catch (error) {
+      return null;
+    }
   }
 
   getMemberName(guildMember: GuildMember) {

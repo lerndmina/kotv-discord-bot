@@ -17,6 +17,7 @@ export default function () {
     PREFIX: string;
     OPENAI_API_KEY: string;
     MONGODB_URI: string;
+    MONGODB_DATABASE: string;
     TENOR_API_KEY: string;
     WAITING_EMOJI: string;
     BOT_URL: string;
@@ -35,6 +36,7 @@ export default function () {
     PREFIX: process.env.PREFIX || "",
     OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
     MONGODB_URI: process.env.MONGODB_URI || "",
+    MONGODB_DATABASE: process.env.MONGODB_DATABASE || "",
     TENOR_API_KEY: process.env.TENOR_API_KEY || "",
     WAITING_EMOJI: process.env.WAITING_EMOJI || "",
     BOT_URL: process.env.BOT_URL || "",

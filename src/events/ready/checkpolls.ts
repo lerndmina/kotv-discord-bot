@@ -14,6 +14,7 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
   await sleep(500);
 
   const db = new Database();
+  db.cleanCache("Polls:*");
   const getter = new ThingGetter(client);
   const polls = await PollsSchema.find();
   if (!polls) return log.info("No polls found in the database.");

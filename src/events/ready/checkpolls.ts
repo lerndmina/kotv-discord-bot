@@ -15,19 +15,21 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
 
   const db = new Database();
   const getter = new ThingGetter(client);
-  const polls = await db.find(PollsSchema, {});
+  const polls = await PollsSchema.find();
   if (!polls) return log.info("No polls found in the database.");
 
   for (const poll of polls) {
+    if (!poll) continue;
     if (poll.hasFinished) {
       purgeStalePoll(poll, db, client);
       continue;
     }
-    if (poll.endTime < Date.now()) {
+    if (new Date(poll.endsAt).getTime() < Date.now()) {
       poll.hasFinished = true;
       await db.findOneAndUpdate(PollsSchema, { pollId: poll.pollId }, poll);
     } else waitForPollEnd(poll, db, client, getter);
   }
+  return;
 };
 
 async function purgeStalePoll(poll: PollsType, db: Database, client: Client<true>) {

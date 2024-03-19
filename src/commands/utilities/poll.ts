@@ -29,6 +29,7 @@ import { channel } from "diagnostics_channel";
 export const data = new SlashCommandBuilder()
   .setName("poll")
   .setDescription("Create a poll for people to vote on anonymously.")
+  .setDMPermission(false)
   .addStringOption((option: SlashCommandStringOption) =>
     option
       .setName("question")
@@ -51,9 +52,8 @@ export const data = new SlashCommandBuilder()
   );
 
 export const options: CommandOptions = {
-  devOnly: true,
+  devOnly: false,
   deleted: false,
-  dm_permissions: false,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {

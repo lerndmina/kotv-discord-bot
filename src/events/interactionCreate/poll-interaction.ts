@@ -9,11 +9,10 @@ import {
 import FetchEnvs from "../../utils/FetchEnvs";
 import Database from "../../utils/data/database";
 import PollsSchema, { PollsType } from "../../models/PollsSchema";
-import { debugMsg } from "../../utils/TinyUtils";
+import { debugMsg, ThingGetter } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { debug } from "console";
 const env = FetchEnvs();
-
 /**
  *
  * @param {StringSelectMenuInteraction} interaction
@@ -23,6 +22,8 @@ export default async (interaction: StringSelectMenuInteraction, client: Client<t
   if (interaction.type !== InteractionType.MessageComponent) return;
   if (!interaction.customId.startsWith("poll")) return;
   const db = new Database();
+  const getter = new ThingGetter(client);
+
   const pollId = interaction.customId;
   const poll = (await db.findOne(PollsSchema, { pollId })) as PollsType;
   if (!poll)
@@ -38,7 +39,10 @@ export default async (interaction: StringSelectMenuInteraction, client: Client<t
 
   const END_OPTION = poll.options.length;
 
-  if (voteInt === END_OPTION && interaction.user.id !== poll.creatorId)
+  if (
+    voteInt === END_OPTION &&
+    (interaction.user.id !== poll.creatorId || !env.OWNER_IDS.includes(interaction.user.id))
+  )
     return interaction.reply({
       content: "Only the poll creator can end the poll.",
       ephemeral: true,

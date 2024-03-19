@@ -25,8 +25,7 @@ bundle.js
 Thumbs.db
 
 # Environment variables
-.env
+.env*
+!.env.example
 *.mp3
 *.ogg
-.env.test
-.env.main

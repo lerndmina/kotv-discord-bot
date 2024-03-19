@@ -121,12 +121,12 @@ export async function endPoll(
   const embed = BasicEmbed(client, poll.question, "Poll has ended.", fields);
 
   try {
-    if (message.deletable) message.delete();
+    if (message.deletable) await message.delete();
   } catch (error) {
     debugMsg("Error deleting poll message.");
   }
   try {
-    message.channel.send({ embeds: [embed] });
+    await message.channel.send({ embeds: [embed] });
   } catch (error) {
     debugMsg("Error sending poll results.");
   }

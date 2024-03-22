@@ -120,14 +120,16 @@ export async function endPoll(
 
   const embed = BasicEmbed(client, poll.question, "Poll has ended.", fields);
 
+  let finalMessage: Message;
+
   try {
-    if (message.deletable) await message.delete();
+    finalMessage = await message.channel.send({ embeds: [embed] });
+    await message.edit({
+      components: [],
+      embeds: [],
+      content: `This poll has ended.\nLink to poll: ${finalMessage.url}`,
+    });
   } catch (error) {
-    debugMsg("Error deleting poll message.");
-  }
-  try {
-    await message.channel.send({ embeds: [embed] });
-  } catch (error) {
-    debugMsg("Error sending poll results.");
+    debugMsg("Error sending poll results or editing poll message.");
   }
 }

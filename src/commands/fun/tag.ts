@@ -193,6 +193,7 @@ async function listTags(
   debugMsg(`Listing tags`);
   const getter = new ThingGetter(client);
   const member = await getter.getMember(guild, interaction.user.id);
+  if (!member) throw new Error("Member not found");
 
   if (!member.permissions.has(PermissionFlagsBits.ManageMessages)) {
     return returnMessage(

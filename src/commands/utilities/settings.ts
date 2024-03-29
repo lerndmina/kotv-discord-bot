@@ -64,7 +64,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   });
 }
 
-function changeAvatar(
+async function changeAvatar(
   interaction: ChatInputCommandInteraction,
   client: Client<true>,
   handler: CommandKit
@@ -72,14 +72,27 @@ function changeAvatar(
   const avatar = interaction.options.getAttachment("avatar");
   if (!avatar) return interaction.reply({ content: "Please provide an avatar.", ephemeral: true });
 
-  client.user.setAvatar(avatar.url);
+  try {
+    await client.user.setAvatar(avatar.url);
+  } catch (error) {
+    return interaction.reply({
+      content: `An error occurred while changing the avatar: \`\`\`${error}\`\`\``,
+      ephemeral: true,
+    });
+  }
 
   return interaction.reply({
-    embeds: [BasicEmbed(client, "Avatar Changed", `The bot's avatar has been changed.`)],
+    embeds: [
+      BasicEmbed(
+        client,
+        "Avatar Changed",
+        `The bot's avatar has been changed. This may take a few minutes to update.`
+      ),
+    ],
   });
 }
 
-function changeUsername(
+async function changeUsername(
   interaction: ChatInputCommandInteraction,
   client: Client<true>,
   handler: CommandKit
@@ -88,7 +101,14 @@ function changeUsername(
   if (!username)
     return interaction.reply({ content: "Please provide a username.", ephemeral: true });
 
-  client.user.setUsername(username);
+  try {
+    await client.user.setUsername(username);
+  } catch (error) {
+    return interaction.reply({
+      content: `An error occurred while changing the username: \`\`\`${error}\`\`\``,
+      ephemeral: true,
+    });
+  }
 
   return interaction.reply({
     embeds: [BasicEmbed(client, "Username Changed", `The bot's username has been changed.`)],

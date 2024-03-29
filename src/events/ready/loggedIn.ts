@@ -2,22 +2,28 @@ import { ActivityType, type ActivityOptions, type Client, PresenceStatusData } f
 import type { CommandKit } from "commandkit";
 import log from "fancy-log";
 import { redisClient } from "../../Bot";
+import Database from "../../utils/data/database";
+import Settings, { SettingsType } from "../../models/Settings";
+import { ActivityEnum } from "../../commands/utilities/settings";
 
 /**
  *
  * @param {Client} c
  * @param {Client} client
  */
-export default (c: Client<true>, client: Client<true>, handler: CommandKit) => {
+export default async (c: Client<true>, client: Client<true>, handler: CommandKit) => {
   log(`Logged in as ${client.user?.tag}`);
 
-  // Set online
-  const activityOptions: ActivityOptions = {
-    type: ActivityType.Playing,
-    name: "",
-  };
-  client.user.setActivity("DM For Modmail.", activityOptions);
-  client.user.setStatus("online" as PresenceStatusData);
+  const db = new Database();
+  const settings = (await db.findOne(Settings, { botId: client.user?.id }, false)) as SettingsType;
+
+  if (settings && settings.activityText && settings.activityType) {
+    const activity: ActivityOptions = {
+      type: settings.activityType,
+      name: settings.activityText,
+    };
+    client.user.setActivity(activity);
+  }
 
   // Set last restart
   redisClient.set("lastRestart", Date.now().toString());

@@ -5,6 +5,7 @@ import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import { fetchApiUrl, sleep } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
 import logger from "fancy-log";
+import FetchEnvs from "../../utils/FetchEnvs";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")
@@ -67,7 +68,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       }, 10000); // 10 seconds
     });
 
-    censusData = await Promise.race([fetchApiUrl("AWildLerndmina"), timeout]);
+    const env = FetchEnvs();
+
+    censusData = await Promise.race([
+      fetch(`https://census.daybreakgames.com/s:${env.CENSUS_KEY}/get/ps2:v2/world/`),
+      timeout,
+    ]);
   } catch (error) {
     log.error(`Census Error: ${error}`);
     censusError = true;
@@ -75,7 +81,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   }
   const endTime = Date.now();
 
-  if (!censusData || censusData.returned == 0 || !censusData.character_list[0]) {
+  if (!censusData) {
     censusError = true;
   }
 

@@ -110,7 +110,7 @@ export async function endPoll(
   await db.findOneAndUpdate(PollsSchema, { pollId }, poll);
   if (interaction) interaction.reply({ content: "Ending the poll.", ephemeral: true });
 
-  let fields = poll.options.map((option) => {
+  let fields = poll.options.map((option: any) => {
     return {
       name: `Option: ${option.name}`,
       value: `${option.votes} ${option.votes === 1 ? "vote" : "votes"}`,

@@ -1,27 +1,15 @@
-import {
-  ActivityType,
-  type ActivityOptions,
-  type Client,
-  PresenceStatusData,
-  ChannelType,
-} from "discord.js";
+import { ActivityType, type ActivityOptions, type Client, PresenceStatusData } from "discord.js";
 import type { CommandKit } from "commandkit";
-import { log } from "itsasht-logger";
-import { stopTimer } from "../../Bot";
-import { ThingGetter } from "../../utils/TinyUtils";
+import log from "fancy-log";
+import { redisClient } from "../../Bot";
 
 /**
  *
  * @param {Client} c
  * @param {Client} client
  */
-export default async (c: Client<true>, client: Client<true>, handler: CommandKit) => {
-  const startTime = stopTimer();
-  log.info(`Logged in as ${client.user?.tag}`);
-  console.log("");
-  log.info(
-    `Startup complete in ${startTime}ms. Ready to serve ${client.guilds.cache.size} server(s).`
-  );
+export default (c: Client<true>, client: Client<true>, handler: CommandKit) => {
+  log(`Logged in as ${client.user?.tag}`);
 
   // Set online
   const activityOptions: ActivityOptions = {
@@ -30,4 +18,7 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
   };
   client.user.setActivity("DM For Modmail.", activityOptions);
   client.user.setStatus("online" as PresenceStatusData);
+
+  // Set last restart
+  redisClient.set("lastRestart", Date.now().toString());
 };

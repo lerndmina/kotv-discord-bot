@@ -116,12 +116,12 @@ async function handleLinkInteraction(
       "FATAL: This interaction does not have a guildId, this should never happen. " +
         `User: ${interaction.user.username} ${interaction.user.id}`
     );
-  const guildMember = await getter.getMember(
-    await getter.getGuild(interaction.guildId),
-    interaction.user.id
-  );
+  const guild = await getter.getGuild(interaction.guildId);
+  if (!guild) throw new Error("Guild not found while processing link interaction.");
+  const guildMember = await getter.getMember(guild, interaction.user.id);
+  if (!guildMember) throw new Error("Guild member not found while processing link interaction.");
 
-  var placeholderName;
+  var placeholderName: string;
   if (guildMember.nickname) {
     placeholderName = guildMember.nickname;
   } else {
@@ -255,6 +255,8 @@ async function handleLinkInteraction(
       }
 
       const guildMember = await getter.getMember(i.guild, i.user.id);
+      if (!guildMember)
+        throw new Error("Guild member not found while processing link interaction.");
 
       // User has not logged in within the last 24 hours
       const lastLoginDate = lastLogin * 1000;

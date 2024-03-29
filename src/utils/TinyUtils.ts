@@ -425,7 +425,8 @@ export function getTimeMessage(time: ParsedTime, id: Snowflake, ephemeral = fals
   return { content, components: ephemeral ? [] : buttons, ephemeral };
 }
 
-export async function isStaff(member: GuildMember) {
+export async function isStaff(member: GuildMember | null) {
+  if (!member) return false;
   const getter = new ThingGetter(member.client);
   const role = await getter.getRole(member.guild, KOTV_PREACHER_ROLE);
   if (!role) {

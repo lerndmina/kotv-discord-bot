@@ -11,7 +11,7 @@ import { Channel } from "diagnostics_channel";
 
 import GuildNewVC from "../../models/GuildNewVC";
 import { ThingGetter } from "../../utils/TinyUtils";
-import { CommandData, CommandOptions, CommandProps } from "commandkit";
+import { CommandData, CommandOptions, CommandProps, SlashCommandProps } from "commandkit";
 import { KOTV_PREACHER_ROLE } from "../../Bot";
 
 export const data = new SlashCommandBuilder()
@@ -47,7 +47,7 @@ export const options: CommandOptions = {
   deleted: false,
 };
 
-export async function run({ interaction, client, handler }: CommandProps) {
+export async function run({ interaction, client, handler }: SlashCommandProps) {
   const i = interaction as ChatInputCommandInteraction;
   const getter = new ThingGetter(client);
   const subcommand = i.options.getSubcommand();
@@ -56,6 +56,7 @@ export async function run({ interaction, client, handler }: CommandProps) {
   if (!i.guild) return log.error("We got a guildOnly command interaction without a guild.");
 
   const member = await getter.getMember(i.guild, i.user.id);
+  if (!member) return interaction.reply({ content: "You are not in this guild.", ephemeral: true });
   if (!member.roles.cache.get(KOTV_PREACHER_ROLE))
     return i.reply({ content: "You do not have permission to use this command.", ephemeral: true });
 

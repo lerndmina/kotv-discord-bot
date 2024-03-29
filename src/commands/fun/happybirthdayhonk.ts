@@ -44,7 +44,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   const getter = new ThingGetter(client);
 
-  const member = await getter.getMember(await getter.getGuild(interaction.guildId!), USER_ID);
+  const guild = await getter.getGuild(interaction.guildId!);
+  if (!guild) return interaction.editReply("Guildonly command ran in non guild context.");
+
+  const member = await getter.getMember(guild, USER_ID);
+  if (!guild)
+    return interaction.editReply("Member not found in guild, when member ran the command.");
 
   const messages: string[] = [
     "Happy fish day honk!",

@@ -38,6 +38,10 @@ export default async (message: Message, client: Client<true>) => {
   const getter = new ThingGetter(client);
   debugMsg(`Getting guild ${guildId}`);
   const guild = await getter.getGuild(guildId);
+  if (!guild) {
+    log.error("Guild not found " + guildId);
+    return false;
+  }
   const role = guild.roles.cache.get(roleId);
 
   if (!role) {

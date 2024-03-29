@@ -64,7 +64,10 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     embeds: [embed],
   });
 
-  (await getter.getUser(mail.userId)).send({
+  const user = await getter.getUser(mail.userId);
+  if (!user) return interaction.editReply("Mail user not found. This should never happen.");
+
+  user.send({
     embeds: [embed],
   });
   try {

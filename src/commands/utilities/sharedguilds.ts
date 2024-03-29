@@ -79,6 +79,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
      */
     const guild = await getter.getGuild(i.values[0]);
 
+    if (!guild) throw new Error("Guild not found.");
+
     log.info(guild.name);
 
     /**
@@ -101,7 +103,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   } catch (e) {
     log.error(e as string);
     await interaction.editReply({
-      content: "No response was given in time or an error occured.",
+      content: `No response was given in time or an error occured.\n\n\`\`\`${e}\`\`\``,
       components: [],
     });
   }

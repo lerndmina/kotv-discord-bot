@@ -16,15 +16,10 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  /**
-   * @type {Guild}
-   */
   const guild = interaction.guild!;
 
-  /**
-   * @type {Role}
-   */
-  const role = guild.roles.cache.get(KOTV_PROMOTEME_ROLE);
+  const role = await guild.roles.fetch(KOTV_PROMOTEME_ROLE);
+
   if (!role)
     return interaction.reply({ content: "KOTV_PROMOTEME_ROLE not found.", ephemeral: true });
   const members = role.members;

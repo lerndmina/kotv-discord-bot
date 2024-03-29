@@ -174,16 +174,15 @@ async function handleUserLookup(
       const guildMember = await getter.getMember(interaction.guild, user.id);
       const guestRole = interaction.guild.roles.cache.get(KOTV_GUEST_ROLE);
       const voidServantRole = interaction.guild.roles.cache.get(KOTV_VOID_SERVANT_ROLE);
-
       const env = FetchEnvs();
 
-      if (!guestRole || !voidServantRole) {
+      if (!guildMember || !guestRole || !voidServantRole) {
         return interaction.editReply({
           embeds: [
             BasicEmbed(
               interaction.client,
               "Error",
-              `Could not find the guest or void servant role. Please contact <@${env.OWNER_IDS[0]}>`
+              `Could not find the guildMember, guest or void servant role. Please contact <@${env.OWNER_IDS[0]}>`
             ),
           ],
         });
@@ -397,7 +396,7 @@ async function handleAdd(interaction: ChatInputCommandInteraction, user: User, a
 
     var errormsg = "";
 
-    guildmember.roles.add(voidServantRole).catch((error) => {
+    guildmember!.roles.add(voidServantRole).catch((error) => {
       const env = FetchEnvs();
       log.error("Error adding void servant role");
       log.info(error);

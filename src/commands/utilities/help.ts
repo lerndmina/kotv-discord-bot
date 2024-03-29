@@ -15,6 +15,8 @@ import { debugMsg } from "../../utils/TinyUtils";
 import { debug } from "console";
 import { waitingEmoji } from "../../Bot";
 
+const COMMAND_HELP_MAX_LENGTH = 128;
+
 export const data = new SlashCommandBuilder().setName("help").setDescription("Shows help!");
 export const options = {
   devOnly: false,
@@ -54,9 +56,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
     var commandDescription: string;
 
-    const MAX_LENGTH = 64;
-    if (resultCommand.description.length > MAX_LENGTH) {
-      commandDescription = resultCommand.description.slice(0, MAX_LENGTH - 3) + "...";
+    if (resultCommand.description.length > COMMAND_HELP_MAX_LENGTH) {
+      commandDescription = resultCommand.description.slice(0, COMMAND_HELP_MAX_LENGTH - 3) + "...";
     } else commandDescription = resultCommand.description;
 
     const commandObject = {
@@ -108,12 +109,15 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       const field = {
         name: name,
         value: value,
-        inline: false,
+        inline: true,
       };
 
       fields.push(field);
     }
   }
+
+  // Sort fields by value length
+  fields = fields.sort((a, b) => (a.value.length < b.value.length ? 1 : -1));
 
   const embed = BasicEmbed(
     client,
@@ -129,16 +133,18 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   });
 }
 
+const endingNewline = "\n";
+
 function standardHelpMsg(command: any) {
-  return `</${command.name}:${command.id}>: ${command.description}\n`;
+  return `</${command.name}:${command.id}>\n${command.description}${endingNewline}`;
 }
 
 function subcommandHelpMsg(subcommand: any, command: any) {
   var commandDescription: string;
 
-  if (subcommand.description.length > 64) {
-    commandDescription = subcommand.description.slice(0, 61) + "...";
+  if (subcommand.description.length > COMMAND_HELP_MAX_LENGTH) {
+    commandDescription = subcommand.description.slice(0, COMMAND_HELP_MAX_LENGTH - 3) + "...";
   } else commandDescription = subcommand.description;
 
-  return `</${command.name} ${subcommand.name}:${command.id}>: ${commandDescription}\n`;
+  return `</${command.name} ${subcommand.name}:${command.id}>\n${commandDescription}${endingNewline}`;
 }

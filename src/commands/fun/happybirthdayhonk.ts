@@ -26,7 +26,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.reply({ content: waitingEmoji });
   const userId = interaction.user.id;
   const now = Date.now();
-  const aprilSecond = new Date("2022-04-02T00:00:00.000Z").getTime();
+  const aprilSecond = new Date("2024-04-02T00:00:00.000Z").getTime();
 
   if (now < aprilSecond) {
     return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");

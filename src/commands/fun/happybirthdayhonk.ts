@@ -24,6 +24,7 @@ export const options: CommandOptions = {
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.reply({ content: waitingEmoji });
+  setCommandCooldown(globalCooldownKey(interaction.command?.name!), 60);
   const userId = interaction.user.id;
   const now = Date.now();
   const aprilSecond = new Date("2024-04-02T00:00:00.000Z").getTime();
@@ -31,8 +32,6 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   if (now < aprilSecond) {
     return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
   }
-
-  setCommandCooldown(globalCooldownKey(interaction.command?.name!), 60);
 
   const db = new Database();
 

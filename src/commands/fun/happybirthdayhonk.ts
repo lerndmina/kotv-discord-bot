@@ -25,13 +25,21 @@ export const options: CommandOptions = {
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.reply({ content: waitingEmoji });
   const userId = interaction.user.id;
-  // if (userId != USER_ID && !env.OWNER_IDS.includes(userId))
-  //   return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
+  const now = Date.now();
+  const aprilSecond = new Date("2022-04-02T00:00:00.000Z").getTime();
+
+  if (now < aprilSecond) {
+    if (userId != USER_ID && !env.OWNER_IDS.includes(userId))
+      return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
+  }
+
   setCommandCooldown(globalCooldownKey(interaction.command?.name!), 60);
 
   const db = new Database();
 
-  const counterData = await db.findOne(HonkBirthdayCounter, { guildId: interaction.guildId });
+  let counterData = await db.findOne(HonkBirthdayCounter, { guildId: interaction.guildId });
+
+  if (!counterData || !counterData.count) counterData = { count: 0 };
 
   let counter = counterData.count + 1;
 

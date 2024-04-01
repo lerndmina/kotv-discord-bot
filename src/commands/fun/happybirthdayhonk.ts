@@ -29,8 +29,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const aprilSecond = new Date("2022-04-02T00:00:00.000Z").getTime();
 
   if (now < aprilSecond) {
-    if (userId != USER_ID && !env.OWNER_IDS.includes(userId))
-      return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
+    return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
   }
 
   setCommandCooldown(globalCooldownKey(interaction.command?.name!), 60);
@@ -79,7 +78,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       BasicEmbed(
         client,
         messages[rand],
-        `This command has been ran ${counter} time(s)\n\n||Blame Schinu...||`
+        `This command has been ran ${counter} time(s)\n\n||Blame Schinu...||\n\n*This command will self distruct <t:1712012400:R>*`
       ),
     ],
   });

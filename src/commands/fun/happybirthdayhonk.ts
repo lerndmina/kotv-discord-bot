@@ -25,8 +25,9 @@ export const options: CommandOptions = {
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   await interaction.reply({ content: waitingEmoji });
   const userId = interaction.user.id;
-  if (userId != USER_ID && !env.OWNER_IDS.includes(userId))
-    return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
+  // if (userId != USER_ID && !env.OWNER_IDS.includes(userId))
+  //   return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
+  setCommandCooldown(globalCooldownKey(interaction.command?.name!), 60);
 
   const db = new Database();
 
@@ -65,7 +66,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   // );
 
   interaction.editReply({
-    content: "",
+    content: "<@1033920199168110602>",
     embeds: [
       BasicEmbed(
         client,

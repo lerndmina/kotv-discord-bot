@@ -6,6 +6,8 @@ import FetchEnvs from "../../utils/FetchEnvs";
 import BasicEmbed from "../../utils/BasicEmbed";
 import Database from "../../utils/data/database";
 import Settings from "../../models/Settings";
+import CommandError from "../../utils/interactionErrors/CommandError";
+import { ThingGetter } from "../../utils/TinyUtils";
 const env = FetchEnvs();
 
 export const data = new SlashCommandBuilder()
@@ -29,6 +31,14 @@ export const data = new SlashCommandBuilder()
   )
   .addSubcommand((subcommand) =>
     subcommand
+      .setName("nickname")
+      .setDescription("Change the bot's nickname.")
+      .addStringOption((option) =>
+        option.setName("nickname").setDescription("The nickname to set.").setRequired(true)
+      )
+  )
+  .addSubcommand((subcommand) =>
+    subcommand
       .setName("set-activity")
       .setDescription("Change the bot's activity.")
       .addStringOption((option) =>
@@ -46,6 +56,7 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
+  let hasErrored: any;
   if (!env.OWNER_IDS.includes(interaction.user.id)) {
     return interaction.reply({
       content: "You do not have permission to use this command.",
@@ -54,14 +65,21 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   }
 
   const subcommand = interaction.options.getSubcommand();
-  if (subcommand === "avatar") return changeAvatar(interaction, client, handler);
-  if (subcommand === "username") return changeUsername(interaction, client, handler);
-  if (subcommand === "set-activity") return changeStatus(interaction, client, handler);
+  try {
+    if (subcommand === "avatar") return changeAvatar(interaction, client, handler);
+    if (subcommand === "username") return changeUsername(interaction, client, handler);
+    if (subcommand === "nickname") return changeNickname(interaction, client, handler);
+    if (subcommand === "set-activity") return changeStatus(interaction, client, handler);
 
-  return interaction.reply({
-    content: "Invalid subcommand.",
-    ephemeral: true,
-  });
+    return interaction.reply({
+      content: "Invalid subcommand.",
+      ephemeral: true,
+    });
+  } catch (err) {
+    hasErrored = err;
+  }
+
+  if (hasErrored) new CommandError(hasErrored, interaction, client).send();
 }
 
 async function changeAvatar(
@@ -115,7 +133,33 @@ async function changeUsername(
   });
 }
 
-function changeStatus(
+async function changeNickname(
+  interaction: ChatInputCommandInteraction,
+  client: Client<true>,
+  handler: CommandKit
+) {
+  const nickname = interaction.options.getString("nickname");
+  if (!nickname)
+    return interaction.reply({ content: "Please provide a nickname.", ephemeral: true });
+
+  const getter = new ThingGetter(client);
+  const guild = await getter.getGuild(interaction.guildId!);
+  if (!guild) return interaction.reply("Guildonly command ran in non guild context.");
+
+  try {
+    await guild.members.me?.setNickname(nickname);
+  } catch (error) {
+    return interaction.reply({
+      content: `An error occurred while changing the nickname: \`\`\`${error}\`\`\``,
+      ephemeral: true,
+    });
+  }
+  return interaction.reply({
+    embeds: [BasicEmbed(client, "Nickname Changed", `The bot's nickname has been changed.`)],
+  });
+}
+
+async function changeStatus(
   interaction: ChatInputCommandInteraction,
   client: Client<true>,
   handler: CommandKit

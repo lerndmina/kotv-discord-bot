@@ -51,7 +51,7 @@ export const data = new SlashCommandBuilder()
   .setDMPermission(true);
 
 export const options: CommandOptions = {
-  devOnly: true,
+  devOnly: false,
   deleted: false,
 };
 
@@ -144,7 +144,7 @@ async function changeNickname(
 
   const getter = new ThingGetter(client);
   const guild = await getter.getGuild(interaction.guildId!);
-  if (!guild) return interaction.reply("Guildonly command ran in non guild context.");
+  if (!guild) return interaction.reply("The nickname can only be changed in a guild.");
 
   try {
     await guild.members.me?.setNickname(nickname);

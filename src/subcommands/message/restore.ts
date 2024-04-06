@@ -2,6 +2,7 @@ import { SlashCommandProps } from "commandkit";
 import { ThingGetter } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { postToZiplineInstance } from "../../commands/utilities/message";
+import { Client, Message } from "discord.js";
 
 export default async function ({ interaction, client, handler }: SlashCommandProps) {
   const url = new URL(interaction.options.getString("url", true));
@@ -10,6 +11,11 @@ export default async function ({ interaction, client, handler }: SlashCommandPro
   if (!message) {
     throw new Error("Message not found.");
   }
+  const embed = await getRestoreEmbed(message, client);
+  return interaction.editReply({ embeds: [embed], content: "" });
+}
+
+export async function getRestoreEmbed(message: Message, client: Client<true>) {
   const discoHookObject = {
     messages: [{ data: message }],
   };
@@ -24,5 +30,5 @@ export default async function ({ interaction, client, handler }: SlashCommandPro
     "Message restored to Discohook",
     `Click [here](${shortUrl}) to view the message in Discohook.\n\n**Note:** This link won't last forever.`
   );
-  return interaction.editReply({ embeds: [embed], content: "" });
+  return embed;
 }

@@ -61,7 +61,7 @@ export const data = new SlashCommandBuilder()
         option
           .setName("data")
           .setDescription("Data (TXT) for the the new message (base64-json, discohook.org url).")
-          .setRequired(true)
+          .setRequired(false)
       )
       .addBooleanOption((option) =>
         option

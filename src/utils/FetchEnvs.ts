@@ -29,6 +29,8 @@ export default function () {
     DEFAULT_TIMEZONE: string;
     CENSUS_KEY: string;
     REALTIME_API: string;
+    ZIPLINE_BASEURL: string;
+    ZIPLINE_TOKEN: string;
   } = {
     BOT_TOKEN: process.env.BOT_TOKEN || "",
     OWNER_IDS: (process.env.OWNER_IDS || "").split(","),
@@ -48,6 +50,8 @@ export default function () {
     DEFAULT_TIMEZONE: process.env.DEFAULT_TIMEZONE || "Europe/London",
     CENSUS_KEY: process.env.CENSUS_KEY || "",
     REALTIME_API: process.env.REALTIME_API || "",
+    ZIPLINE_BASEURL: process.env.ZIPLINE_BASEURL || "",
+    ZIPLINE_TOKEN: process.env.ZIPLINE_TOKEN || "",
   };
 
   var missingKeys: string[] = [];

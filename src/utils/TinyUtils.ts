@@ -18,6 +18,7 @@ import {
   GuildMember,
   ButtonBuilder,
   ButtonStyle,
+  Role,
 } from "discord.js";
 import FetchEnvs from "./FetchEnvs";
 import { log } from "itsasht-logger";
@@ -86,45 +87,48 @@ export class ThingGetter {
   }
 
   async getUser(id: Snowflake) {
-    try {
-      return (await this.#get(id, "users")) as unknown as User; // This is technically safe
-    } catch (error) {
-      return null;
-    }
+    return this.#get(id, "users") as unknown as User; // This is technically safe
   }
 
   async getChannel(id: Snowflake) {
-    try {
-      return (await this.#get(id, "channels")) as unknown as Channel; // This is technically safe
-    } catch (error) {
-      return null;
-    }
+    return this.#get(id, "channels") as unknown as Channel; // This is technically safe
   }
 
   async getGuild(id: Snowflake) {
-    try {
-      return (await this.#get(id, "guilds")) as unknown as Guild; // This is technically safe
-    } catch (error) {
-      return null;
-    }
+    return this.#get(id, "guilds") as unknown as Guild; // This is technically safe
   }
 
-  async getMember(guild: Guild, id: Snowflake) {
-    try {
-      const member = guild.members.cache.get(id);
-      return member ? member : await guild.members.fetch(id);
-    } catch (error) {
-      return null;
-    }
+  async getMember(guild: Guild, id: Snowflake): Promise<GuildMember> {
+    const member = guild.members.cache.get(id);
+    return member ? member : await guild.members.fetch(id);
   }
 
-  async getRole(guild: Guild, id: Snowflake) {
-    try {
-      const role = guild.roles.cache.get(id);
-      return role ? role : await guild.roles.fetch(id);
-    } catch (error) {
-      return null;
+  async getRole(guild: Guild, id: Snowflake): Promise<Role | null> {
+    const role = guild.roles.cache.get(id);
+    return role ? role : await guild.roles.fetch(id);
+  }
+
+  async getMessage(channel: Channel, id: Snowflake): Promise<Message | null> {
+    const message = (channel as any).messages.cache.get(id);
+    if (!message) {
+      return await (channel as any).messages.fetch(id);
     }
+    return null;
+  }
+
+  async getMessageFromUrl(url: URL): Promise<Message | null> {
+    debugMsg(`Getting message from url: ${url.href}`);
+    const discordLinkReg = /https:\/\/discord.com\/channels\/(\d+)\/(\d+)\/(\d+)/;
+    const match = discordLinkReg.exec(url.href);
+    if (!match) {
+      throw new Error("Invalid message url. Does not match discord message regex.");
+    }
+    // const guildId = match[1]; // Might be useful later
+    const channelId = match[2];
+    const messageId = match[3];
+
+    const channel = await this.getChannel(channelId);
+    return await this.getMessage(channel, messageId);
   }
 
   getMemberName(guildMember: GuildMember) {

@@ -1,10 +1,11 @@
 import https from "https";
-import { log } from "itsasht-logger";
+import log from "fancy-log";
 import fs from "fs";
-import { Url } from "url";
+import { URL } from "url";
+import { debugMsg } from "./TinyUtils";
 
-export default async function (url: Url, name: string, type: string) {
-  return new Promise<void>((resolve, reject) => {
+export default async function (url: URL, name: string, type: string) {
+  return new Promise<boolean>((resolve, reject) => {
     https
       .get(url, (res) => {
         const path = `${name}.${type}`;
@@ -14,12 +15,14 @@ export default async function (url: Url, name: string, type: string) {
 
         writeStream.on("finish", () => {
           writeStream.close();
-          resolve();
+          debugMsg(`Downloaded file to ${path}`);
+          resolve(true);
         });
       })
       .on("error", (err) => {
-        log.info("Download Failed");
-        reject(err);
+        log("Download Failed");
+        log(err);
+        reject(false);
       });
   });
 }

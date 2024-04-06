@@ -21,7 +21,8 @@ export default class Database {
       throw new Error("Missing schema or model");
     }
     const mongoKey = Object.keys(model)[0];
-    const redisKey = schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
+    const redisKey =
+      env.MONGODB_DATABASE + ":" + schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
     debugMsg(`Key: ${mongoKey} -> ${redisKey}`);
     // The value of this map is the key for redis because it's unique
 
@@ -61,7 +62,8 @@ export default class Database {
       throw new Error("Missing schema or model");
     }
     const mongoKey = Object.keys(model)[0];
-    const redisKey = schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
+    const redisKey =
+      env.MONGODB_DATABASE + ":" + schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
     debugMsg(`Key: ${mongoKey} -> ${redisKey}`);
 
     debugMsg(`Fetching from cache: ${redisKey}`);
@@ -107,7 +109,8 @@ export default class Database {
       throw new Error("Missing schema or model");
     }
     const mongoKey = Object.keys(model)[0];
-    const redisKey = schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
+    const redisKey =
+      env.MONGODB_DATABASE + ":" + schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
 
     await schema.findOneAndUpdate(model, object, options);
     await redisClient.set(redisKey, JSON.stringify(object));
@@ -128,7 +131,8 @@ export default class Database {
       throw new Error("Missing schema or model");
     }
     const mongoKey = Object.keys(model)[0];
-    const redisKey = schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
+    const redisKey =
+      env.MONGODB_DATABASE + ":" + schema.modelName + ":" + mongoKey + ":" + model[mongoKey];
     debugMsg(`Deleting key: ${mongoKey} -> ${redisKey}`);
 
     await redisClient.del(redisKey);

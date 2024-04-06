@@ -13,6 +13,7 @@
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@types/fluent-ffmpeg": "^2.1.24",
     "@types/ms": "^0.7.34",
+    "axios": "^1.6.8",
     "chrono-node": "^2.7.5",
     "commandkit": "^0.1.10",
     "discord.js": "^14.14.1",

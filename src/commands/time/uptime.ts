@@ -18,7 +18,7 @@ export const options: CommandOptions = {
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  const lastRestart = parseInt((await redisClient.get("lastRestart")) ?? "0");
+  const lastRestart = parseInt((await redisClient.get(`${client.user.id}-lastRestart`)) ?? "0");
   const now = Date.now();
   const uptime = prettyMilliseconds(now - lastRestart, {
     verbose: true,

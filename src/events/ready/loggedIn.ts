@@ -5,7 +5,6 @@ import { redisClient } from "../../Bot";
 import Database from "../../utils/data/database";
 import Settings, { SettingsType } from "../../models/Settings";
 import { ActivityEnum } from "../../commands/utilities/settings";
-
 /**
  *
  * @param {Client} c
@@ -26,5 +25,5 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
   }
 
   // Set last restart
-  redisClient.set("lastRestart", Date.now().toString());
+  redisClient.set(`${client.user.id}-lastRestart`, Date.now().toString());
 };

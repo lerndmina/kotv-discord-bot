@@ -45,7 +45,7 @@ export default async function (client: Client<true>, message: Message, apiKey: s
 
   // Download the attachment and name it the current timestamp
   const fileName = Date.now().toString();
-  const url = attachment.url as unknown as Url;
+  const url = new URL(attachment.url);
   await DownloadFile(url, fileName, "ogg");
 
   // convert the file to mp3

@@ -19,6 +19,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   Role,
+  ChannelType,
 } from "discord.js";
 import FetchEnvs from "./FetchEnvs";
 import { log } from "itsasht-logger";
@@ -127,8 +128,15 @@ export class ThingGetter {
     const channelId = match[2];
     const messageId = match[3];
 
-    const channel = await this.getChannel(channelId);
-    return await this.getMessage(channel, messageId);
+    const channel = await this.client.channels.fetch(channelId);
+    if (!channel || channel.type !== ChannelType.GuildText) {
+      throw new Error("Failed to fetch channel from url.");
+    }
+    const message = await channel.messages.fetch(messageId);
+    if (!message) {
+      throw new Error("Failed to fetch message from url.");
+    }
+    return message;
   }
 
   getMemberName(guildMember: GuildMember) {
@@ -439,4 +447,12 @@ export async function isStaff(member: GuildMember | null) {
   }
 
   return member.roles.cache.has(role.id);
+}
+
+export async function fetchWithRedirectCheck(url: URL) {
+  const response = await fetch(url, { redirect: "follow" });
+  if (response.type === "opaqueredirect") {
+    throw new Error("Redirected to opaque URL, unable to determine final URL");
+  }
+  return response.url;
 }

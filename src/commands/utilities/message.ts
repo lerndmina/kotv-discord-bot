@@ -2,7 +2,7 @@ import { CommandData, CommandOptions, SlashCommandProps } from "commandkit";
 import { Attachment, ClientUser, InteractionReplyOptions, SlashCommandBuilder } from "discord.js";
 import CommandError from "../../utils/interactionErrors/CommandError";
 import edit from "../../subcommands/message/edit";
-import { debugMsg, ThingGetter } from "../../utils/TinyUtils";
+import { debugMsg, fetchWithRedirectCheck, ThingGetter } from "../../utils/TinyUtils";
 import send from "../../subcommands/message/send";
 import deleteFunc from "../../subcommands/message/deleteFunc";
 import restore from "../../subcommands/message/restore";
@@ -34,14 +34,20 @@ export const data = new SlashCommandBuilder()
     subcommand
       .setName(COMMAND_SEND)
       .setDescription("Send a message.")
+      .addChannelOption((option) =>
+        option.setName("channel").setDescription("Where to send the message").setRequired(true)
+      )
       .addAttachmentOption((option) =>
         option
           .setName("data")
           .setDescription("Data (TXT) for the the new message (base64-json, discohook.org url).")
-          .setRequired(true)
+          .setRequired(false)
       )
-      .addChannelOption((option) =>
-        option.setName("channel").setDescription("Where to send the message").setRequired(true)
+      .addStringOption((option) =>
+        option
+          .setName("short-link")
+          .setDescription("A short link from discohook.org")
+          .setRequired(false)
       )
   )
   .addSubcommand((subcommand) =>
@@ -63,6 +69,12 @@ export const data = new SlashCommandBuilder()
           .setRequired(false)
           .setDescription("Remove buttons, etc from the message?")
       )
+      .addStringOption((option) =>
+        option
+          .setName("short-link")
+          .setDescription("A short link from discohook.org")
+          .setRequired(false)
+      )
   )
   .addSubcommand((subcommand) =>
     subcommand
@@ -83,7 +95,7 @@ export const data = new SlashCommandBuilder()
 
 export const options: CommandOptions = {
   deleted: false,
-  devOnly: false,
+  devOnly: true,
   userPermissions: ["ManageMessages"],
   botPermissions: ["ManageMessages"],
 };
@@ -117,18 +129,37 @@ export function extractFromDiscohook(url: URL) {
 }
 
 export async function messageAttachmentProcessor(
-  attachment: Attachment
+  attachment: Attachment,
+  shortLinkString: string
 ): Promise<InteractionReplyOptions> {
-  if (!attachment.contentType?.includes("text")) throw new Error("Invalid attachment.");
+  if (shortLinkString && attachment)
+    throw new Error("You can't use both a short link and an attachment.");
+  if (!shortLinkString && !attachment)
+    throw new Error("You must provide either a short link or an attachment.");
 
-  const attachmentUrl = new URL(attachment.url);
-  const path = `/tmp/${attachment.name}-${Date.now()}`;
+  let contents: string = "";
 
-  // interaction.deferReply();
-  await DownloadFile(attachmentUrl, path, "txt");
+  if (shortLinkString) {
+    let shortLink: URL;
+    try {
+      shortLink = new URL(shortLinkString);
+    } catch (error) {
+      throw new Error("Invalid short link.");
+    }
+    if (shortLink.host !== "share.discohook.app") throw new Error("Invalid short link.");
+    await fetchWithRedirectCheck(shortLink).then((url) => (contents = url));
+  } else if (attachment) {
+    if (!attachment.contentType?.includes("text")) throw new Error("Invalid attachment.");
 
-  let contents = readFileSync(`${path}.txt`, "utf8");
-  DeleteFile(path, "txt");
+    const attachmentUrl = new URL(attachment.url);
+    const path = `/tmp/${attachment.name}-${Date.now()}`;
+
+    // interaction.deferReply();
+    await DownloadFile(attachmentUrl, path, "txt");
+
+    contents = readFileSync(`${path}.txt`, "utf8");
+    DeleteFile(path, "txt");
+  } else throw new Error("Invalid attachment.");
 
   if (contents.startsWith("https://discohook.org/?data=")) {
     contents = contents.replace("https://discohook.org/?data=", "");

@@ -130,6 +130,7 @@ async function changeUsername(
 
   return interaction.reply({
     embeds: [BasicEmbed(client, "Username Changed", `The bot's username has been changed.`)],
+    ephemeral: true,
   });
 }
 
@@ -156,6 +157,7 @@ async function changeNickname(
   }
   return interaction.reply({
     embeds: [BasicEmbed(client, "Nickname Changed", `The bot's nickname has been changed.`)],
+    ephemeral: true,
   });
 }
 
@@ -194,6 +196,7 @@ async function changeStatus(
 
   return interaction.reply({
     embeds: [BasicEmbed(client, "Status Changed", `The bot's status has been changed.`)],
+    ephemeral: true,
   });
 }
 

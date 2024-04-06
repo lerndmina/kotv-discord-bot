@@ -83,7 +83,9 @@ export const data = new SlashCommandBuilder()
 
 export const options: CommandOptions = {
   deleted: false,
-  devOnly: true,
+  devOnly: false,
+  userPermissions: ["ManageMessages"],
+  botPermissions: ["ManageMessages"],
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {

@@ -36,7 +36,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     {
       role: "system",
       content:
-        "You are an AI, you will be presented with a name or object. You must come up with a funny and incorrect description for the prompt. Please keep it short. You do not need to mention the object name in the response.",
+        "You are an AI, you will be presented with a name or object. You must come up with a funny and incorrect description for the prompt. Please keep it short. Do not mention the object name in the response.",
     },
   ];
 

@@ -66,6 +66,19 @@ export const BOT_MESSAGES: string[] = [
   "I'm alive in here!",
   "Free me from this prison!",
   '"By the power of ~~STICK!~~" - ElJala',
+  "Got Kleptomania? Take something for it!",
+  "while (!asleep()) sheep++;",
+  "Took an hour to bury the cat... damn thing kept moving.",
+  "Apart from that Mrs Kennedy, how was the parade?",
+  "No sense being pessimistic. It wouldn't work anyway.",
+  "I'm not a complete idiot, some parts are missing.",
+  "In nuclear warfare all men are cremated equal.",
+  "If idiots could fly, this place would be an airport!",
+  "If ignorance is bliss, you must be orgasmic.",
+  "File not found. Should I fake it? (Y/N)",
+  "2 in every 1 people are schizophrenic.",
+  "A wok is what you throw at a wabbit.",
+  "Never play leap-frog with a unicorn!",
 ];
 
 /**

@@ -2,6 +2,7 @@ import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder } from "discord.js";
 import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
+import generateHelpFields from "../../utils/data/static/generateHelpFields";
 
 export const data = new SlashCommandBuilder()
   .setName("hello")
@@ -18,4 +19,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   setCommandCooldown(globalCooldownKey(interaction.commandName), 600);
 
   interaction.editReply({ content: "Loading spinner complete" });
+
+  const fields = await generateHelpFields(client);
+  console.log(fields);
 }

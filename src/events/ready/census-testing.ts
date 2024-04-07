@@ -81,22 +81,26 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
 
 async function getCensusStatusMessage(client: Client<true>) {
   const getter = new ThingGetter(client);
-  const channel = await getter.getChannel(KOTV_CENSUS_INFO_CHANNEL);
-  if (channel == null) {
-    log.error("Failed to get channel");
-    return;
-  }
-  if (channel.type !== ChannelType.GuildText) {
-    log.error("Channel is not a text channel");
-    return;
-  }
-  const message = await channel.messages.fetch(KOTV_CENSUS_INFO_MESSAGE);
-  if (message == null) {
-    log.error("Failed to get census status message.");
-    return;
-  }
+  try {
+    const channel = await getter.getChannel(KOTV_CENSUS_INFO_CHANNEL);
+    if (channel == null) {
+      log.error("Failed to get channel");
+      return;
+    }
+    if (channel.type !== ChannelType.GuildText) {
+      log.error("Channel is not a text channel");
+      return;
+    }
+    const message = await channel.messages.fetch(KOTV_CENSUS_INFO_MESSAGE);
+    if (message == null) {
+      log.error("Failed to get census status message.");
+      return;
+    }
 
-  return message;
+    return message;
+  } catch (error) {
+    return;
+  }
 }
 
 export async function updateCensusStatus(

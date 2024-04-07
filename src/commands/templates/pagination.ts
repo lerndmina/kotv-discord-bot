@@ -18,31 +18,27 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import { setCommandCooldown, userCooldownKey } from "../../Bot";
 import generateHelpFields from "../../utils/data/static/generateHelpFields";
 
-export const data = new SlashCommandBuilder().setName("help").setDescription("Help menu.");
+export const data = new SlashCommandBuilder()
+  .setName("pagination")
+  .setDescription("A simple pagination example.");
 
 export const options: CommandOptions = {
-  devOnly: false,
+  devOnly: true,
   deleted: false,
 };
 
 function getButtons(interactionId: Snowflake) {
-  // Increment button
-  const inc = new ButtonKit()
-    .setEmoji("➡️")
-    .setStyle(ButtonStyle.Primary)
-    .setCustomId("increment-" + interactionId);
-
   // Decrement button
   const dec = new ButtonKit()
     .setEmoji("⬅️")
     .setStyle(ButtonStyle.Primary)
     .setCustomId("decrement-" + interactionId);
 
-  // Home
-  const home = new ButtonKit()
-    .setEmoji("🏠")
+  // Increment button
+  const inc = new ButtonKit()
+    .setEmoji("➡️")
     .setStyle(ButtonStyle.Primary)
-    .setCustomId("home-" + interactionId);
+    .setCustomId("increment-" + interactionId);
 
   // Disposal button
   const trash = new ButtonKit()
@@ -51,9 +47,9 @@ function getButtons(interactionId: Snowflake) {
     .setCustomId("trash-" + interactionId);
 
   // Create an action row
-  const row = new ActionRowBuilder<ButtonKit>().addComponents(dec, home, inc, trash);
+  const row = new ActionRowBuilder<ButtonKit>().addComponents(dec, inc, trash);
 
-  return { home, dec, inc, trash, row };
+  return { dec, inc, trash, row };
 }
 
 const INLINE_BOOL = true;
@@ -62,24 +58,26 @@ let pages: EmbedField[][] = [];
 
 export const run = async ({ interaction, client }: SlashCommandProps) => {
   setCommandCooldown(userCooldownKey(interaction.user.id, interaction.commandName), 60);
-  pages = await generateHelpFields(client);
+  pages = [
+    [{ name: "Page 1", value: "This is page 1", inline: INLINE_BOOL }],
+    [{ name: "Page 2", value: "This is page 2", inline: INLINE_BOOL }],
+  ];
 
   // Create the signal & buttons
   const [count, setCount, disposeCountSubscribers] = createSignal(0);
-  const { home, dec, inc, trash, row } = getButtons(interaction.id);
+  const { dec, inc, trash, row } = getButtons(interaction.id);
 
   // Temporary variable to hold button interactions
   let inter: MessageComponentInteraction | null = null;
 
-  const embedTitle = "Help";
-  const embedDescription = "To run commands, use `/(command-Name)`";
+  const embedTitle = "Pagination Example";
+  const embedDescription =
+    "Woah, this is a cool example yes. Please press the trash button when you are done.";
 
   // Send the initial message with the buttons
   const message = await interaction.reply({
     content: ``,
-    embeds: [
-      BasicEmbed(client, embedTitle + ` page: ${1}/${pages.length}`, embedDescription, pages[0]),
-    ],
+    embeds: [BasicEmbed(client, embedTitle, embedDescription, pages[0])],
     components: [row],
     fetchReply: true,
   });
@@ -92,25 +90,9 @@ export const run = async ({ interaction, client }: SlashCommandProps) => {
     // Now udate the original message
     inter?.update({
       content: ``,
-      embeds: [
-        BasicEmbed(
-          client,
-          embedTitle + ` page: ${value + 1}/${pages.length}`,
-          embedDescription,
-          pages[value]
-        ),
-      ],
+      embeds: [BasicEmbed(client, embedTitle, embedDescription, pages[value])],
     });
   });
-
-  // Go to page 0
-  home.onClick(
-    (interaction) => {
-      inter = interaction;
-      setCount(0);
-    },
-    { message }
-  );
 
   // Handler to decrement the count
   dec.onClick(
@@ -151,7 +133,7 @@ export const run = async ({ interaction, client }: SlashCommandProps) => {
 
       // And finally: acknowledge the interaction
       await interaction.update({
-        content: "Help menu closed.",
+        content: "Pagination Closed.",
         components: [disposed],
         embeds: [],
       });

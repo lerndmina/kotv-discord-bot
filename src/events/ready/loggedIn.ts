@@ -5,6 +5,7 @@ import { redisClient } from "../../Bot";
 import Database from "../../utils/data/database";
 import Settings, { SettingsType } from "../../models/Settings";
 import { ActivityEnum } from "../../commands/utilities/settings";
+import { debugMsg } from "../../utils/TinyUtils";
 /**
  *
  * @param {Client} c
@@ -16,12 +17,9 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
   const db = new Database();
   const settings = (await db.findOne(Settings, { botId: client.user?.id }, false)) as SettingsType;
 
-  if (settings && settings.activityText && settings.activityType) {
-    const activity: ActivityOptions = {
-      type: settings.activityType,
-      name: settings.activityText,
-    };
-    client.user.setActivity(activity);
+  if (settings && settings.activityText) {
+    debugMsg(`Setting activity to ${settings.activityText} with type ${settings.activityType}`);
+    client.user.setActivity({ type: settings.activityType, name: settings.activityText });
   }
 
   // Set last restart

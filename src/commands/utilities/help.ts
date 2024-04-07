@@ -151,9 +151,11 @@ export const run = async ({ interaction, client }: SlashCommandProps) => {
 
       // And finally: acknowledge the interaction
       await interaction.update({
-        content: "Help menu closed.",
+        content: "",
         components: [disposed],
-        embeds: [],
+        embeds: [
+          BasicEmbed(client, "Help", "This message has been disposed, please run `/help` again."),
+        ],
       });
     },
     { message }

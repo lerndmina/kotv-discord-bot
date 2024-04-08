@@ -2,6 +2,7 @@ import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { log } from "itsasht-logger";
+import LoggingHandler from "../../utils/LoggingHandler";
 const permission = PermissionFlagsBits;
 
 export const data = new SlashCommandBuilder()

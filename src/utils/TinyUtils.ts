@@ -78,8 +78,8 @@ export async function sendDM(userId: Snowflake, content: string, client: Client<
 
 export class ThingGetter {
   typeMap: { users: string; channels: string; guilds: string };
-  client: Client<true>;
-  constructor(client: Client<true>) {
+  client: Client<boolean>;
+  constructor(client: Client<boolean>) {
     this.client = client;
     this.typeMap = {
       users: "users",

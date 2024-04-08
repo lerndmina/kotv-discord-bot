@@ -1,4 +1,11 @@
-import { BaseInteraction, Client, GatewayIntentBits, Partials, Snowflake } from "discord.js";
+import {
+  BaseInteraction,
+  Client,
+  Events,
+  GatewayIntentBits,
+  Partials,
+  Snowflake,
+} from "discord.js";
 import { CommandKit } from "commandkit";
 import path from "path";
 import { log } from "itsasht-logger";
@@ -7,17 +14,16 @@ import { config as dotenvConfig } from "dotenv";
 import { createClient } from "redis";
 import fetchEnvs from "./utils/FetchEnvs";
 import { debugMsg } from "./utils/TinyUtils";
+import LoggingHandler from "./utils/LoggingHandler";
 const env = fetchEnvs();
 
 export const Start = async () => {
   startTimer();
-  /**
-   * @param {Client} client
-   */
+
   const client = new Client({
     intents: [Object.keys(GatewayIntentBits).map((key) => GatewayIntentBits[key])],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
-  });
+  }) as Client<true>;
 
   // Using CommandKit (https://commandkit.underctrl.io)
   const commandKit = new CommandKit({
@@ -39,6 +45,11 @@ export const Start = async () => {
     });
 
   await redisClient.connect();
+
+  // Handle logging events
+  const logHandler = new LoggingHandler(client);
+  client.on(Events.MessageDelete, (message) => logHandler.messageDeleted(message));
+  client.on(Events.MessageBulkDelete, (messages) => logHandler.bulkMessageDelete(messages));
 };
 
 /**

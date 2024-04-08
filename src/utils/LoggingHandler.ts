@@ -1,9 +1,12 @@
 import {
+  BufferResolvable,
   channelLink,
   Client,
+  Collection,
   EmbedField,
   GuildTextBasedChannel,
   Message,
+  PartialMessage,
   userMention,
 } from "discord.js";
 import Database from "./data/database";
@@ -21,7 +24,7 @@ export default class LoggingHandler {
     this.getter = new ThingGetter(client);
   }
 
-  messageDeleted = async (message: Message) => {
+  messageDeleted = async (message: Message | PartialMessage) => {
     const fields: EmbedField[] = [];
     if (message.partial) {
       fields.push({ name: "Message ID", value: message.id, inline: true });
@@ -47,13 +50,30 @@ export default class LoggingHandler {
     return this.#log(fields, LogType.MESSAGE_DELETED);
   };
 
-  #log = async (fields: EmbedField[], type: LogType) => {
+  bulkMessageDelete = async (messages: Collection<string, Message<boolean> | PartialMessage>) => {
+    const fields: EmbedField[] = [];
+    fields.push({ name: "Messages Deleted", value: messages.size.toString(), inline: true });
+    const attachment = Buffer.from(
+      messages
+        .map(
+          (m) =>
+            `${m.partial ? `Partial Message ID: ${m.id}` : `Message ID: ${m.id}`}\nAuthor: ${
+              m.author?.tag
+            } - ${m.author?.id}\nContent: ${m.content}\n\n`
+        )
+        .join("\n")
+    );
+    return this.#log(fields, LogType.MESSAGE_BULK_DELETED, attachment);
+  };
+
+  #log = async (fields: EmbedField[], type: LogType, attachment?: BufferResolvable) => {
     try {
       const channel = (await this.getter.getChannel(LOGGING_CHANNEL)) as GuildTextBasedChannel;
       if (!channel) return;
-      await channel.send({
+      channel.send({
         embeds: [BasicEmbed(this.client, "Logging", type, fields)],
         allowedMentions: { parse: [] },
+        files: attachment ? [{ attachment, name: "message.txt" }] : undefined,
       });
     } catch (error) {
       return;
@@ -63,6 +83,7 @@ export default class LoggingHandler {
 
 export enum LogType {
   MESSAGE_DELETED = "Message Deleted",
+  MESSAGE_BULK_DELETED = "Messages Bulk Deleted",
   MESSAGE_UPDATED = "Message Updated",
   MEMBER_JOINED = "Member Joined",
   MEMBER_LEFT = "Member Left",

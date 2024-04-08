@@ -15,14 +15,7 @@ export const Start = async () => {
    * @param {Client} client
    */
   const client = new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.MessageContent,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.DirectMessages,
-      GatewayIntentBits.GuildMessageReactions,
-      GatewayIntentBits.GuildVoiceStates,
-    ],
+    intents: [Object.keys(GatewayIntentBits).map((key) => GatewayIntentBits[key])],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   });
 

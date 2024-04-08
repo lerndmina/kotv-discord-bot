@@ -8,7 +8,6 @@ export default async function ({ interaction, client, handler }: SlashCommandPro
   const shortLink = interaction.options.getString("short-link");
   const channelOption = interaction.options.getChannel("channel");
   if (!channelOption) throw new Error("No channel provided.");
-  if (channelOption.type !== ChannelType.GuildText) throw new Error("Invalid channel type.");
   const channel = channelOption as GuildTextBasedChannel;
   if (!channelOption) throw new Error("No channel provided.");
 

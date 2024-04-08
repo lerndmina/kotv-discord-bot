@@ -4,27 +4,39 @@ import {
   Client,
   Collection,
   EmbedField,
+  Guild,
+  GuildMember,
   GuildTextBasedChannel,
   Message,
+  PartialGuildMember,
   PartialMessage,
+  time,
+  TimestampStyles,
   userMention,
 } from "discord.js";
 import Database from "./data/database";
 import { ThingGetter } from "./TinyUtils";
 import BasicEmbed from "./BasicEmbed";
+import { LogTypes } from "../commands/moderation/logsettings";
+import FetchEnvs from "./FetchEnvs";
+import logger from "fancy-log";
+import LogSchema, { LogSchemaType } from "../models/LogSchema";
 
 const db = new Database();
-const LOGGING_CHANNEL = "1226908980551614485";
+const env = FetchEnvs();
 
 export default class LoggingHandler {
   client: Client<true>;
   getter: ThingGetter;
+  db: Database;
   constructor(client: Client<true>) {
     this.client = client;
     this.getter = new ThingGetter(client);
+    this.db = new Database();
   }
 
-  messageDeleted = async (message: Message | PartialMessage) => {
+  messageDeleted = async (message: Message | PartialMessage, guild: Guild) => {
+    if (!message.partial && message.channelId === (await this.#getLogChannel(guild))) return;
     const fields: EmbedField[] = [];
     if (message.partial) {
       fields.push({ name: "Message ID", value: message.id, inline: true });
@@ -35,7 +47,8 @@ export default class LoggingHandler {
         inline: false,
       });
 
-      return this.#log(fields, LogType.MESSAGE_DELETED);
+      this.#log(fields, LogTypes.MESSAGE_DELETED, guild);
+      return;
     }
 
     fields.push({ name: "Message ID", value: message.id, inline: true });
@@ -47,28 +60,123 @@ export default class LoggingHandler {
     });
     fields.push({ name: "Content", value: message.content, inline: false });
 
-    return this.#log(fields, LogType.MESSAGE_DELETED);
+    this.#log(fields, LogTypes.MESSAGE_DELETED, guild);
+    return;
   };
 
-  bulkMessageDelete = async (messages: Collection<string, Message<boolean> | PartialMessage>) => {
+  bulkMessageDelete = async (
+    messages: Collection<string, Message<boolean> | PartialMessage>,
+    guild: Guild
+  ) => {
     const fields: EmbedField[] = [];
     fields.push({ name: "Messages Deleted", value: messages.size.toString(), inline: true });
     const attachment = Buffer.from(
       messages
-        .map(
-          (m) =>
-            `${m.partial ? `Partial Message ID: ${m.id}` : `Message ID: ${m.id}`}\nAuthor: ${
-              m.author?.tag
-            } - ${m.author?.id}\nContent: ${m.content}\n\n`
-        )
+        .map(async (m) => {
+          if (!m.partial && m.channelId === (await this.#getLogChannel(guild))) return;
+          return `${m.partial ? `Partial Message ID: ${m.id}` : `Message ID: ${m.id}`}\nAuthor: ${
+            m.author?.tag
+          } - ${m.author?.id}\nContent: ${m.content}\n\n`;
+        })
         .join("\n")
     );
-    return this.#log(fields, LogType.MESSAGE_BULK_DELETED, attachment);
+    this.#log(fields, LogTypes.MESSAGE_BULK_DELETED, guild, attachment);
+    return;
   };
 
-  #log = async (fields: EmbedField[], type: LogType, attachment?: BufferResolvable) => {
+  messagEdited = async (
+    oldMessage: Message | PartialMessage,
+    newMessage: Message | PartialMessage,
+    guild: Guild
+  ) => {
+    if (newMessage.partial || newMessage.author.bot) return;
+    const fields: EmbedField[] = [];
+    fields.push({ name: "Message ID", value: newMessage.id, inline: true });
+    fields.push({ name: "Channel", value: channelLink(newMessage.channelId), inline: true });
+    fields.push({
+      name: "Author",
+      value: `${userMention(newMessage.author.id)} - ${newMessage.author.id}`,
+      inline: true,
+    });
+    fields.push({
+      name: "Old Content",
+      value: oldMessage.partial ? "Message content unavailable" : oldMessage.content,
+      inline: false,
+    });
+    fields.push({ name: "New Content", value: newMessage.content, inline: false });
+
+    this.#log(fields, LogTypes.MESSAGE_UPDATED, guild);
+    return;
+  };
+
+  memberJoined = async (member: GuildMember) => {
+    const fields: EmbedField[] = [];
+    fields.push({
+      name: "Member",
+      value: `${userMention(member.id)} - ${member.id}`,
+      inline: true,
+    });
+    member.joinedTimestamp
+      ? fields.push({
+          name: "Joined At",
+          value: time(Math.floor(member.joinedTimestamp / 1000), TimestampStyles.RelativeTime),
+          inline: true,
+        })
+      : null;
+    member.user.createdTimestamp
+      ? fields.push({
+          name: "Account Created",
+          value: time(
+            Math.floor(member.user.createdTimestamp / 1000),
+            TimestampStyles.RelativeTime
+          ),
+          inline: true,
+        })
+      : null;
+
+    this.#log(fields, LogTypes.MEMBER_JOINED, member.guild);
+    return;
+  };
+
+  memberLeft = async (member: GuildMember | PartialGuildMember) => {
+    const fields: EmbedField[] = [];
+    fields.push({
+      name: "Member",
+      value: `${userMention(member.id)} - ${member.id}`,
+      inline: true,
+    });
+    member.joinedTimestamp
+      ? fields.push({
+          name: "Joined At",
+          value: time(Math.floor(member.joinedTimestamp / 1000), TimestampStyles.RelativeTime),
+          inline: true,
+        })
+      : null;
+    member.user.createdTimestamp
+      ? fields.push({
+          name: "Account Created",
+          value: time(
+            Math.floor(member.user.createdTimestamp / 1000),
+            TimestampStyles.RelativeTime
+          ),
+          inline: true,
+        })
+      : null;
+
+    this.#log(fields, LogTypes.MEMBER_LEFT, member.guild);
+    return;
+  };
+
+  #log = async (
+    fields: EmbedField[],
+    type: LogTypes,
+    guild: Guild,
+    attachment?: BufferResolvable
+  ) => {
     try {
-      const channel = (await this.getter.getChannel(LOGGING_CHANNEL)) as GuildTextBasedChannel;
+      const channel = (await this.getter.getChannel(
+        await this.#getLogChannel(guild)
+      )) as GuildTextBasedChannel;
       if (!channel) return;
       channel.send({
         embeds: [BasicEmbed(this.client, "Logging", type, fields)],
@@ -76,15 +184,12 @@ export default class LoggingHandler {
         files: attachment ? [{ attachment, name: "message.txt" }] : undefined,
       });
     } catch (error) {
+      logger.error(error);
       return;
     }
   };
-}
 
-export enum LogType {
-  MESSAGE_DELETED = "Message Deleted",
-  MESSAGE_BULK_DELETED = "Messages Bulk Deleted",
-  MESSAGE_UPDATED = "Message Updated",
-  MEMBER_JOINED = "Member Joined",
-  MEMBER_LEFT = "Member Left",
+  #getLogChannel = async (guild: Guild) => {
+    return ((await this.db.findOne(LogSchema, { guildId: guild.id })) as LogSchemaType).channelId;
+  };
 }

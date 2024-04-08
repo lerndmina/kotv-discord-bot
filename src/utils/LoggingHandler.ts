@@ -48,12 +48,16 @@ export default class LoggingHandler {
   };
 
   #log = async (fields: EmbedField[], type: LogType) => {
-    const channel = (await this.getter.getChannel(LOGGING_CHANNEL)) as GuildTextBasedChannel;
-    if (!channel) return;
-    channel.send({
-      embeds: [BasicEmbed(this.client, "Logging", type, fields)],
-      allowedMentions: { parse: [] },
-    });
+    try {
+      const channel = (await this.getter.getChannel(LOGGING_CHANNEL)) as GuildTextBasedChannel;
+      if (!channel) return;
+      await channel.send({
+        embeds: [BasicEmbed(this.client, "Logging", type, fields)],
+        allowedMentions: { parse: [] },
+      });
+    } catch (error) {
+      return;
+    }
   };
 }
 

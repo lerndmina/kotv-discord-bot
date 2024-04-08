@@ -20,6 +20,7 @@ import {
   ButtonStyle,
   Role,
   ChannelType,
+  GuildTextBasedChannel,
 } from "discord.js";
 import FetchEnvs from "./FetchEnvs";
 import { log } from "itsasht-logger";
@@ -128,8 +129,8 @@ export class ThingGetter {
     const channelId = match[2];
     const messageId = match[3];
 
-    const channel = await this.client.channels.fetch(channelId);
-    if (!channel || channel.type !== ChannelType.GuildText) {
+    const channel = (await this.client.channels.fetch(channelId)) as GuildTextBasedChannel;
+    if (!channel) {
       throw new Error("Failed to fetch channel from url.");
     }
     const message = await channel.messages.fetch(messageId);

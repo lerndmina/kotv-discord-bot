@@ -36,7 +36,6 @@ export default class Database {
       if (!data) {
         debugMsg(`Database miss no data found`);
         if (!saveNull) return null;
-        return;
       }
       await redisClient.set(redisKey, JSON.stringify(data));
       await redisClient.expire(redisKey, cacheTime);

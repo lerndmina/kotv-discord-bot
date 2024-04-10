@@ -10,12 +10,13 @@ import {
   Message,
   PartialGuildMember,
   PartialMessage,
+  TextChannel,
   time,
   TimestampStyles,
   userMention,
 } from "discord.js";
 import Database from "./data/database";
-import { ThingGetter } from "./TinyUtils";
+import { debugMsg, ThingGetter } from "./TinyUtils";
 import BasicEmbed from "./BasicEmbed";
 import { LogTypes } from "../commands/moderation/logsettings";
 import FetchEnvs from "./FetchEnvs";
@@ -36,7 +37,9 @@ export default class LoggingHandler {
   }
 
   messageDeleted = async (message: Message | PartialMessage, guild: Guild) => {
-    if (!message.partial && message.channelId === (await this.#getLogChannel(guild))) return;
+    const { channel, logData } = await this.#getLogData(guild);
+    if (!channel || !logData) return;
+    if (message.channelId === channel.id) return;
     const fields: EmbedField[] = [];
     if (message.partial) {
       fields.push({ name: "Message ID", value: message.id, inline: true });
@@ -68,12 +71,14 @@ export default class LoggingHandler {
     messages: Collection<string, Message<boolean> | PartialMessage>,
     guild: Guild
   ) => {
+    const { channel, logData } = await this.#getLogData(guild);
+    if (!channel || !logData) return;
     const fields: EmbedField[] = [];
     fields.push({ name: "Messages Deleted", value: messages.size.toString(), inline: true });
     const attachment = Buffer.from(
       messages
         .map(async (m) => {
-          if (!m.partial && m.channelId === (await this.#getLogChannel(guild))) return;
+          if (!m.partial && m.channelId === channel.id) return;
           return `${m.partial ? `Partial Message ID: ${m.id}` : `Message ID: ${m.id}`}\nAuthor: ${
             m.author?.tag
           } - ${m.author?.id}\nContent: ${m.content}\n\n`;
@@ -174,10 +179,9 @@ export default class LoggingHandler {
     attachment?: BufferResolvable
   ) => {
     try {
-      const channel = (await this.getter.getChannel(
-        await this.#getLogChannel(guild)
-      )) as GuildTextBasedChannel;
-      if (!channel) return;
+      const { channel, logData } = await this.#getLogData(guild);
+      if (!channel || !logData) return;
+      if (!logData.enabledLogs.includes(type)) return;
       channel.send({
         embeds: [BasicEmbed(this.client, "Logging", type, fields)],
         allowedMentions: { parse: [] },
@@ -189,7 +193,15 @@ export default class LoggingHandler {
     }
   };
 
-  #getLogChannel = async (guild: Guild) => {
-    return ((await this.db.findOne(LogSchema, { guildId: guild.id })) as LogSchemaType).channelId;
+  #getLogData = async (guild: Guild) => {
+    const logData = (await this.db.findOne(
+      LogSchema,
+      { guildId: guild.id },
+      true
+    )) as LogSchemaType;
+    if (!logData) return { channel: null, logData: null };
+    const channel = (await this.getter.getChannel(logData.channelId)) as TextChannel;
+    if (!channel) return { channel: null, logData: null };
+    return { channel, logData };
   };
 }

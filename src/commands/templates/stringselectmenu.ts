@@ -54,7 +54,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const collectorFilter = (i: MessageComponentInteraction) => i.user.id === interaction.user.id;
   const collector = reply.createMessageComponentCollector({
     filter: collectorFilter,
-    time: 3 * 1000,
+    time: 5 * 60 * 1000,
   });
   collector.on("collect", async (i: StringSelectMenuInteraction) => {
     i.reply(`You selected ${i.values.join(", ")}`);

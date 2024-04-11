@@ -77,7 +77,7 @@ export default class LoggingHandler {
     fields.push({ name: "Messages Deleted", value: messages.size.toString(), inline: true });
     const attachment = Buffer.from(
       messages
-        .map(async (m) => {
+        .map((m) => {
           if (!m.partial && m.channelId === channel.id) return;
           return `${m.partial ? `Partial Message ID: ${m.id}` : `Message ID: ${m.id}`}\nAuthor: ${
             m.author?.tag

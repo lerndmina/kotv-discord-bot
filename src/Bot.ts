@@ -48,8 +48,17 @@ export const Start = async () => {
 
   // Handle logging events
   const logHandler = new LoggingHandler(client);
-  client.on(Events.MessageDelete, (message) => logHandler.messageDeleted(message));
-  client.on(Events.MessageBulkDelete, (messages) => logHandler.bulkMessageDelete(messages));
+  client.on(Events.MessageDelete, (message) => {
+    message.guild && logHandler.messageDeleted(message, message.guild);
+  });
+  client.on(Events.MessageBulkDelete, (messages) => {
+    messages.first()?.guild && logHandler.bulkMessageDelete(messages, messages.first()!.guild!);
+  });
+  client.on(Events.MessageUpdate, (oldMessage, newMessage) => {
+    newMessage.guild && logHandler.messagEdited(oldMessage, newMessage, newMessage.guild);
+  });
+  client.on(Events.GuildMemberAdd, (member) => logHandler.memberJoined(member));
+  client.on(Events.GuildMemberRemove, (member) => logHandler.memberLeft(member));
 };
 
 /**

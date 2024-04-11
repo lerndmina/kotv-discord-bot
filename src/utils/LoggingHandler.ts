@@ -68,24 +68,32 @@ export default class LoggingHandler {
   };
 
   bulkMessageDelete = async (
-    messages: Collection<string, Message<boolean> | PartialMessage>,
+    messages: Collection<string, Message<true> | PartialMessage>,
     guild: Guild
   ) => {
     const { channel, logData } = await this.#getLogData(guild);
     if (!channel || !logData) return;
     const fields: EmbedField[] = [];
-    fields.push({ name: "Messages Deleted", value: messages.size.toString(), inline: true });
-    const attachment = Buffer.from(
-      messages
-        .map((m) => {
-          if (!m.partial && m.channelId === channel.id) return;
-          return `${m.partial ? `Partial Message ID: ${m.id}` : `Message ID: ${m.id}`}\nAuthor: ${
-            m.author?.tag
-          } - ${m.author?.id}\nContent: ${m.content}\n\n`;
-        })
-        .join("\n")
-    );
-    this.#log(fields, LogTypes.MESSAGE_BULK_DELETED, guild, attachment);
+    let shown = 0;
+    let channelId = "";
+    for (const [_, msg] of messages) {
+      if (msg.partial) continue;
+      channelId = msg.channelId;
+      break;
+    }
+
+    // prettier-ignore
+    let descriptions = [`**Bulk delete of ${messages.size} messages${channelId ? ` in <#${channelId}>` : ``}**\n`];
+    messages.reverse().forEach((msg) => {
+      if (msg.partial) return;
+      descriptions.push(`[${msg.author.username}]: ${msg.content}`);
+      shown++;
+    });
+    descriptions.push(`\n**${shown} messages shown**`);
+
+    const descriptionString = descriptions.join("\n");
+
+    this.#log([], LogTypes.MESSAGE_BULK_DELETED, guild, descriptionString);
     return;
   };
 
@@ -177,16 +185,22 @@ export default class LoggingHandler {
     fields: EmbedField[],
     type: LogTypes,
     guild: Guild,
-    attachment?: BufferResolvable
+    messageDescription?: string
   ) => {
     try {
       const { channel, logData } = await this.#getLogData(guild);
       if (!channel || !logData) return;
       if (!logData.enabledLogs.includes(type)) return;
       channel.send({
-        embeds: [BasicEmbed(this.client, "Logging", type, fields)],
+        embeds: [
+          BasicEmbed(
+            this.client,
+            "Logging",
+            `${messageDescription ? messageDescription : `${type}`}`,
+            fields
+          ),
+        ],
         allowedMentions: { parse: [] },
-        files: attachment ? [{ attachment, name: "message.txt" }] : undefined,
       });
     } catch (error) {
       logger.error(error);

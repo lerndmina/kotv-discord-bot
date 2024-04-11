@@ -95,6 +95,7 @@ export default class LoggingHandler {
     guild: Guild
   ) => {
     if (newMessage.partial || newMessage.author.bot) return;
+    if (oldMessage.content === newMessage.content) return;
     const fields: EmbedField[] = [];
     fields.push({ name: "Message ID", value: newMessage.id, inline: true });
     fields.push({ name: "Channel", value: channelLink(newMessage.channelId), inline: true });

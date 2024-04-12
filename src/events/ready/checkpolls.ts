@@ -55,7 +55,7 @@ export async function waitForPollEnd(
     `Starting timeout for poll: "${poll.question.substring(0, 20)}..." -> "pollId:${poll.pollId}"`
   );
   const channel = await getter.getChannel(poll.channelId);
-  if (!channel || channel.type !== ChannelType.GuildText)
+  if (!channel || channel.isTextBased() === false)
     return log.error(`Channel not found: ${poll.channelId}, unable to end poll.`);
 
   let message: Message;

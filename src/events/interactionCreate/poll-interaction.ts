@@ -41,7 +41,7 @@ export default async (interaction: StringSelectMenuInteraction, client: Client<t
 
   if (
     voteInt === END_OPTION &&
-    (interaction.user.id !== poll.creatorId || !env.OWNER_IDS.includes(interaction.user.id))
+    (!env.OWNER_IDS.includes(interaction.user.id) || interaction.user.id !== poll.creatorId)
   )
     return interaction.reply({
       content: "Only the poll creator can end the poll.",

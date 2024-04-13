@@ -16,5 +16,5 @@ export const options: CommandOptions = {
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const coin = Math.random() > 0.5 ? "Heads" : "Tails";
-  interaction.editReply({ content: coin });
+  interaction.reply({ content: coin });
 }

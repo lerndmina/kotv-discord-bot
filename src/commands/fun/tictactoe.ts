@@ -45,7 +45,8 @@ const MIN_SIZE = 3;
 const MAX_SIZE = 5;
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  setCommandCooldown(userCooldownKey(interaction.user.id, interaction.commandName), 60);
+  const commandName = interaction.commandName;
+  setCommandCooldown(userCooldownKey(interaction.user.id, commandName), 30);
 
   const size = interaction.options.getInteger("size", false) || 3;
   if (size < MIN_SIZE || size > MAX_SIZE) {
@@ -152,6 +153,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
         });
 
         await db.findOneAndUpdate(TicTacToeSchema, { messageId: data.messageId }, data);
+        setCommandCooldown(userCooldownKey(interaction.user.id, commandName), 120);
         debugMsg(`Game set up for ${interaction.user.tag} and ${opponent.tag}`);
       } catch (error) {
         log.error(error);

@@ -68,7 +68,7 @@ export default class LoggingHandler {
   };
 
   bulkMessageDelete = async (
-    messages: Collection<string, Message<true> | PartialMessage>,
+    messages: Collection<string, Message<boolean> | PartialMessage>,
     guild: Guild
   ) => {
     const { channel, logData } = await this.#getLogData(guild);
@@ -191,6 +191,17 @@ export default class LoggingHandler {
       const { channel, logData } = await this.#getLogData(guild);
       if (!channel || !logData) return;
       if (!logData.enabledLogs.includes(type)) return;
+
+      // Truncate long values and names to fit in the embed requirements.
+      for (let i = 0; i < fields.length; i++) {
+        if (fields[i].value.length > 1024) {
+          fields[i].value = fields[i].value.substring(0, 1023) + "...";
+        }
+        if (fields[i].name.length > 256) {
+          fields[i].name = fields[i].name.substring(0, 253) + "...";
+        }
+      }
+
       channel.send({
         embeds: [
           BasicEmbed(

@@ -11,10 +11,11 @@ import {
 import Database from "../../utils/data/database";
 import TicTacToeSchema, { TicTacToeSchemaType } from "../../models/TicTacToeSchema";
 import {
-  EMOJI_BLANK,
-  EMOJI_O,
-  EMOJI_X,
+  TTT_BLANK,
+  TTT_O,
+  TTT_X,
   getButtonsForGameState,
+  getTicTacToeEmbed,
 } from "../../commands/fun/tictactoe";
 import { debugMsg } from "../../utils/TinyUtils";
 import FetchEnvs from "../../utils/FetchEnvs";
@@ -25,6 +26,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
   if (interaction.type != InteractionType.MessageComponent) return;
   if (!interaction.channel || !interaction.channel.isTextBased()) return;
   if (!interaction.guild) return;
+  if (!interaction.customId.startsWith("tictactoe_")) return;
 
   const message = await interaction.channel.messages.fetch(interaction.message.id);
   if (!message)
@@ -47,22 +49,23 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
   // prettier-ignore
   const clickedLocation = `${interaction.customId.split("_")[1]}${interaction.customId.split("_")[2]}`;
 
-  if (game.gameState[clickedLocation] !== EMOJI_BLANK)
+  if (game.gameState[clickedLocation] !== TTT_BLANK)
     return interaction.reply({ content: "This location is already taken.", ephemeral: true });
 
-  game.gameState[clickedLocation] = game.turn === game.initiatorId ? EMOJI_X : EMOJI_O;
+  game.gameState[clickedLocation] = game.turn === game.initiatorId ? TTT_X : TTT_O;
 
   const rows = getButtonsForGameState(game.gameState, game.size, interaction);
+  const embed = getTicTacToeEmbed(game, client);
 
   // Set the turn to the opponent
   game.turn = game.turn === game.initiatorId ? game.opponentId : game.initiatorId;
 
   const winner = checkWin(game, game.size);
   if (winner) {
-    endGame(game, message, interaction, winner);
+    endGame(game, message, interaction, interaction.client, winner);
     return;
   } else if (checkDraw(game, game.size)) {
-    endGame(game, message, interaction, null);
+    endGame(game, message, interaction, interaction.client, null);
     return;
   }
 
@@ -71,6 +74,7 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
 
   message.edit({
     components: rows,
+    embeds: [embed],
   });
 
   interaction.deferUpdate();
@@ -80,20 +84,25 @@ function endGame(
   game: TicTacToeSchemaType,
   message: Message,
   interaction: MessageComponentInteraction,
+  client: Client<true>,
   winner: string | null
 ) {
   interaction.deferUpdate();
   const rows = getButtonsForGameState(game.gameState, game.size, interaction, true);
 
   if (winner) {
-    const winnerId = winner === EMOJI_X ? game.initiatorId : game.opponentId;
+    const winnerId = winner === TTT_X ? game.initiatorId : game.opponentId;
+    const looserId = winnerId === game.initiatorId ? game.opponentId : game.initiatorId;
+    const embed = getTicTacToeEmbed(game, client, false, { winnerId, looserId });
     message.edit({
-      content: `The winner is <@${winnerId}>!`,
+      content: "",
+      embeds: [embed],
       components: rows,
     });
   } else {
     message.edit({
-      content: `It's a draw!`,
+      content: ``,
+      embeds: [getTicTacToeEmbed(game, client, true)],
       components: rows,
     });
   }
@@ -128,32 +137,32 @@ function checkWin(game: TicTacToeSchemaType, size: number): string | null {
 
   // Check rows and columns
   for (let i = 0; i < size; i++) {
-    if (board[i].every((value) => value === EMOJI_X)) {
-      return EMOJI_X;
+    if (board[i].every((value) => value === TTT_X)) {
+      return TTT_X;
     }
-    if (board[i].every((value) => value === EMOJI_O)) {
-      return EMOJI_O;
+    if (board[i].every((value) => value === TTT_O)) {
+      return TTT_O;
     }
-    if (board.every((row) => row[i] === EMOJI_X)) {
-      return EMOJI_X;
+    if (board.every((row) => row[i] === TTT_X)) {
+      return TTT_X;
     }
-    if (board.every((row) => row[i] === EMOJI_O)) {
-      return EMOJI_O;
+    if (board.every((row) => row[i] === TTT_O)) {
+      return TTT_O;
     }
   }
 
   // Check diagonals
-  if (board.every((row, i) => row[i] === EMOJI_X)) {
-    return EMOJI_X;
+  if (board.every((row, i) => row[i] === TTT_X)) {
+    return TTT_X;
   }
-  if (board.every((row, i) => row[i] === EMOJI_O)) {
-    return EMOJI_O;
+  if (board.every((row, i) => row[i] === TTT_O)) {
+    return TTT_O;
   }
-  if (board.every((row, i) => row[size - i - 1] === EMOJI_X)) {
-    return EMOJI_X;
+  if (board.every((row, i) => row[size - i - 1] === TTT_X)) {
+    return TTT_X;
   }
-  if (board.every((row, i) => row[size - i - 1] === EMOJI_O)) {
-    return EMOJI_O;
+  if (board.every((row, i) => row[size - i - 1] === TTT_O)) {
+    return TTT_O;
   }
 
   return null;
@@ -161,6 +170,6 @@ function checkWin(game: TicTacToeSchemaType, size: number): string | null {
 
 function checkDraw(game: TicTacToeSchemaType, size: number): boolean {
   const gameState = game.gameState;
-  const allCellsFilled = Object.values(gameState).every((value) => value !== EMOJI_BLANK);
+  const allCellsFilled = Object.values(gameState).every((value) => value !== TTT_BLANK);
   return allCellsFilled && !checkWin(game, size);
 }

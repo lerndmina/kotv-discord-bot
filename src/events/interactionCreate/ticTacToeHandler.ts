@@ -113,6 +113,7 @@ function endGame(
 }
 
 function debugGameState(game: TicTacToeSchemaType, size: number) {
+  if (!env.DEBUG_LOG) return;
   const board = Array.from({ length: size }, () => Array(size).fill("⬜"));
   for (let [key, value] of Object.entries(game.gameState)) {
     const x = parseInt(key[0], 10);

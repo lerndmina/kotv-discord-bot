@@ -54,11 +54,11 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
 
   game.gameState[clickedLocation] = game.turn === game.initiatorId ? TTT_X : TTT_O;
 
-  const rows = getButtonsForGameState(game.gameState, game.size, interaction);
-  const embed = getTicTacToeEmbed(game, client);
-
   // Set the turn to the opponent
   game.turn = game.turn === game.initiatorId ? game.opponentId : game.initiatorId;
+
+  const rows = getButtonsForGameState(game.gameState, game.size, interaction);
+  const embed = getTicTacToeEmbed(game, client);
 
   const winner = checkWin(game, game.size);
   if (winner) {

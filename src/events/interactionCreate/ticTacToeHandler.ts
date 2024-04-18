@@ -117,7 +117,7 @@ function debugGameState(game: TicTacToeSchemaType, size: number) {
   for (let [key, value] of Object.entries(game.gameState)) {
     const x = parseInt(key[0], 10);
     const y = parseInt(key[1], 10);
-    if (value === TTT_BLANK) value = "⬜";
+    if (value === TTT_BLANK) value = "_";
     board[x][y] = value;
   }
 

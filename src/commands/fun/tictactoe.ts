@@ -46,7 +46,6 @@ const MAX_SIZE = 5;
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const commandName = interaction.commandName;
-  setCommandCooldown(userCooldownKey(interaction.user.id, commandName), 30);
 
   const size = interaction.options.getInteger("size", false) || 3;
   if (size < MIN_SIZE || size > MAX_SIZE) {
@@ -73,6 +72,8 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     });
     return;
   }
+
+  setCommandCooldown(userCooldownKey(interaction.user.id, commandName), 30);
 
   await interaction.reply({
     content: `Inviting <@${opponent.id}> to play a game of Tic Tac Toe...`,

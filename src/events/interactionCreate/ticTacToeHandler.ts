@@ -128,6 +128,8 @@ function debugGameState(game: TicTacToeSchemaType, size: number) {
   }
 }
 
+const MIN_LENGTH = 3;
+
 function checkWin(game: TicTacToeSchemaType, size: number): string | null {
   const gameState = game.gameState;
   const board = Array.from({ length: size }, () => Array(size).fill("⬜"));
@@ -137,34 +139,60 @@ function checkWin(game: TicTacToeSchemaType, size: number): string | null {
     board[x][y] = value;
   }
 
-  // Check rows and columns
+  // Check rows, columns and diagonals
   for (let i = 0; i < size; i++) {
-    if (board[i].every((value) => value === TTT_X)) {
-      return TTT_X;
-    }
-    if (board[i].every((value) => value === TTT_O)) {
-      return TTT_O;
-    }
-    if (board.every((row) => row[i] === TTT_X)) {
-      return TTT_X;
-    }
-    if (board.every((row) => row[i] === TTT_O)) {
-      return TTT_O;
-    }
-  }
+    for (let j = 0; j < size - MIN_LENGTH + 1; j++) {
+      // Check rows
+      if (board[i][j] === TTT_X && board[i][j + 1] === TTT_X && board[i][j + 2] === TTT_X) {
+        return TTT_X;
+      }
+      if (board[i][j] === TTT_O && board[i][j + 1] === TTT_O && board[i][j + 2] === TTT_O) {
+        return TTT_O;
+      }
 
-  // Check diagonals
-  if (board.every((row, i) => row[i] === TTT_X)) {
-    return TTT_X;
-  }
-  if (board.every((row, i) => row[i] === TTT_O)) {
-    return TTT_O;
-  }
-  if (board.every((row, i) => row[size - i - 1] === TTT_X)) {
-    return TTT_X;
-  }
-  if (board.every((row, i) => row[size - i - 1] === TTT_O)) {
-    return TTT_O;
+      // Check columns
+      if (board[j][i] === TTT_X && board[j + 1][i] === TTT_X && board[j + 2][i] === TTT_X) {
+        return TTT_X;
+      }
+      if (board[j][i] === TTT_O && board[j + 1][i] === TTT_O && board[j + 2][i] === TTT_O) {
+        return TTT_O;
+      }
+    }
+
+    // Check diagonals
+    if (i < size - MIN_LENGTH + 1) {
+      for (let j = 0; j < size - MIN_LENGTH + 1; j++) {
+        if (
+          board[i][j] === TTT_X &&
+          board[i + 1][j + 1] === TTT_X &&
+          board[i + 2][j + 2] === TTT_X
+        ) {
+          return TTT_X;
+        }
+        if (
+          board[i][j] === TTT_O &&
+          board[i + 1][j + 1] === TTT_O &&
+          board[i + 2][j + 2] === TTT_O
+        ) {
+          return TTT_O;
+        }
+
+        if (
+          board[i][size - j - 1] === TTT_X &&
+          board[i + 1][size - j - 2] === TTT_X &&
+          board[i + 2][size - j - 3] === TTT_X
+        ) {
+          return TTT_X;
+        }
+        if (
+          board[i][size - j - 1] === TTT_O &&
+          board[i + 1][size - j - 2] === TTT_O &&
+          board[i + 2][size - j - 3] === TTT_O
+        ) {
+          return TTT_O;
+        }
+      }
+    }
   }
 
   return null;

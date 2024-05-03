@@ -65,7 +65,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     });
     return;
   }
-  if (opponent.id === interaction.user.id) {
+  if (opponent.id === challenger.id) {
     interaction.reply({
       content: "You cannot play against yourself.",
       ephemeral: true,

@@ -118,7 +118,7 @@ export const run = async ({ interaction, client }: SlashCommandProps) => {
       inter = interaction;
       setCount((prev) => {
         if (isCountInBounds(prev, -1)) return prev - 1;
-        return prev;
+        return pages.length - 1;
       });
     },
     { message }
@@ -130,7 +130,7 @@ export const run = async ({ interaction, client }: SlashCommandProps) => {
       inter = interaction;
       setCount((prev) => {
         if (isCountInBounds(prev, 1)) return prev + 1;
-        return prev;
+        return 0;
       });
     },
     { message }

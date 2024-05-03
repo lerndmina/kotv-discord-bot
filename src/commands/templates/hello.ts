@@ -19,7 +19,4 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   setCommandCooldown(globalCooldownKey(interaction.commandName), 600);
 
   interaction.editReply({ content: "Loading spinner complete" });
-
-  const fields = await generateHelpFields(client);
-  console.log(fields);
 }

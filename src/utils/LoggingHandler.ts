@@ -22,6 +22,7 @@ import { LogTypes } from "../commands/moderation/logsettings";
 import FetchEnvs from "./FetchEnvs";
 import logger from "fancy-log";
 import LogSchema, { LogSchemaType } from "../models/LogSchema";
+import { diffWords } from "diff";
 
 const db = new Database();
 const env = FetchEnvs();
@@ -104,6 +105,30 @@ export default class LoggingHandler {
   ) => {
     if (newMessage.partial || newMessage.author.bot) return;
     if (oldMessage.content === newMessage.content) return;
+    for (const content of [oldMessage.content, newMessage.content]) {
+      if (content && content.length > 2000) {
+        oldMessage.content = content.substring(0, 1995) + "...";
+        newMessage.content = content.substring(0, 1995) + "...";
+        break;
+      }
+    }
+
+    // Remove discord text formatting from the old and new strings
+    newMessage.content = newMessage.content.replace(/\*\*([^\*]+)\*\*/g, "$1");
+    newMessage.content = newMessage.content.replace(/~~([^~]+)~~/g, "$1");
+
+    oldMessage.content &&
+      (oldMessage.content = oldMessage.content.replace(/\*\*([^\*]+)\*\*/g, "$1"));
+    oldMessage.content && (oldMessage.content = oldMessage.content.replace(/~~([^~]+)~~/g, "$1"));
+    // ^ JS Fuckery
+
+    // Bail if the content is now the same, someone only edited the formatting
+    if (oldMessage.content == newMessage.content) return;
+
+    // Make a diff of the old and new message content.
+    const { oldString, newString } = getDiff(oldMessage.content || "", newMessage.content);
+    const description = `**Old Message:**\n${oldString}\n\n**New Message:**\n${newString}`;
+
     const fields: EmbedField[] = [];
     fields.push({ name: "Message ID", value: newMessage.id, inline: true });
     fields.push({ name: "Channel", value: channelLink(newMessage.channelId), inline: true });
@@ -112,14 +137,8 @@ export default class LoggingHandler {
       value: `${userMention(newMessage.author.id)} - ${newMessage.author.id}`,
       inline: true,
     });
-    fields.push({
-      name: "Old Content",
-      value: oldMessage.partial ? "Message content unavailable" : oldMessage.content,
-      inline: false,
-    });
-    fields.push({ name: "New Content", value: newMessage.content, inline: false });
 
-    this.#log(fields, LogTypes.MESSAGE_UPDATED, guild);
+    this.#log(fields, LogTypes.MESSAGE_UPDATED, guild, description);
     return;
   };
 
@@ -182,7 +201,7 @@ export default class LoggingHandler {
   };
 
   #log = async (
-    fields: EmbedField[],
+    fields: EmbedField[] | undefined,
     type: LogTypes,
     guild: Guild,
     messageDescription?: string
@@ -193,12 +212,14 @@ export default class LoggingHandler {
       if (!logData.enabledLogs.includes(type)) return;
 
       // Truncate long values and names to fit in the embed requirements.
-      for (let i = 0; i < fields.length; i++) {
-        if (fields[i].value.length > 1024) {
-          fields[i].value = fields[i].value.substring(0, 1023) + "...";
-        }
-        if (fields[i].name.length > 256) {
-          fields[i].name = fields[i].name.substring(0, 253) + "...";
+      if (fields) {
+        for (let i = 0; i < fields.length; i++) {
+          if (fields[i].value.length > 1024) {
+            fields[i].value = fields[i].value.substring(0, 1023) + "...";
+          }
+          if (fields[i].name.length > 256) {
+            fields[i].name = fields[i].name.substring(0, 253) + "...";
+          }
         }
       }
 
@@ -231,3 +252,26 @@ export default class LoggingHandler {
     return { channel, logData };
   };
 }
+
+const getDiff = (oldStr: string, newStr: string) => {
+  const msgDiff = diffWords(oldStr, newStr);
+  let oldArray: string[] = [];
+  let newArray: string[] = [];
+  msgDiff.map((part) => {
+    if (part.added) {
+      oldArray.push(``);
+      newArray.push(`**${part.value}**`);
+    } else if (part.removed) {
+      oldArray.push(`~~${part.value}~~`);
+      newArray.push(``);
+    } else {
+      // Return part.value twice so we can use it later
+      oldArray.push(part.value);
+      newArray.push(part.value);
+      return;
+    }
+  });
+
+  // prettier-ignore
+  return {oldString: oldArray.join(""), newString: newArray.join("")};
+};

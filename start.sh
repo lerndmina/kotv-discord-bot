@@ -10,7 +10,7 @@ while true; do
             echo "Removing old dist/ folder..."
             rm -rf $REMOVE
         fi
-        git pull && yarn && echo "Booting bot" && yarn start
+        git pull && yarn -y && echo "Booting bot" && yarn start
         echo "Bot detected in a crashed or stopped state, beginning restart process..."
         echo "Bot stoped or crashed @ $(date)" >>restart.log
         echo "Restarting in 3 seconds"

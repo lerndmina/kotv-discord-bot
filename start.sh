@@ -2,6 +2,13 @@
 FILE="src/Bot.ts"
 REMOVE="dist/"
 LOGFILE="bot.log"
+
+# Check if bun is installed
+if ! command -v bun &>/dev/null; then
+    echo "Bun is not installed, please install it first."
+    exit 1
+fi
+
 while true; do
     if [ -f $FILE ]; then
         echo "$FILE found, starting Bot..."
@@ -10,7 +17,7 @@ while true; do
             echo "Removing old dist/ folder..."
             rm -rf $REMOVE
         fi
-        git pull && yarn -y && echo "Booting bot" && yarn start
+        git pull && bun i -y && echo "Booting bot" && bun run build:start
         echo "Bot detected in a crashed or stopped state, beginning restart process..."
         echo "Bot stoped or crashed @ $(date)" >>restart.log
         echo "Restarting in 3 seconds"

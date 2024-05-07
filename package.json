@@ -5,7 +5,9 @@
   "main": "src/Bot.ts",
   "scripts": {
     "dev": "npx nodemon --watch 'src/**/*.ts' --exec 'npx tsx' src/Bot.ts",
-    "start": "npx tsx src/Bot.ts"
+    "start": "npx tsx src/Bot.ts",
+    "build": "bunx tsc",
+    "build:start": "bun run build && node dist/Bot.js"
   },
   "author": "",
   "license": "ISC",

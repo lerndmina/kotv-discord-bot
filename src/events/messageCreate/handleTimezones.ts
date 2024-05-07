@@ -51,7 +51,7 @@ async function handleReplyTrigger(reply: Message, client: Client<true>) {
     return false;
   }
   const replyData = {
-    ...[getTimeMessage](data, originalMessage.author.id),
+    ...getTimeMessage(data, originalMessage.author.id),
     allowedMentions: { repliedUser: false },
   };
 

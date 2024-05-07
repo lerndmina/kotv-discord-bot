@@ -17,7 +17,7 @@ while true; do
             echo "Removing old dist/ folder..."
             rm -rf $REMOVE
         fi
-        git pull && bun i -y && echo "Booting bot" && bun run build:start
+        git pull && bun i -y && echo "Booting bot" && bun run start
         echo "Bot detected in a crashed or stopped state, beginning restart process..."
         echo "Bot stoped or crashed @ $(date)" >>restart.log
         echo "Restarting in 3 seconds"

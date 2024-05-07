@@ -9,7 +9,7 @@ import {
 import { CommandKit } from "commandkit";
 import path from "path";
 import { log } from "itsasht-logger";
-import mongoose from "mongoose";
+import mongoose, { Collection } from "mongoose";
 import { config as dotenvConfig } from "dotenv";
 import { createClient } from "redis";
 import fetchEnvs from "./utils/FetchEnvs";
@@ -52,7 +52,8 @@ export const Start = async () => {
     message.guild && logHandler.messageDeleted(message, message.guild);
   });
   client.on(Events.MessageBulkDelete, (messages) => {
-    messages.first()?.guild && logHandler.bulkMessageDelete(messages, messages.first()!.guild!);
+    messages.first()?.guild &&
+      logHandler.bulkMessageDelete(messages as any, messages.first()!.guild!);
   });
   client.on(Events.MessageUpdate, (oldMessage, newMessage) => {
     newMessage.guild && logHandler.messagEdited(oldMessage, newMessage, newMessage.guild);

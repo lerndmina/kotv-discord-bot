@@ -14,6 +14,7 @@ import {
   APIEmbed,
   EmbedBuilder,
   Client,
+  DiscordAPIError,
 } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { ThingGetter, debugMsg, sleep } from "../../utils/TinyUtils";
@@ -152,9 +153,18 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       embeds: [embed],
       components: [row as any],
     });
-  } catch (error) {
-    debugMsg(error as any);
+  } catch (error: any) {
+    if (error instanceof DiscordAPIError) {
+      if (error.code === 50001) {
+        interaction.reply({
+          content: "Unable to send poll message, missing permissions.",
+          ephemeral: true,
+        });
+        return;
+      }
+    }
     interaction.reply({ content: "Failed to create poll!", ephemeral: true });
+    debugMsg(error);
     return;
   }
 

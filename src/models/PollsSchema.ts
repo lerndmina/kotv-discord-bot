@@ -49,6 +49,10 @@ const PollsSchema = new Schema({
     type: [String],
     required: false,
   },
+  mentionRole: {
+    type: String,
+    required: false,
+  },
 });
 
 export default model("Polls", PollsSchema);

@@ -15,6 +15,7 @@ import {
   EmbedBuilder,
   Client,
   DiscordAPIError,
+  SlashCommandRoleOption,
 } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { ThingGetter, debugMsg, sleep } from "../../utils/TinyUtils";
@@ -50,6 +51,18 @@ export const data = new SlashCommandBuilder()
       .setName("time")
       .setDescription("The time for the poll to last. (1m, 1h, 1d, 1w, 1mo etc.)")
       .setRequired(true)
+  )
+  .addStringOption((option: SlashCommandStringOption) =>
+    option
+      .setName("description")
+      .setDescription("Optional description for the poll")
+      .setRequired(false)
+  )
+  .addRoleOption((option: SlashCommandRoleOption) =>
+    option
+      .setName("mention-role")
+      .setDescription("The role to mention in the poll message")
+      .setRequired(false)
   );
 
 export const options: CommandOptions = {
@@ -62,6 +75,9 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const question = interaction.options.getString("question")!;
   const options = interaction.options.getString("options")!.replace(/;+$/, "").split(";");
   const timeString = interaction.options.getString("time");
+  const description = interaction.options.getString("description");
+  const mentionRole = interaction.options.getRole("mention-role");
+
   if (!question || !options || !timeString) {
     return interaction.reply({
       content: "You need to provide a question, options and a time for the poll to last.",
@@ -119,6 +135,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const embedDescriptionArray = [
     `Poll will end <t:${endTimeSeconds}:R>`,
     `Total Votes - 0`,
+    description ? `\n${description}` : "",
     `\n${options.map((option, index) => `${index + 1}. \`${option}\``).join("\n")}`,
     "\n **All votes are anonymous**.",
   ];
@@ -148,8 +165,10 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const row = new ActionRowBuilder().addComponents(selectMenu);
 
   let response: Message;
+  log.info(`Mention Role: ${mentionRole}`);
   try {
     response = await interaction.channel.send({
+      content: mentionRole ? `${mentionRole}` : "",
       embeds: [embed],
       components: [row as any],
     });
@@ -181,6 +200,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     options: dbOptions,
     question,
     embedDescriptionArray,
+    mentionRole: mentionRole ? mentionRole.id : undefined,
   };
 
   const db = new Database();

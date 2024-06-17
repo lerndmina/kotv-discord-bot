@@ -19,16 +19,8 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
   if (!interaction.customId.startsWith("ts_dmMe-")) return;
 
   try {
-    const userId = interaction.customId.split("-")[1];
+    const user = interaction.user;
     const tsSeconds = interaction.customId.split("-")[2];
-
-    const getter = new ThingGetter(client);
-    const user = await getter.getUser(userId);
-
-    if (!user) {
-      debugMsg("User not found");
-      return;
-    }
 
     const dmChannel = await user.createDM();
     dmChannel.send;

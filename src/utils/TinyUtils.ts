@@ -30,6 +30,7 @@ import chalk from "chalk";
 import { ParsedTime } from "./ParseTimeFromMessage";
 import ButtonWrapper from "./ButtonWrapper";
 import { KOTV_PREACHER_ROLE } from "../Bot";
+import { randomUUID } from "crypto";
 
 const env = FetchEnvs();
 
@@ -431,7 +432,7 @@ export function getTimeMessage(time: ParsedTime, id: Snowflake, ephemeral = fals
       .setStyle(ButtonStyle.Danger)
       .setEmoji("🗑️"),
     new ButtonBuilder()
-      .setCustomId("ts_dmMe-" + id + "-" + time.seconds)
+      .setCustomId("ts_dmMe-" + id + "-" + time.seconds + "-" + randomUUID())
       .setLabel("I'm on Mobile!")
       .setEmoji("📱")
       .setStyle(ButtonStyle.Primary),

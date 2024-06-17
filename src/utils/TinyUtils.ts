@@ -192,17 +192,24 @@ export async function returnMessage(
     args.error ? "Red" : "Green"
   );
 
-  if (args.firstMsg) {
-    return await interaction.reply({
+  try {
+    if (args.firstMsg) {
+      return await interaction.reply({
+        content: "",
+        embeds: [embed],
+        ephemeral: args.ephemeral,
+      });
+    }
+    await interaction.editReply({
       content: "",
       embeds: [embed],
-      ephemeral: args.ephemeral,
+    });
+  } catch (error) {
+    await interaction.channel?.send({
+      content: "",
+      embeds: [embed],
     });
   }
-  await interaction.editReply({
-    content: "",
-    embeds: [embed],
-  });
 }
 
 export function getTagKey(guildId: Snowflake, tagName: string) {
@@ -423,6 +430,11 @@ export function getTimeMessage(time: ParsedTime, id: Snowflake, ephemeral = fals
       .setLabel("Delete Me")
       .setStyle(ButtonStyle.Danger)
       .setEmoji("🗑️"),
+    new ButtonBuilder()
+      .setCustomId("ts_dmMe-" + id + "-" + time.seconds)
+      .setLabel("I'm on Mobile!")
+      .setEmoji("📱")
+      .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setURL("https://hammertime.cyou/en-GB?t=" + time.seconds)
       .setLabel("Edit this timestamp")

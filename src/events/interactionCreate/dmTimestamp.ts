@@ -53,7 +53,8 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
       });
     }
   } catch (error: any) {
-    debugMsg(error);
+    console.error(error);
+    console.error("Error in dmTimestamp.ts");
     returnMessage(
       interaction,
       client,

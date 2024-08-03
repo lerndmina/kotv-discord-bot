@@ -187,7 +187,7 @@ export async function returnMessage(
 ) {
   const embed = BasicEmbed(
     client,
-    args.error ? "Error" : title,
+    args.error ? "Error: " + title : title,
     message.toString(),
     undefined,
     args.error ? "Red" : "Green"

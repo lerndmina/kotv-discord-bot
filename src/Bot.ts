@@ -167,6 +167,7 @@ export function stopTimer() {
 export const redisClient = createClient({
   url: env.REDIS_URL,
 })
+  // @ts-expect-error
   .on("error", (err) => {
     log.error("Redis Client Error", err);
     process.exit(1);

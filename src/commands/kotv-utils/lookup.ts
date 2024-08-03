@@ -335,14 +335,17 @@ async function handleAdd(interaction: ChatInputCommandInteraction, user: User, a
 
   fetchApiUrl(add).then(async (data) => {
     // The api nicely tells us how many objects were returned
-    if (data.returned == 0) {
+    if (data.returned == 0 || data.returned == undefined || data.error) {
       interaction.reply({
-        content: `Character ${add} does not exist!`,
+        content: `Character ${add} does not exist, or the API is down. Please try again later. If you are sure this character exists, please contact <@${
+          FetchEnvs().OWNER_IDS[0]
+        }>`,
         ephemeral: true,
       });
       return;
     }
     var character;
+    console.log(data);
     if (data.character_list[0]) {
       character = data.character_list[0];
     } else {

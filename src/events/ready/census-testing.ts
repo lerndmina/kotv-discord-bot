@@ -109,7 +109,7 @@ export async function updateCensusStatus(
   updateInstantly = false
 ) {
   const env = FetchEnvs();
-  const censusUrl = `https://census.daybreakgames.com/s:${env.CENSUS_KEY}/get/ps2:v2/world/`;
+  const censusUrl = `https://census.daybreakgames.com/s:${env.CENSUS_KEY}/json/get/ps2:v2/character/?name.first_lower=awildlerndmina&c:join=outfit_member`;
 
   let censusStatusMsg = "🟢 Census API is online. Character linking should work.";
   let fields: any = [];
@@ -124,8 +124,9 @@ export async function updateCensusStatus(
       }, 30_000);
     });
     const data = await Promise.race([fetchCensus(censusUrl), timeout]);
-    if (!data || !data.returned) {
-      throw new Error("Census returned no data");
+    console.debug("Census Data: ", data);
+    if (!data || !data.returned || data.error) {
+      throw new Error("Census returned no data, or an error.");
     } else {
       onlinePings++;
     }

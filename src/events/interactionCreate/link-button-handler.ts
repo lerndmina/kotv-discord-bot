@@ -44,9 +44,11 @@ export default async (interaction: MessageComponentInteraction, client: Client<t
     try {
       const censusStatusData = (await db.findOne(CensusStatus, { id: 1 })) as CensusStatusType;
       if (censusStatusData?.isOffline) {
-        interaction.reply(
-          "The bot has detected that the census API is offline. Please try again later, please notify a preacher if you think this is a mistake."
-        );
+        interaction.reply({
+          content:
+            "The bot has detected that the census API is offline. Please try again later, please notify a preacher if you think this is a mistake.",
+          ephemeral: true,
+        });
         return;
       }
       await handleLinkInteraction(interaction, client);

@@ -6,6 +6,8 @@ import { fetchApiUrl, sleep } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
 import logger from "fancy-log";
 import FetchEnvs from "../../utils/FetchEnvs";
+import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
+import Database from "../../utils/data/database";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")
@@ -19,6 +21,10 @@ export const options: CommandOptions = {
   guildOnly: false,
   deleted: false,
 };
+
+let censusData: any;
+let censusError: boolean = false;
+const db = new Database();
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   setCommandCooldown(globalCooldownKey(interaction.commandName), 15);
@@ -34,9 +40,6 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   const latencyString = latency.toString() + "ms";
 
   var wsPing = interaction.client.ws.ping;
-
-  let censusData: any;
-  let censusError: boolean = false;
 
   const fields = [
     { name: "Websocket", value: `${wsPing}ms`, inline: false },
@@ -59,6 +62,12 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   });
 
   let censusErrorString = "";
+
+  const censusStatusData = (await db.findOne(CensusStatus, { id: 1 })) as CensusStatusType;
+  if (censusStatusData?.isOffline) {
+    censusError = true;
+    censusErrorString = "Census is currently offline, or has returned an invalid response.";
+  }
 
   const startTime = Date.now();
   try {

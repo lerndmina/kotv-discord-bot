@@ -79,7 +79,7 @@ export default async (c: Client<true>, client: Client<true>, handler: CommandKit
   }, CHECK_INTERVAL);
 };
 
-async function getCensusStatusMessage(client: Client<true>) {
+export async function getCensusStatusMessage(client: Client<true>) {
   const getter = new ThingGetter(client);
   try {
     const channel = await getter.getChannel(KOTV_CENSUS_INFO_CHANNEL);

@@ -23,6 +23,8 @@ import {
   setCommandCooldown,
 } from "../../Bot";
 import FetchEnvs from "../../utils/FetchEnvs";
+import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
+import Database from "../../utils/data/database";
 
 const COMMAND_NAME = "lookup";
 
@@ -50,6 +52,8 @@ export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
 };
+
+const db = new Database();
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
   const user = interaction.options.getUser("user")!;
@@ -327,6 +331,20 @@ async function handleAdd(interaction: ChatInputCommandInteraction, user: User, a
           interaction.client,
           "Error",
           `User <@${user.id}> \`${user.id}\` is already linked to a Planetside 2 character.`
+        ),
+      ],
+      ephemeral: true,
+    });
+  }
+
+  const censusStatusData = (await db.findOne(CensusStatus, { id: 1 })) as CensusStatusType;
+  if (censusStatusData?.isOffline) {
+    return interaction.reply({
+      embeds: [
+        BasicEmbed(
+          interaction.client,
+          "Error",
+          `My records show that the Census API is currently offline. Please try again later.`
         ),
       ],
       ephemeral: true,

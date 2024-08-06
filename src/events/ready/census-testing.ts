@@ -124,8 +124,8 @@ export async function updateCensusStatus(
       }, 30_000);
     });
     const data = await Promise.race([fetchCensus(censusUrl), timeout]);
-    console.debug("Census Data: ", data);
     if (!data || !data.returned || data.error) {
+      console.debug("Census Data: ", data);
       throw new Error("Census returned no data, or an error.");
     } else {
       onlinePings++;

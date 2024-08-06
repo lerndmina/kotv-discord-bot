@@ -107,8 +107,6 @@ async function handleLinkInteraction(
       // stop the function
       return;
     }
-  } else {
-    alreadyLinkedMsg = "";
   }
 
   const modal = new ModalBuilder().setCustomId(MODAL_ID).setTitle("Link your account");

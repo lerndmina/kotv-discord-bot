@@ -128,7 +128,7 @@ export async function updateCensusStatus(
     if (!data || !data.returned || data.error) {
       console.debug("Census Data: ", data);
       throw new Error("Census returned no data, or an error.");
-    } else if (!data.character_list[0].character_id_join_outfit_member.outfit_id) {
+    } else if (!data.character_list[0].character_id_join_outfit_member) {
       console.debug("Census Data: ", data);
       fields.push({
         name: "Specific Error",

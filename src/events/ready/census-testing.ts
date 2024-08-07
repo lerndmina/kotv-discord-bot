@@ -130,11 +130,6 @@ export async function updateCensusStatus(
       throw new Error("Census returned no data, or an error.");
     } else if (!data.character_list[0].character_id_join_outfit_member) {
       console.debug("Census Data: ", data);
-      fields.push({
-        name: "Specific Error",
-        value: "Census is not returning outfit data correctly.",
-        inline: false,
-      });
       throw new Error("Census is not returning outfit data correctly.");
     } else {
       onlinePings++;

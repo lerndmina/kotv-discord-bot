@@ -30,8 +30,8 @@ import { editMessage } from "../../utils/messages/editMessage";
 
 let offlinePings = 0;
 let onlinePings = 0;
-const MAX_OFFLINE_PINGS = 3;
-const MAX_ONLINE_PINGS = 3;
+const MAX_OFFLINE_PINGS = 6;
+const MAX_ONLINE_PINGS = 6;
 const CHECK_INTERVAL_MINS = 5;
 const CHECK_INTERVAL = CHECK_INTERVAL_MINS * 60 * 1000;
 let lastChangeData: CensusStatusType;
@@ -112,7 +112,8 @@ export async function updateCensusStatus(
   const env = FetchEnvs();
   const censusUrl = `https://census.daybreakgames.com/s:${env.CENSUS_KEY}/json/get/ps2:v2/character/?name.first_lower=awildlerndmina&c:join=outfit_member`;
 
-  let censusStatusMsg = "🟢 Census API is online. Character linking should work.";
+  const ONLINE_MESSAGE = "🟢 Census API is online. Character linking should work.";
+  let censusStatusMsg = ONLINE_MESSAGE;
   let fields: any = [];
 
   debugMsg(`Upate instantly: ${updateInstantly}`);
@@ -129,6 +130,7 @@ export async function updateCensusStatus(
       console.debug("Census Data: ", data);
       throw new Error("Census returned no data, or an error.");
     } else if (!data.character_list[0].character_id_join_outfit_member) {
+      censusStatusMsg = "🔴 Census API is returning bad data. Character linking will not work.";
       console.debug("Census Data: ", data);
       throw new Error("Census is not returning outfit data correctly.");
     } else {
@@ -138,7 +140,8 @@ export async function updateCensusStatus(
     offlinePings++;
     log.error(`Census Error: ${error}`);
     log.error(`Census is offline. Offline pings: ${offlinePings}`);
-    censusStatusMsg = "🔴 Census API is **offline** or has provided invalid data.";
+    if (censusStatusMsg === ONLINE_MESSAGE)
+      censusStatusMsg = "🔴 Census API is **offline**. Character linking will not work.";
     fields = [
       {
         name: "Impact",

@@ -14,6 +14,7 @@ import { log } from "itsasht-logger";
 import {
   KOTV_CENSUS_INFO_CHANNEL,
   KOTV_CENSUS_INFO_MESSAGE,
+  OUTFIT_ID,
   redisClient,
   stopTimer,
 } from "../../Bot";
@@ -127,6 +128,9 @@ export async function updateCensusStatus(
     if (!data || !data.returned || data.error) {
       console.debug("Census Data: ", data);
       throw new Error("Census returned no data, or an error.");
+    } else if (!data.character_list[0].character_id_join_outfit_member.outfit_id) {
+      console.debug("Census Data: ", data);
+      throw new Error("Census is not returning outfit data correctly.");
     } else {
       onlinePings++;
     }

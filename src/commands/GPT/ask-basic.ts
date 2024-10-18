@@ -44,7 +44,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   try {
     // Send the message to OpenAI to be processed
     response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: conversation as any,
       // max_tokens: 256, // limit token usage
     });

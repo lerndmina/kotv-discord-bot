@@ -1,17 +1,21 @@
+import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder } from "discord.js";
 import { log } from "itsasht-logger";
-import BasicEmbed from "../../utils/BasicEmbed";
-import { CommandOptions, SlashCommandProps } from "commandkit";
+import { setCommandCooldown, userCooldownKey, waitingEmoji } from "../../Bot";
 
 export const data = new SlashCommandBuilder()
   .setName("therules")
   .setDescription("Tell someone to read the rules.")
-  .setDMPermission(true);
+  .setDMPermission(false);
 
 export const options: CommandOptions = {
   devOnly: false,
+  deleted: false,
 };
 
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  interaction.reply("https://therules.fyi/");
+  await interaction.reply({ content: waitingEmoji, ephemeral: false });
+  setCommandCooldown(userCooldownKey(interaction.user.id, interaction.commandName), 30);
+
+  interaction.editReply("https://therules.fyi/");
 }

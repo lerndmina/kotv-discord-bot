@@ -77,7 +77,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
       BasicEmbed(
         client,
         messages[rand],
-        `This command has been ran ${counter} time(s)\n\n||Blame Schinu...||\n\n*This command will self distruct <t:1712012400:R>*`
+        `This command has been ran ${counter} time(s)\n\n||Blame Schinu...||`
       ),
     ],
   });

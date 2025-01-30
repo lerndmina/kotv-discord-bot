@@ -6,7 +6,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import log from "../../utils/log";
-import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
+import { globalCooldownKey, KOTV_PREACHER_ROLE, setCommandCooldown, waitingEmoji } from "../../Bot";
 import Database from "../../utils/data/database";
 import BibiChannels from "../../models/BibiChannels";
 import { ThingGetter } from "../../utils/TinyUtils";
@@ -35,8 +35,6 @@ export const options: CommandOptions = {
   devOnly: false,
   deleted: false,
 };
-
-const requiredAdminPermissions: PermissionResolvable[] = ["ManageChannels"];
 const requiredBotPermissions: PermissionResolvable[] = [
   "AddReactions",
   "ReadMessageHistory",
@@ -57,11 +55,19 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
   }
   const getter = new ThingGetter(client);
   const member = await getter.getMember(interaction.guild, interaction.user.id);
+  const role = await getter.getRole(interaction.guild, KOTV_PREACHER_ROLE);
+  if (!role) {
+    log.error("Preacher role not found.");
+    return interaction.reply({
+      content: "Preacher role not found.",
+      ephemeral: true,
+    });
+  }
 
   // Check if the user has the required permissions.
-  if (!member?.permissions.has(requiredAdminPermissions)) {
+  if (!member?.roles.cache.has(role.id)) {
     return interaction.reply({
-      content: "You do not have the required permissions to use this command.",
+      content: "You do not have the required role to use this command.",
       ephemeral: true,
     });
   }

@@ -1,12 +1,12 @@
 import { ActivityType, type ActivityOptions, type Client, PresenceStatusData } from "discord.js";
 import type { CommandKit } from "commandkit";
-import log from "fancy-log";
 import { redisClient } from "../../Bot";
 import Database from "../../utils/data/database";
 import Settings, { SettingsType } from "../../models/Settings";
 import { ActivityEnum } from "../../commands/utilities/settings";
 import { debugMsg } from "../../utils/TinyUtils";
 import TicTacToeSchema, { TicTacToeSchemaType } from "../../models/TicTacToeSchema";
+import log from "../../utils/log";
 const db = new Database();
 
 export default async (c: Client<true>, client: Client<true>, handler: CommandKit) => {

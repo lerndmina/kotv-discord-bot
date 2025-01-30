@@ -3,7 +3,7 @@ import { ThingGetter } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { postToZiplineInstance } from "../../commands/utilities/message";
 import { Client, Message } from "discord.js";
-import log from "fancy-log";
+import log from "../../utils/log";
 
 export default async function ({ interaction, client, handler }: SlashCommandProps) {
   const url = new URL(interaction.options.getString("url", true));

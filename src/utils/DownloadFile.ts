@@ -1,8 +1,8 @@
 import https from "https";
-import log from "fancy-log";
 import fs from "fs";
 import { URL } from "url";
 import { debugMsg } from "./TinyUtils";
+import log from "./log";
 
 export default async function (url: URL, name: string, type: string) {
   return new Promise<boolean>((resolve, reject) => {
@@ -11,7 +11,7 @@ export default async function (url: URL, name: string, type: string) {
         const path = `${name}.${type}`;
         const writeStream = fs.createWriteStream(path);
 
-        res.pipe(writeStream);
+        res.pipe(writeStream as any);
 
         writeStream.on("finish", () => {
           writeStream.close();

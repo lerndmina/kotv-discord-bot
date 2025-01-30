@@ -1,7 +1,7 @@
 import { SnowflakeUtil } from "discord.js";
-import * as log from "fancy-log";
 
 import dotenv from "dotenv";
+import log from "./log";
 dotenv.config();
 
 const OPTIONAL_STRING = "optional";

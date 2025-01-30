@@ -1,7 +1,3 @@
-import FetchEnvs from "./FetchEnvs";
-
-const env = FetchEnvs();
-
 const colors = {
   reset: "\x1b[0m",
   dim: "\x1b[2m",
@@ -48,7 +44,7 @@ const log = Object.assign(
       );
     },
     debug: (...args: unknown[]) => {
-      if (!env.DEBUG_LOG) return;
+      if (process.env.DEBUG_LOG !== "true") return;
       console.log(
         `${colors.dim}[${formatTime()}]${colors.reset} ${colors.debug}[DEBUG]${
           colors.reset

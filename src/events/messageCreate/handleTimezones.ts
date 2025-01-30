@@ -1,9 +1,9 @@
 import { ButtonBuilder, ButtonStyle, ChannelType, Client, Message, MessageType } from "discord.js";
-import log from "fancy-log";
 import ParseTimeFromMessage from "../../utils/ParseTimeFromMessage";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { ThingGetter, getTimeMessage, sleep } from "../../utils/TinyUtils";
 import ButtonWrapper from "../../utils/ButtonWrapper";
+import log from "../../utils/log";
 
 export default async function (message: Message, client: Client<true>) {
   if (message.author.bot) return;

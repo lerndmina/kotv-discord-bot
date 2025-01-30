@@ -9,13 +9,13 @@ import {
   Collection,
   SlashCommandBuilder,
 } from "discord.js";
-import log from "fancy-log";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey, waitingEmoji } from "../../Bot";
 import generateHelpFields from "../../utils/data/static/generateHelpFields";
 import Database from "../../utils/data/database";
 import TicTacToeSchema, { TicTacToeSchemaType } from "../../models/TicTacToeSchema";
 import { debugMsg } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
+import log from "../../utils/log";
 
 const db = new Database();
 

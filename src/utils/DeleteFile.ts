@@ -1,6 +1,6 @@
 import fs from "fs";
-import log from "fancy-log";
 import { debugMsg } from "./TinyUtils";
+import log from "./log";
 
 export default function (name: string, type: string) {
   const filename = `${name}.${type}`;

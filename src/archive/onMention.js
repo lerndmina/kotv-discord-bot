@@ -1,6 +1,5 @@
 const { Client, Message, EmbedBuilder } = require("discord.js");
 const { Configuration, OpenAIApi } = require("openai");
-var log = require("fancy-log");
 const FetchEnvs = require("../utils/FetchEnvs");
 
 const systemPrompt = require("../utils/SystemPrompt");

@@ -20,13 +20,13 @@ import {
 import BasicEmbed from "../../utils/BasicEmbed";
 import { ThingGetter, debugMsg, sleep } from "../../utils/TinyUtils";
 import { CommandOptions, SlashCommandProps } from "commandkit";
-import log from "fancy-log";
 import ms from "ms";
 import Database from "../../utils/data/database";
 import PollsSchema, { PollsType } from "../../models/PollsSchema";
 import { getPollEmbed } from "../../events/interactionCreate/poll-interaction";
 import { waitForPollEnd } from "../../events/ready/checkpolls";
 import { channel } from "diagnostics_channel";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("poll")

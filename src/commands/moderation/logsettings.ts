@@ -12,10 +12,10 @@ import {
   StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
 import BasicEmbed from "../../utils/BasicEmbed";
-import log from "fancy-log";
 import Database from "../../utils/data/database";
 import LogSchema, { LogSchemaType } from "../../models/LogSchema";
 import FetchEnvs from "../../utils/FetchEnvs";
+import log from "../../utils/log";
 const env = FetchEnvs();
 
 export enum LogTypes {

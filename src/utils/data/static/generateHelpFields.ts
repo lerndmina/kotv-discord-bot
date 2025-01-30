@@ -2,7 +2,7 @@ import path from "path";
 import GetAllFiles from "../../GetAllFiles";
 import { Client, EmbedField, Snowflake } from "discord.js";
 import { debugMsg } from "../../TinyUtils";
-import log from "fancy-log";
+import log from "../../log";
 
 const COMMAND_HELP_MAX_LENGTH = 128;
 

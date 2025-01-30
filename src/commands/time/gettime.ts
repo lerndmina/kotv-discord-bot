@@ -1,6 +1,5 @@
 import type { CommandData, SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import log from "fancy-log";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import ParseTimeFromMessage from "../../utils/ParseTimeFromMessage";
 import BasicEmbed from "../../utils/BasicEmbed";

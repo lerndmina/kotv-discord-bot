@@ -11,7 +11,6 @@ import {
   TextBasedChannel,
   User,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import linkUser from "../../models/linkUserSchema";
 import {
   setCommandCooldown,
@@ -26,6 +25,7 @@ import { fetchRealtime, fetchApiUrl, debugMsg, ThingGetter } from "../../utils/T
 import FetchEnvs from "../../utils/FetchEnvs";
 import Database from "../../utils/data/database";
 import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
+import log from "../../utils/log";
 const env = FetchEnvs();
 const db = new Database();
 

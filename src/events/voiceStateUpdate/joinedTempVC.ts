@@ -7,12 +7,12 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import GuildNewVC from "../../models/GuildNewVC";
 import ActiveTempChannels from "../../models/ActiveTempChannels";
 import BasicEmbed from "../../utils/BasicEmbed";
 import ButtonWrapper from "../../utils/ButtonWrapper";
 import ms from "ms";
+import log from "../../utils/log";
 
 /**
  *

@@ -1,14 +1,13 @@
 import type { CommandData, SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import { fetchApiUrl, sleep } from "../../utils/TinyUtils";
 import BasicEmbed from "../../utils/BasicEmbed";
-import logger from "fancy-log";
 import FetchEnvs from "../../utils/FetchEnvs";
 import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 import Database from "../../utils/data/database";
 import { getCensusStatusMessage, updateCensusStatus } from "../../events/ready/census-testing";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")

@@ -1,11 +1,11 @@
 import { SlashCommandBuilder, Client } from "discord.js";
 import OpenAI from "openai";
 import BasicEmbed from "../../utils/BasicEmbed";
-import { log } from "itsasht-logger";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
 import { returnMessage } from "../../utils/TinyUtils";
+import log from "../../utils/log";
 const env = FetchEnvs();
 
 export const data = new SlashCommandBuilder()

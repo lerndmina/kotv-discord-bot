@@ -5,7 +5,6 @@ import {
   Role,
   RepliableInteraction,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import Database from "../../utils/data/database";
 import DontAtMeRole from "../../models/DontAtMeRole";
 import { waitingEmoji } from "../../Bot";

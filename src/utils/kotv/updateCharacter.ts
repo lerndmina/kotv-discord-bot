@@ -1,8 +1,8 @@
 import { GuildMember, User } from "discord.js";
-import { log } from "itsasht-logger";
 import { OUTFIT_ID, KOTV_GUEST_ROLE, KOTV_VOID_SERVANT_ROLE } from "../../Bot";
 import linkUserSchema from "../../models/linkUserSchema";
 import { debugMsg, fetchApiReturnCharacter } from "../TinyUtils";
+import log from "../log";
 
 /**
  * @param {GuildMember} guildMember

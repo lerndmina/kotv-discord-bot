@@ -1,6 +1,6 @@
 import { Client, RepliableInteraction } from "discord.js";
 import BasicEmbed from "../BasicEmbed";
-import { log } from "itsasht-logger";
+import log from "../log";
 
 export default class BaseError {
   error: any;

@@ -23,7 +23,6 @@ import {
   GuildTextBasedChannel,
 } from "discord.js";
 import FetchEnvs from "./FetchEnvs";
-import { log } from "itsasht-logger";
 import BasicEmbed from "./BasicEmbed";
 import { Url } from "url";
 import chalk from "chalk";
@@ -31,6 +30,7 @@ import { ParsedTime } from "./ParseTimeFromMessage";
 import ButtonWrapper from "./ButtonWrapper";
 import { KOTV_PREACHER_ROLE } from "../Bot";
 import { randomUUID } from "crypto";
+import log from "./log";
 
 const env = FetchEnvs();
 
@@ -166,12 +166,7 @@ export class ThingGetter {
 }
 
 export function debugMsg(msg: string | Object) {
-  if (!env.DEBUG_LOG) return;
-  if (msg instanceof Object) {
-    console.log(msg);
-  } else {
-    log.info(`DEBUG: ${msg}`);
-  }
+  log.debug(msg);
 }
 
 export async function returnMessage(

@@ -1,6 +1,6 @@
 import { Client, Snowflake, VoiceChannel, VoiceState } from "discord.js";
-import { log } from "itsasht-logger";
 import ActiveTempChannels from "../../models/ActiveTempChannels";
+import log from "../../utils/log";
 
 export default async (oldState: VoiceState, newState: VoiceState, client: Client) => {
   if (oldState.channelId == null) return;

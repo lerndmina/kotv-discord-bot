@@ -1,6 +1,6 @@
 import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { SlashCommandBuilder } from "discord.js";
-import { log } from "itsasht-logger";
+import log from "../../utils/log";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import generateHelpFields from "../../utils/data/static/generateHelpFields";
 

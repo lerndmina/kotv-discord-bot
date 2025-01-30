@@ -1,11 +1,11 @@
 import { Client, Message, REST, Routes, Snowflake } from "discord.js";
 import fs from "fs";
 import path from "path";
-import { log } from "itsasht-logger";
 import DeleteMessage from "./DeleteMessage";
 import BasicEmbed from "./BasicEmbed";
 import FetchEnvs from "./FetchEnvs";
 import { assert } from "console";
+import log from "./log";
 
 const env = FetchEnvs();
 

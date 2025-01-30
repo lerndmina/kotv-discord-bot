@@ -3,8 +3,8 @@ import type { CommandKit } from "commandkit";
 import PollsSchema, { PollsType } from "../../models/PollsSchema";
 import Database from "../../utils/data/database";
 import { ThingGetter, debugMsg, sleep } from "../../utils/TinyUtils";
-import { log } from "itsasht-logger";
 import { endPoll } from "../interactionCreate/poll-interaction";
+import log from "../../utils/log";
 /**
  *
  * @param {Client} c

@@ -20,7 +20,6 @@ import {
   Snowflake,
 } from "discord.js";
 import { ButtonBuilder, ButtonStyle, SlashCommandBuilder } from "discord.js";
-import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import Modmail from "../../models/Modmail";
 import ModmailConfig from "../../models/ModmailConfig";
@@ -37,6 +36,7 @@ import Database from "../../utils/data/database";
 import { Url } from "url";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { debug } from "console";
+import log from "../../utils/log";
 const env = FetchEnvs();
 
 const MAX_TITLE_LENGTH = 50;

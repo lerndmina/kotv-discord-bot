@@ -1,5 +1,4 @@
 import { MessageMentions } from "discord.js";
-import { log } from "itsasht-logger";
 import FetchEnvs from "./FetchEnvs";
 
 const env = FetchEnvs();

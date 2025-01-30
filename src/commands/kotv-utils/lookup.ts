@@ -14,7 +14,6 @@ import {
 import BasicEmbed from "../../utils/BasicEmbed";
 import linkUserSchema from "../../models/linkUserSchema";
 import { ThingGetter, fetchApiUrl, fetchRealtime } from "../../utils/TinyUtils";
-import { log } from "itsasht-logger";
 import {
   KOTV_GUEST_ROLE,
   KOTV_VOID_SERVANT_ROLE,
@@ -25,6 +24,7 @@ import {
 import FetchEnvs from "../../utils/FetchEnvs";
 import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 import Database from "../../utils/data/database";
+import log from "../../utils/log";
 
 const COMMAND_NAME = "lookup";
 

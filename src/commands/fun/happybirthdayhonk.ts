@@ -1,6 +1,5 @@
 import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey, waitingEmoji } from "../../Bot";
 import { ThingGetter, sleep } from "../../utils/TinyUtils";
 import FetchEnvs from "../../utils/FetchEnvs";
@@ -31,7 +30,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
 
   //if (now > aprilSecond) {
   //  return interaction.editReply("<a:PeepoGetfucked:1213269620304126023>");
- // }
+  // }
 
   const db = new Database();
 

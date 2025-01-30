@@ -21,9 +21,9 @@ import {
   UserSelectMenuBuilder,
   StringSelectMenuInteraction,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import ms from "ms";
+import log from "../../utils/log";
 
 const interactionBanUser = "tempvc-ban-user-menu";
 const interactionPostBanMenu = "tempvc-ban";

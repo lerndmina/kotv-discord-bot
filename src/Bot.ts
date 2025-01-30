@@ -8,13 +8,13 @@ import {
 } from "discord.js";
 import { CommandKit } from "commandkit";
 import path from "path";
-import { log } from "itsasht-logger";
 import mongoose, { Collection } from "mongoose";
 import { config as dotenvConfig } from "dotenv";
 import { createClient } from "redis";
 import fetchEnvs from "./utils/FetchEnvs";
 import { debugMsg } from "./utils/TinyUtils";
 import LoggingHandler from "./utils/LoggingHandler";
+import log from "./utils/log";
 const env = fetchEnvs();
 
 export const Start = async () => {
@@ -140,7 +140,7 @@ export function globalCooldownKey(commandName: string) {
 export const setCommandCooldown = async function (key: string, cooldownSeconds: number) {
   const time = Date.now() + cooldownSeconds * 1000;
   const setting = await redisClient.set(key, time);
-  debugMsg(
+  log.debug(
     setting
       ? `Set cooldown for ${key} for ${cooldownSeconds}s`
       : `Failed to set cooldown for ${key}`
@@ -167,6 +167,7 @@ export function stopTimer() {
 export const redisClient = createClient({
   url: env.REDIS_URL,
 })
+  //@ts-expect-error
   .on("error", (err) => {
     log.error("Redis Client Error", err);
     process.exit(1);

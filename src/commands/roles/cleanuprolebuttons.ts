@@ -1,5 +1,4 @@
 import { SlashCommandBuilder, Message, TextBasedChannel, ComponentType } from "discord.js";
-import { log } from "itsasht-logger";
 import { ROLE_BUTTON_PREFIX, waitingEmoji } from "../../Bot";
 import RoleButtons from "../../models/RoleButtons";
 import BasicEmbed from "../../utils/BasicEmbed";
@@ -8,6 +7,7 @@ import { debugMsg } from "../../utils/TinyUtils";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { UUID } from "crypto";
 import { Channel } from "diagnostics_channel";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("cleanuprolebuttons")

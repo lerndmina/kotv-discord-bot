@@ -7,11 +7,11 @@ import {
   ChannelType,
   ThreadChannel,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import syncCommands from "../../utils/unregister-commands";
 import BasicEmbed from "../../utils/BasicEmbed";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { debugMsg, isVoiceMessage } from "../../utils/TinyUtils";
+import log from "../../utils/log";
 
 const env = FetchEnvs();
 

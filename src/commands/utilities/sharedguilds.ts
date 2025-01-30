@@ -7,11 +7,11 @@ import {
   MessageComponentInteraction,
   CacheType,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { ThingGetter } from "../../utils/TinyUtils";
 import { StringSelectMenuBuilder, ActionRowBuilder } from "discord.js";
 import { SlashCommandProps } from "commandkit";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("sharedguilds")

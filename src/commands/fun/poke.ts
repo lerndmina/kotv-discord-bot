@@ -4,7 +4,6 @@ import { userMention } from "discord.js";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { returnMessage } from "../../utils/TinyUtils";
 import { setCommandCooldown, userCooldownKey } from "../../Bot";
-import logger from "fancy-log";
 
 export const data = new SlashCommandBuilder()
   .setName("poke")

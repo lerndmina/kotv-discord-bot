@@ -1,6 +1,5 @@
 import type { SlashCommandProps, CommandOptions } from "commandkit";
 import { ButtonBuilder, ButtonStyle, SlashCommandBuilder, TextChannel } from "discord.js";
-import { log } from "itsasht-logger";
 import {
   KOTV_GUEST_ROLE,
   KOTV_VOID_SERVANT_ROLE,

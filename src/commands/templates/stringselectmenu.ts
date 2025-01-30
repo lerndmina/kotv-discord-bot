@@ -7,11 +7,11 @@ import {
   StringSelectMenuInteraction,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import generateHelpFields from "../../utils/data/static/generateHelpFields";
 import { LogTypes } from "../moderation/logsettings";
 import BasicEmbed from "../../utils/BasicEmbed";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("stringselectmenu")

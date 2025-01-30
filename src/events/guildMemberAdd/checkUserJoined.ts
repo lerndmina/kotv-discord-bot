@@ -1,7 +1,7 @@
 import { Client, GuildMember } from "discord.js";
 import linkUserSchema from "../../models/linkUserSchema";
-import { log } from "itsasht-logger";
 import updateCharacter from "../../utils/kotv/updateCharacter";
+import log from "../../utils/log";
 
 /**
  *

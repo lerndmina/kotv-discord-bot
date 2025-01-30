@@ -1,12 +1,11 @@
 import { SlashCommandBuilder, Client } from "discord.js";
 import OpenAI from "openai";
 import BasicEmbed from "../../utils/BasicEmbed";
-import { log } from "itsasht-logger";
+import log from "../../utils/log";
 import FetchEnvs from "../../utils/FetchEnvs";
 import { CommandOptions, SlashCommandProps } from "commandkit";
 import { globalCooldownKey, setCommandCooldown, userCooldownKey } from "../../Bot";
 import { ObjectExpressionOperatorReturningObject } from "mongoose";
-import logger from "fancy-log";
 const env = FetchEnvs();
 
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
@@ -50,7 +49,7 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     });
   } catch (error: unknown) {
     log.error(`OpenAI Error:`);
-    logger.error(error);
+    log.error(error);
   }
 
   if (!response || !response.choices[0] || !response.choices[0].message.content) {

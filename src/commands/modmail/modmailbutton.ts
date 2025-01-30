@@ -6,7 +6,6 @@ import {
   SlashCommandBuilder,
   TextChannel,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import ButtonWrapper from "../../utils/ButtonWrapper";
 import BasicEmbed from "../../utils/BasicEmbed";

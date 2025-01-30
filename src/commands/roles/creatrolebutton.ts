@@ -15,7 +15,6 @@ import {
   Message,
 } from "discord.js";
 
-import { log } from "itsasht-logger";
 import { json } from "stream/consumers";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { debuglog } from "util";

@@ -5,7 +5,6 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
-import { log } from "itsasht-logger";
 import { ChannelType } from "discord.js";
 import { Channel } from "diagnostics_channel";
 
@@ -13,6 +12,7 @@ import GuildNewVC from "../../models/GuildNewVC";
 import { ThingGetter } from "../../utils/TinyUtils";
 import { CommandData, CommandOptions, CommandProps, SlashCommandProps } from "commandkit";
 import { KOTV_PREACHER_ROLE } from "../../Bot";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("tempvc")

@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
+import log from "./log";
 
 const { DiscordAPIError } = require("discord.js");
-import { log } from "itsasht-logger";
 
 export default async function (message: Message, time: number) {
   if (time == undefined) time = 0;

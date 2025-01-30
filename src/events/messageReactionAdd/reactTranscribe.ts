@@ -12,11 +12,11 @@ import {
   User,
   ThreadChannel,
 } from "discord.js";
-import { log } from "itsasht-logger";
 import TranscribeMessage from "../../utils/TranscribeMessage";
 import FetchEnvs from "../../utils/FetchEnvs";
 import BasicEmbed from "../../utils/BasicEmbed";
 import DeleteMessage from "../../utils/DeleteMessage";
+import log from "../../utils/log";
 
 const env = FetchEnvs();
 

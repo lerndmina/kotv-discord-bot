@@ -1,4 +1,3 @@
-import { log } from "itsasht-logger";
 import {
   userCooldownKey,
   guildCooldownKey,

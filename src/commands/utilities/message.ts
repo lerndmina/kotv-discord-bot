@@ -10,7 +10,6 @@ import DownloadFile from "../../utils/DownloadFile";
 import { readFileSync } from "fs";
 import DeleteFile from "../../utils/DeleteFile";
 import { waitingEmoji } from "../../Bot";
-import { log } from "itsasht-logger";
 import axios from "axios";
 import FetchEnvs from "../../utils/FetchEnvs";
 const env = FetchEnvs();

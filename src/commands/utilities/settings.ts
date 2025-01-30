@@ -1,6 +1,5 @@
 import type { SlashCommandProps, CommandOptions, CommandKit } from "commandkit";
 import { ActivityType, ChatInputCommandInteraction, Client, SlashCommandBuilder } from "discord.js";
-import { log } from "itsasht-logger";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import FetchEnvs from "../../utils/FetchEnvs";
 import BasicEmbed from "../../utils/BasicEmbed";

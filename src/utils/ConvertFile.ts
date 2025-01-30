@@ -1,6 +1,6 @@
 import ffmpeg from "fluent-ffmpeg";
-import { log } from "itsasht-logger";
 import DeleteFile from "./DeleteFile";
+import log from "./log";
 
 export default async function (name: string, oldType: string, newType: string) {
   return new Promise<void>((resolve, reject) => {

@@ -10,7 +10,6 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import type { CommandKit } from "commandkit";
-import { log } from "itsasht-logger";
 import {
   KOTV_CENSUS_INFO_CHANNEL,
   KOTV_CENSUS_INFO_MESSAGE,
@@ -27,6 +26,7 @@ import CensusStatus, { CensusStatusType } from "../../models/CensusStatus";
 import { Model } from "mongoose";
 import { debug } from "console";
 import { editMessage } from "../../utils/messages/editMessage";
+import log from "../../utils/log";
 
 let offlinePings = 0;
 let onlinePings = 0;

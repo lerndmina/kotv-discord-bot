@@ -2,7 +2,7 @@ import { CommandOptions, SlashCommandProps } from "commandkit";
 import { EmbedField, SlashCommandBuilder } from "discord.js";
 import BasicEmbed from "../../utils/BasicEmbed";
 import { globalCooldownKey, setCommandCooldown } from "../../Bot";
-import { log } from "itsasht-logger";
+import log from "../../utils/log";
 
 const COMMAND_NAME = "population";
 

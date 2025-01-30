@@ -20,9 +20,9 @@ import { debugMsg, ThingGetter } from "./TinyUtils";
 import BasicEmbed from "./BasicEmbed";
 import { LogTypes } from "../commands/moderation/logsettings";
 import FetchEnvs from "./FetchEnvs";
-import logger from "fancy-log";
 import LogSchema, { LogSchemaType } from "../models/LogSchema";
 import { diffWords } from "diff";
+import log from "./log";
 
 const db = new Database();
 const env = FetchEnvs();
@@ -235,7 +235,7 @@ export default class LoggingHandler {
         allowedMentions: { parse: [] },
       });
     } catch (error) {
-      logger.error(error);
+      log.error(error);
       return;
     }
   };

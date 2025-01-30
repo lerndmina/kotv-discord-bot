@@ -1,6 +1,5 @@
 import { SlashCommandProps } from "commandkit";
 import { debugMsg, ThingGetter } from "../../utils/TinyUtils";
-import logger from "fancy-log";
 import { messageAttachmentProcessor } from "../../commands/utilities/message";
 import { MessageEditOptions } from "discord.js";
 

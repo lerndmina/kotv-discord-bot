@@ -1,9 +1,9 @@
 import { BaseInteraction, Client, AutocompleteInteraction } from "discord.js";
-import { log } from "itsasht-logger";
 import TagSchema from "../../models/TagSchema";
 import { upperCaseFirstLetter, getTagKey, getTagName, debugMsg } from "../../utils/TinyUtils";
 import { redisClient } from "../../Bot";
 import Database from "../../utils/data/database";
+import log from "../../utils/log";
 const COMMAND_NAME = "tag";
 
 export default async (interaction: AutocompleteInteraction, client: Client<true>) => {

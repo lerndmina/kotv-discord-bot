@@ -1,5 +1,4 @@
 import { Message, Client, ChannelType } from "discord.js";
-import { log } from "itsasht-logger";
 import Database from "../../utils/data/database";
 import { ThingGetter, debugMsg } from "../../utils/TinyUtils";
 import RoleButtons from "../../models/RoleButtons";
@@ -9,6 +8,7 @@ import BasicEmbed from "../../utils/BasicEmbed";
 import fetchEnvs from "../../utils/FetchEnvs";
 import { redisClient } from "../../Bot";
 import { debug, error } from "console";
+import log from "../../utils/log";
 const env = fetchEnvs();
 
 /**

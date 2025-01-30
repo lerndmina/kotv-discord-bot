@@ -4,8 +4,8 @@ import Modmail from "../../models/Modmail";
 import { waitingEmoji } from "../../Bot";
 import { ThingGetter } from "../../utils/TinyUtils";
 import Database from "../../utils/data/database";
-import { log } from "itsasht-logger";
 import { CommandOptions, SlashCommandProps } from "commandkit";
+import log from "../../utils/log";
 
 export const data = new SlashCommandBuilder()
   .setName("close")

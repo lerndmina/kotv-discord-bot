@@ -1,9 +1,15 @@
 import type { SlashCommandProps, CommandOptions } from "commandkit";
-import { ChatInputCommandInteraction, Guild, SlashCommandBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  Guild,
+  PermissionResolvable,
+  SlashCommandBuilder,
+} from "discord.js";
 import log from "../../utils/log";
 import { globalCooldownKey, setCommandCooldown, waitingEmoji } from "../../Bot";
 import Database from "../../utils/data/database";
 import BibiChannels from "../../models/BibiChannels";
+import { ThingGetter } from "../../utils/TinyUtils";
 
 export const data = new SlashCommandBuilder()
   .setName("bibichannels")
@@ -30,9 +36,14 @@ export const options: CommandOptions = {
   deleted: false,
 };
 
+const requiredAdminPermissions: PermissionResolvable[] = ["ManageChannels"];
+const requiredBotPermissions: PermissionResolvable[] = [
+  "AddReactions",
+  "ReadMessageHistory",
+  "ViewChannel",
+];
+
 export async function run({ interaction, client, handler }: SlashCommandProps) {
-  const requiredAdminPermissions = ["MANAGE_CHANNELS"];
-  const requiredBotPermissions = ["ADD_REACTIONS", "READ_MESSAGE_HISTORY", "VIEW_CHANNEL"];
   const validchoices = ["add", "remove", "list", "clear"];
   const channel = interaction.options.getChannel("channel");
   const choice = interaction.options.getString("action");
@@ -41,6 +52,16 @@ export async function run({ interaction, client, handler }: SlashCommandProps) {
     // Technically this should never happen, but just in case.
     return interaction.reply({
       content: "This command can only be used in a server.",
+      ephemeral: true,
+    });
+  }
+  const getter = new ThingGetter(client);
+  const member = await getter.getMember(interaction.guild, interaction.user.id);
+
+  // Check if the user has the required permissions.
+  if (!member?.permissions.has(requiredAdminPermissions)) {
+    return interaction.reply({
+      content: "You do not have the required permissions to use this command.",
       ephemeral: true,
     });
   }
@@ -81,6 +102,16 @@ async function addChannel(channel: any, interaction: ChatInputCommandInteraction
     });
   }
   if (!interaction.guild) return;
+
+  // Check if the bot has the required permissions for the channel.
+  if (!channel.permissionsFor(interaction.guild.members.me!)?.has(requiredBotPermissions)) {
+    return interaction.reply({
+      content: `I need the following permissions in the channel: ${requiredBotPermissions.join(
+        ", "
+      )}`,
+      ephemeral: true,
+    });
+  }
 
   const data = await db.findOne(BibiChannels, { guildID: interaction.guild.id });
   const channels = data?.channelIDs || [];

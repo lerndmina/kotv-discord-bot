@@ -163,6 +163,10 @@ export default class Database {
     return keys;
   }
 
+  getCacheKeys(Schema: any, keyQuery: string) {
+    return `${env.MONGODB_DATABASE}:${Schema.name}:${keyQuery}`;
+  }
+
   /**
    * @description Stores a key value pair in the cache with an optional cache time in seconds
    */

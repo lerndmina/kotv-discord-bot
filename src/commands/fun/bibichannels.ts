@@ -32,7 +32,7 @@ export const data = new SlashCommandBuilder()
   .setDMPermission(false);
 
 export const options: CommandOptions = {
-  devOnly: true,
+  devOnly: false,
   deleted: false,
 };
 
